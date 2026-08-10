@@ -35,31 +35,30 @@ const toolLinks: NavBarLink[] = [
 		icon: "material-symbols:grid-view-outline-rounded",
 	},
 ];
+const avatarSrc = profileConfig.avatar || "/favicon/shijies-nook.svg";
 ---
 
 <header
 	id="navbar"
 	class:list={[
 		className,
-		"nav-shell z-50 w-full border-b border-white/10 bg-[var(--page-bg)]/95",
+		"z-50 w-full border-b border-[var(--border)]/40 bg-[var(--background)]/80 backdrop-blur-md",
 	]}
 >
-	<div class="mx-auto flex h-11 max-w-[var(--site-shell-width)] items-center justify-between px-3 sm:px-4">
+	<div class="mx-auto flex h-14 max-w-[var(--site-shell-width)] items-center justify-between gap-4 px-3 sm:px-4">
 		<a
 			href={url("/")}
 			aria-label={siteConfig.title}
-			class="group flex min-w-0 items-center gap-2 font-semibold tracking-tight"
+			class="flex min-w-0 items-center gap-2 font-semibold tracking-tight"
 		>
-			<span class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 bg-white/[0.04]">
-				<img
-					src={profileConfig.avatar || "/favicon/shijies-nook.svg"}
-					alt=""
-					class="h-full w-full object-cover p-0.5"
-					width="28"
-					height="28"
-				/>
-			</span>
-			<span class="truncate text-sm font-bold text-white/90">{siteConfig.title}</span>
+			<img
+				src={avatarSrc}
+				alt=""
+				width="28"
+				height="28"
+				class="h-7 w-7 rounded-full object-cover"
+			/>
+			<span class="truncate text-sm text-[var(--foreground)]">{siteConfig.title}</span>
 		</a>
 
 		<nav class="hidden items-center gap-1 md:flex" aria-label="主导航">
@@ -68,13 +67,10 @@ const toolLinks: NavBarLink[] = [
 					href={link.external ? link.url : url(link.url)}
 					target={link.external ? "_blank" : null}
 					rel={link.external ? "noopener noreferrer" : null}
-					class="group flex h-9 items-center gap-1.5 rounded-md px-2.5 text-sm text-white/62 transition-colors hover:bg-white/[0.07] hover:text-white"
+					class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 				>
 					{link.icon && (
-						<Icon
-							name={link.icon}
-							class="text-[1rem] text-white/45 transition-colors group-hover:text-white/75"
-						/>
+						<Icon name={link.icon} class="size-4 text-[var(--muted-foreground)]" />
 					)}
 					<span>{link.name}</span>
 				</a>
@@ -82,30 +78,24 @@ const toolLinks: NavBarLink[] = [
 
 			{toolsLink && (
 				<details class="group relative">
-					<summary class="flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-md px-2.5 text-sm text-white/62 transition-colors hover:bg-white/[0.07] hover:text-white">
+					<summary class="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]">
 						{toolsLink.icon && (
-							<Icon
-								name={toolsLink.icon}
-								class="text-[1rem] text-white/45 transition-colors group-hover:text-white/75"
-							/>
+							<Icon name={toolsLink.icon} class="size-4 text-[var(--muted-foreground)]" />
 						)}
 						<span>{toolsLink.name}</span>
 						<Icon
 							name="material-symbols:keyboard-arrow-down-rounded"
-							class="text-[1rem] text-white/38 transition group-open:rotate-180"
+							class="size-4 text-[var(--muted-foreground)] transition group-open:rotate-180"
 						/>
 					</summary>
-					<div class="absolute right-0 top-full mt-1 w-56 rounded-lg border border-white/10 bg-[var(--float-panel-bg-opaque)] p-2 shadow-xl">
+					<div class="absolute left-0 top-full z-50 mt-2 w-max min-w-32 border border-[var(--foreground)]/80 bg-[var(--popover)] p-1 font-mono text-[var(--popover-foreground)]">
 						{toolLinks.map((link) => (
 							<a
 								href={url(link.url)}
-								class="group/tool flex items-center gap-2 rounded-md px-3 py-2 text-sm text-white/68 transition hover:bg-white/[0.07] hover:text-white"
+								class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)] focus:bg-[var(--foreground)] focus:text-[var(--background)]"
 							>
 								{link.icon && (
-									<Icon
-										name={link.icon}
-										class="text-[1rem] text-white/42 transition group-hover/tool:text-white/75"
-									/>
+									<Icon name={link.icon} class="size-4 text-[var(--muted-foreground)]" />
 								)}
 								<span>{link.name}</span>
 							</a>
@@ -118,31 +108,54 @@ const toolLinks: NavBarLink[] = [
 		<details class="relative shrink-0 md:hidden">
 			<summary
 				aria-label="打开菜单"
-				class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-md text-white/72 transition hover:bg-white/[0.07] hover:text-white"
+				class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 			>
 				<Icon name="material-symbols:menu-rounded" class="text-[1.35rem]"></Icon>
 			</summary>
-			<div class="fixed inset-x-0 top-11 border-b border-white/10 bg-[var(--page-bg)] p-3 shadow-xl">
-				<nav class="mx-auto grid max-w-[var(--site-shell-width)] gap-1" aria-label="移动主导航">
+			<div class="absolute right-0 top-full flex h-[calc(100dvh-3.5rem)] w-72 flex-col overflow-y-auto border-l border-[var(--border)] bg-[var(--background)] p-4">
+				<div class="flex items-center gap-2.5 text-sm font-semibold">
+					<img
+						src={avatarSrc}
+						alt=""
+						width="24"
+						height="24"
+						class="h-6 w-6 rounded-full object-cover"
+					/>
+					<span>{siteConfig.title}</span>
+				</div>
+				<div class="mt-6 flex flex-1 flex-col gap-1">
 					{primaryLinks.map((link) => (
 						<a
-							href={url(link.url)}
-							class="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm text-white/72 transition hover:bg-white/[0.07] hover:text-white"
+							href={link.external ? link.url : url(link.url)}
+							target={link.external ? "_blank" : null}
+							rel={link.external ? "noopener noreferrer" : null}
+							class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 						>
-							{link.icon && <Icon name={link.icon} class="text-[1rem] text-white/45" />}
+							{link.icon && (
+								<Icon name={link.icon} class="size-4 shrink-0 text-[var(--muted-foreground)]" />
+							)}
 							<span>{link.name}</span>
 						</a>
 					))}
-					<div class="mt-2 border-t border-white/10 pt-2">
-						<a
-							href={url("/tools/")}
-							class="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm text-white/72 transition hover:bg-white/[0.07] hover:text-white"
-						>
-							<Icon name="material-symbols:business-center-outline-rounded" class="text-[1rem] text-white/45" />
-							<span>工具</span>
-						</a>
-					</div>
-				</nav>
+					{toolLinks.length > 0 && (
+						<>
+							<div class="mb-1 mt-3 px-3">
+								<p class="text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]/80">
+									工具
+								</p>
+							</div>
+							{toolLinks.map((link) => (
+								<a
+									href={url(link.url)}
+									class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
+								>
+									<Icon name={link.icon} class="size-4 shrink-0 text-[var(--muted-foreground)]" />
+									<span>{link.name}</span>
+								</a>
+							))}
+						</>
+					)}
+				</div>
 			</div>
 		</details>
 	</div>
