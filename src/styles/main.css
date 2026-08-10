@@ -149,12 +149,14 @@
 
 html {
     overflow-y: scroll;
-    overflow-x: hidden;
+    overflow-x: clip;
     scrollbar-gutter: stable;
 }
 
 body {
-    overflow-x: hidden;
+    /* 使用 clip 而非 hidden：hidden 会把 overflow-y 计算为 auto，使 body 成为滚动容器，
+       导致 position: sticky 的导航栏与侧边栏失效（页面实际滚动发生在 html 上）。 */
+    overflow-x: clip;
     overflow-y: visible;
     color: var(--foreground);
     background: var(--page-bg);

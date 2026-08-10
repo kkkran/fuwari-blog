@@ -42,7 +42,7 @@ const avatarSrc = profileConfig.avatar || "/favicon/shijies-nook.svg";
 	id="navbar"
 	class:list={[
 		className,
-		"z-50 w-full border-b border-[var(--border)]/40 bg-[var(--background)]/80 backdrop-blur-md",
+		"relative z-50 w-full border-b border-[var(--border)]/40 bg-[var(--background)]/80 backdrop-blur-md",
 	]}
 >
 	<div class="mx-auto flex h-14 max-w-[var(--site-shell-width)] items-center justify-between gap-4 px-3 sm:px-4">
@@ -159,4 +159,39 @@ const avatarSrc = profileConfig.avatar || "/favicon/shijies-nook.svg";
 			</div>
 		</details>
 	</div>
+
+	<!-- 页面滚动进度条：贴在导航栏底部，随页面滚动更新宽度 -->
+	<div
+		id="scroll-progress"
+		class="absolute bottom-0 left-0 h-[3px] w-full origin-left scale-x-0 bg-[var(--primary)] will-change-transform"
+		aria-hidden="true"
+	></div>
 </header>
+
+<script>
+	// 页面滚动进度：scaleX(0~1) 表示当前阅读/滚动进度
+	function updateScrollProgress() {
+		const bar = document.getElementById("scroll-progress");
+		if (!bar) return;
+		const doc = document.documentElement;
+		const scrollTop = doc.scrollTop || document.body.scrollTop;
+		const scrollHeight = doc.scrollHeight - doc.clientHeight;
+		const progress =
+			scrollHeight > 0 ? Math.min(1, scrollTop / scrollHeight) : 0;
+		bar.style.transform = `scaleX(${progress})`;
+	}
+
+	window.addEventListener("scroll", updateScrollProgress, { passive: true });
+	window.addEventListener("resize", updateScrollProgress);
+
+	function initScrollProgress() {
+		updateScrollProgress();
+	}
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", initScrollProgress, {
+			once: true,
+		});
+	} else {
+		initScrollProgress();
+	}
+</script>

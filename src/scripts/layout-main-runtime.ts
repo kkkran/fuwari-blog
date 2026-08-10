@@ -2,8 +2,6 @@ import { siteConfig } from "../config";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
-	BANNER_HEIGHT_HOME,
-	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import { bindPostInlineDiff } from "../scripts/post-inline-diff";
 
@@ -171,12 +169,10 @@ document.addEventListener("DOMContentLoaded", () => {
 let backToTopBtn = document.getElementById("back-to-top-btn");
 let goToCommentsBtn = document.getElementById("go-to-comments-btn");
 let toc = document.getElementById("toc-wrapper");
-let navbar = document.getElementById("navbar-wrapper");
 function refreshControlRefs() {
 	backToTopBtn = document.getElementById("back-to-top-btn");
 	goToCommentsBtn = document.getElementById("go-to-comments-btn");
 	toc = document.getElementById("toc-wrapper");
-	navbar = document.getElementById("navbar-wrapper");
 }
 function scrollFunction() {
 	refreshControlRefs();
@@ -210,33 +206,6 @@ function scrollFunction() {
 			toc.classList.remove("toc-hide");
 		} else {
 			toc.classList.add("toc-hide");
-		}
-	}
-
-	if (!bannerEnabled) return;
-	if (navbar) {
-		const NAVBAR_HEIGHT = 72;
-		const MAIN_PANEL_EXCESS_HEIGHT = MAIN_PANEL_OVERLAPS_BANNER_HEIGHT * 16;
-
-		let bannerHeight = BANNER_HEIGHT;
-		if (
-			document.body.classList.contains("lg:is-home") &&
-			window.innerWidth >= 1024
-		) {
-			bannerHeight = BANNER_HEIGHT_HOME;
-		}
-		const threshold =
-			window.innerHeight * (bannerHeight / 100) -
-			NAVBAR_HEIGHT -
-			MAIN_PANEL_EXCESS_HEIGHT -
-			16;
-		if (
-			document.body.scrollTop >= threshold ||
-			document.documentElement.scrollTop >= threshold
-		) {
-			navbar.classList.add("navbar-hidden");
-		} else {
-			navbar.classList.remove("navbar-hidden");
 		}
 	}
 }

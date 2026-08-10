@@ -46,11 +46,11 @@ const nookLinks = [
 ];
 ---
 
-<div id="sidebar" class="w-full">
+<div id="sidebar" class="h-full w-full">
 	<div class="mb-3 flex w-full flex-col gap-3">
 		<Profile />
 	</div>
-	<div id="sidebar-sticky" class="sticky top-4 flex w-full flex-col gap-3" style="top: calc(var(--navbar-offset, 0px) + 0.75rem);">
+	<div id="sidebar-sticky" class="sticky flex w-full flex-col gap-3" style="top: calc(var(--navbar-offset, 0px) + var(--header-height) + 0.75rem);">
 		<div id="sidebar-timetable">
 			<a href="/timetable/" class="block" aria-label="前往课程表">
 				<LiveTimetableStatus payload={sidebarLiveStatusPayload} class="live-status-card" />
