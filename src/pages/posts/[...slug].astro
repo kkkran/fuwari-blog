@@ -1,25 +1,16 @@
 ---
 import path from "node:path";
-import License from "@components/misc/License.astro";
-import Markdown from "@components/misc/Markdown.astro";
-
-import AIInvolvementCard from "@components/widget/AIInvolvementCard.astro";
-import DiffDebugEditor from "@components/widget/DiffDebugEditor.astro";
-import PostUpdateNotice from "@components/widget/PostUpdateNotice.astro";
-import MainGridLayout from "@layouts/MainGridLayout.astro";
-import { getSortedPosts } from "@utils/content-utils";
-import { getCommitUrl, getPostHistory } from "@utils/git-history";
-import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import Icon from "@components/Icon.astro";
+import Markdown from "@components/misc/Markdown.astro";
+import TOC from "@components/widget/TOC.astro";
+import SiteShellLayout from "@layouts/SiteShellLayout.astro";
+import { getSortedPosts } from "@utils/content-utils";
+import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { render } from "astro:content";
-import { gitHubEditConfig, licenseConfig, serviceConfig } from "src/config";
 import PostMetadata from "../../components/PostMeta.astro";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
-import { profileConfig, siteConfig } from "../../config";
-import {
-	formatDateToYYYYMMDD,
-	formatPostDateForDisplay,
-} from "../../utils/date-utils";
+import { profileConfig, serviceConfig, siteConfig } from "../../config";
+import { formatDateToYYYYMMDD } from "../../utils/date-utils";
 
 export async function getStaticPaths() {
 	const blogEntries = await getSortedPosts();
@@ -31,10 +22,6 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
-
-const history = getPostHistory(entry.id);
-const lastUpdateTime =
-	history[0]?.date || entry.data.updated || entry.data.published;
 
 const jsonLd = [
 	{
@@ -85,381 +72,189 @@ const jsonLd = [
 		],
 	},
 ];
+
+const tags = entry.data.tags ?? [];
+const hasNext = !!entry.data.nextSlug;
+const hasPrev = !!entry.data.prevSlug;
 ---
-<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} ogImage={entry.data.image} headings={headings}>
-    <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
-    <div class="flex w-full overflow-hidden relative mb-4">
-        <div id="post-container" class:list={["card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full",
-            {}
-        ]}>
-            <!-- word count and reading time -->
-            <div class="flex flex-row text-white/30 gap-5 mb-3">
-                <div class="flex flex-row items-center">
-                    <div class="h-6 w-6 rounded-md bg-white/10 text-white/50 flex items-center justify-center mr-2">
-                        <Icon name="material-symbols:notes-rounded"></Icon>
-                    </div>
-                    <div class="text-sm">{remarkPluginFrontmatter.words} 字</div>
-                </div>
-                <div class="flex flex-row items-center">
-                    <div class="h-6 w-6 rounded-md bg-white/10 text-white/50 flex items-center justify-center mr-2">
-                        <Icon name="material-symbols:schedule-outline-rounded"></Icon>
-                    </div>
-                    <div class="text-sm">{remarkPluginFrontmatter.minutes} 分钟</div>
-                </div>
-            </div>
 
-            <!-- title -->
-            <div class="relative">                <div
-                    id="post-title"
-                    data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title"
-                    class="w-full flex items-center font-bold mb-3
-                    text-3xl md:text-[2.25rem]/[2.75rem]
-                    text-white/90
-                    md:before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
-                    before:absolute before:top-[0.75rem] before:left-[-1.125rem]
-                ">
+<SiteShellLayout
+	title={entry.data.title}
+	description={entry.data.description}
+	lang={entry.data.lang}
+	setOGTypeArticle={true}
+	ogImage={entry.data.image}
+>
+	<script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 
-                    <span>{entry.data.title}</span>
-                </div>
-            </div>
+	<div class="grid grid-cols-1 gap-8 py-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+		<article class="min-w-0 max-w-3xl">
+			<!-- 返回列表 -->
+			<a
+				href="/blog/"
+				class="mb-4 inline-flex items-center gap-1 border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+			>
+				<Icon name="material-symbols:arrow-back-rounded" class="size-4" />
+				返回列表
+			</a>
 
-            <!-- description/excerpt -->
-            {(entry.data.description || remarkPluginFrontmatter.excerpt) && (
-                <div class="mb-4">
-                    <div id="post-description" class="text-white/75 text-sm leading-relaxed">
-                        {entry.data.description || remarkPluginFrontmatter.excerpt}
-                    </div>
-                </div>
-            )}
+			<!-- 标题 -->
+			<h1
+				id="post-title"
+				data-pagefind-body
+				data-pagefind-weight="10"
+				data-pagefind-meta="title"
+				class="text-3xl font-bold tracking-tight"
+			>
+				{entry.data.title}
+			</h1>
 
-            <!-- AI involvement -->
-            {entry.data.ai_level && (
-                <div>
-                    <AIInvolvementCard level={entry.data.ai_level} />
-                </div>
-            )}
+			<!-- 描述 -->
+			{(entry.data.description || remarkPluginFrontmatter.excerpt) && (
+				<p class="mt-4 text-base leading-relaxed text-[var(--muted-foreground)]">
+					{entry.data.description || remarkPluginFrontmatter.excerpt}
+				</p>
+			)}
 
-            <!-- metadata -->
-            <div>
-                <PostMetadata
-                        class="mb-5"
-                        published={entry.data.published}
-                        updated={entry.data.updated}
-                        tags={entry.data.tags}
-                        slug={entry.id}
-                ></PostMetadata>
-                {!entry.data.image && <div class="border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>}
-            </div>
+			<!-- meta -->
+			<div class="mb-6 mt-3">
+				<PostMetadata
+					published={entry.data.published}
+					updated={entry.data.updated}
+				></PostMetadata>
+				<span class="ml-2 font-mono text-xs text-[var(--muted-foreground)]">
+					· {remarkPluginFrontmatter.minutes} 分钟
+				</span>
+			</div>
 
-            <!-- always show cover as long as it has one -->
+			<!-- 封面 -->
+			{entry.data.image && (
+				<ImageWrapper
+					id="post-cover"
+					src={entry.data.image}
+					basePath={path.join("content/posts/", getDir(entry.id))}
+					class="mt-6 w-full cursor-zoom-in object-cover aspect-video"
+				/>
+			)}
 
-            {entry.data.image &&
-                <ImageWrapper id="post-cover" src={entry.data.image} basePath={path.join("content/posts/", getDir(entry.id))} class="mb-8 banner-container"/>
-            }
+			<!-- 正文 -->
+			<div class="mt-8">
+				<Markdown class="markdown-content">
+					<Content />
+				</Markdown>
+			</div>
 
+			<!-- 标签 -->
+			{tags.length > 0 && (
+				<div class="mt-8 flex flex-wrap gap-2">
+					{tags.map((tag) => (
+						<span
+							class="rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]"
+						>
+							{tag}
+						</span>
+					))}
+				</div>
+			)}
 
-			<DiffDebugEditor />
+			<!-- 上一篇 / 下一篇 -->
+			<div class="mt-8 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-6 sm:grid-cols-2">
+				{hasNext ? (
+					<a
+						href={getPostUrlBySlug(entry.data.nextSlug)}
+						class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-colors hover:bg-[var(--accent)]"
+					>
+						<div class="text-xs text-[var(--muted-foreground)]">上一篇</div>
+						<div class="mt-1 line-clamp-2 text-sm font-semibold">{entry.data.nextTitle}</div>
+					</a>
+				) : (
+					<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
+				)}
+				{hasPrev ? (
+					<a
+						href={getPostUrlBySlug(entry.data.prevSlug)}
+						class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-right transition-colors hover:bg-[var(--accent)]"
+					>
+						<div class="text-xs text-[var(--muted-foreground)]">下一篇</div>
+						<div class="mt-1 line-clamp-2 text-sm font-semibold">{entry.data.prevTitle}</div>
+					</a>
+				) : (
+					<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
+				)}
+			</div>
 
-			<PostUpdateNotice publishedAt={entry.data.published} lastUpdated={lastUpdateTime} />
+			<!-- Giscus 评论区 -->
+			<div id="giscus-container" class="giscus mt-10"></div>
+			<script is:inline define:vars={{ siteDomain: siteConfig.customDomain }}>
+				function loadGiscus() {
+					const container = document.getElementById('giscus-container');
+					if (!container) return;
 
-            <Markdown class="mb-6 markdown-content">
-                <Content />
-            </Markdown>
+					// 清除旧的 Giscus
+					container.innerHTML = '';
 
-            <!-- 文章反馈与编辑区域 -->
-            <div class="mb-4 p-4 bg-[var(--license-block-bg)] border-t border-b border-[var(--line-divider)]">
-                <!-- 反馈区域 -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="h-5 w-5 bg-[var(--primary)] flex items-center justify-center">
-                            <Icon name="material-symbols:help-outline" class="text-[0.75rem] text-black/70"></Icon>
-                        </div>
-                        <p class="text-white/80 text-sm">这篇文章是否对你有帮助？</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <a href="/posts/pin/" class="group flex items-center gap-1 px-3 py-1.5 bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)] text-[var(--btn-content)] text-xs font-medium transition-all active:scale-95">
-                            <Icon name="material-symbols:contact-mail-outline" class="text-[0.875rem] group-hover:scale-110 transition-transform"></Icon>
-                            联系
-                        </a>
-                        <a href="/donate/" class="group flex items-center gap-1 px-3 py-1.5 bg-[var(--primary)] hover:bg-[oklch(0.65_0.16_var(--hue))] active:bg-[oklch(0.60_0.18_var(--hue))] text-black/80 text-xs font-medium transition-all active:scale-95">
-                            <Icon name="material-symbols:favorite-outline" class="text-[0.875rem] group-hover:scale-110 transition-transform"></Icon>
-                            赞助
-                        </a>
-                    </div>
-                </div>
-                
-                {gitHubEditConfig.enable && (
-                    <>
-                        <!-- 分隔线 -->
-                        <div class="border-t border-[var(--line-divider)] my-3"></div>
-                        
-                        <!-- GitHub编辑区域 -->
-                        <div class="flex items-start gap-3">
-                            <div class="h-5 w-5 bg-[var(--primary)] flex items-center justify-center">
-                                <Icon name="material-symbols:edit-outline" class="text-[0.875rem] text-black/70"></Icon>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-white/80 text-sm mb-1">发现错误或想要改进这篇文章？</p>
-                                <a 
-                                    href={`${gitHubEditConfig.baseUrl}/${entry.id}.md`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex items-center gap-1 text-[var(--primary)] hover:text-[oklch(0.65_0.16_var(--hue))] text-sm font-medium transition-colors"
-                                >
-                                    <Icon name="fa6-brands:github" class="text-[0.875rem]"></Icon>
-                                    在 GitHub 上编辑此页
-                                    <Icon name="material-symbols:open-in-new" class="text-[0.75rem]"></Icon>
-                                </a>
-                            </div>
-                        </div>
+					// 创建新的 script 标签
+					const script = document.createElement('script');
+					script.src = 'https://giscus.app/client.js';
+					script.setAttribute('data-repo', 'miscoke/shijies-nook');
+					script.setAttribute('data-repo-id', 'R_kgDOOi8quw');
+					script.setAttribute('data-category', 'Announcements');
+					script.setAttribute('data-category-id', 'DIC_kwDOOi8qu84CprDV');
+					script.setAttribute('data-mapping', 'pathname');
+					script.setAttribute('data-strict', '1');
+					script.setAttribute('data-reactions-enabled', '1');
+					script.setAttribute('data-emit-metadata', '0');
+					script.setAttribute('data-input-position', 'top');
+					script.setAttribute('data-theme', `https://${siteDomain}/css/giscus.css`);
+					script.setAttribute('data-lang', 'zh-CN');
+					script.setAttribute('data-loading', 'lazy');
+					script.setAttribute('crossorigin', 'anonymous');
+					script.async = true;
 
-                        <!-- 修订历史 -->
-                        {history.length > 0 && (
-                            <div id="revision-history" class="flex items-start gap-3 mt-4 scroll-mt-20">
-                                <div class="h-5 w-5 bg-[var(--primary)] flex items-center justify-center">
-                                    <Icon name="material-symbols:history-rounded" class="text-[0.875rem] text-black/70"></Icon>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-white/80 text-sm mb-1">文章修订历史 ({history.length} 次)</p>
-                                    <details class="group">
-                                        <summary class="cursor-pointer text-sm text-[var(--primary)] font-medium hover:underline select-none">
-                                            查看变更记录
-                                        </summary>
-                                        <div class="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                                            {history.map(commit => (
-                                                <div class="flex flex-col text-xs bg-white/5 p-2">
-                                                    <div class="flex justify-between items-center mb-1">
-														<span class="font-bold text-white/70">{formatPostDateForDisplay(new Date(commit.date))}</span>
-                                                        <a href={getCommitUrl(commit.hash)} target="_blank" class="text-[var(--primary)] hover:underline font-mono">
-                                                            {commit.hash.substring(0, 7)}
-                                                        </a>
-                                                    </div>
-                                                    <p class="text-white/60 break-all">{commit.message}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </details>
-                                </div>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
+					container.appendChild(script);
+				}
 
-            {licenseConfig.enable && <License title={entry.data.title} slug={entry.id} pubDate={entry.data.published} class="mb-6 rounded-xl license-container"></License>}
-            
-            <!-- Giscus 评论区 -->
-            <div id="giscus-container" class="giscus"></div>
-            <script is:inline define:vars={{ siteDomain: siteConfig.customDomain }}>
-                function loadGiscus() {
-                    const container = document.getElementById('giscus-container');
-                    if (!container) return;
-                    
-                    // 清除旧的 Giscus
-                    container.innerHTML = '';
-                    
-                    // 创建新的 script 标签
-                    const script = document.createElement('script');
-                    script.src = 'https://giscus.app/client.js';
-                    script.setAttribute('data-repo', 'miscoke/shijies-nook');
-                    script.setAttribute('data-repo-id', 'R_kgDOOi8quw');
-                    script.setAttribute('data-category', 'Announcements');
-                    script.setAttribute('data-category-id', 'DIC_kwDOOi8qu84CprDV');
-                    script.setAttribute('data-mapping', 'pathname');
-                    script.setAttribute('data-strict', '1');
-                    script.setAttribute('data-reactions-enabled', '1');
-                    script.setAttribute('data-emit-metadata', '0');
-                    script.setAttribute('data-input-position', 'top');
-                    script.setAttribute('data-theme', `https://${siteDomain}/css/giscus.css`);
-                    script.setAttribute('data-lang', 'zh-CN');
-                    script.setAttribute('data-loading', 'lazy');
-                    script.setAttribute('crossorigin', 'anonymous');
-                    script.async = true;
-                    
-                    container.appendChild(script);
-                }
-                
-                // 页面加载时加载 Giscus
-                loadGiscus();
-            </script>
-    <br>
+				// 页面加载时加载 Giscus
+				loadGiscus();
+			</script>
+		</article>
 
-    <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">
-        <a href={entry.data.nextSlug ? getPostUrlBySlug(entry.data.nextSlug) : "#"}
-           class:list={["w-full font-bold overflow-hidden active:scale-95", {"pointer-events-none": !entry.data.nextSlug}]}>
-            {entry.data.nextSlug && <div class="btn-card w-full h-[3.75rem] max-w-full px-4 flex items-center !justify-start gap-4 border-t border-white/10" >
-                <Icon name="material-symbols:chevron-left-rounded" class="text-[2rem] text-[var(--primary)]" />
-                <div class="overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-white/75">
-                    {entry.data.nextTitle}
-                </div>
-            </div>}
-        </a>
+		<!-- 右侧 TOC -->
+		{siteConfig.toc.enable && (
+			<aside class="hidden xl:block">
+				<div class="sticky top-20">
+					<div id="toc-inner-wrapper" class="max-h-[calc(100vh-6rem)] overflow-y-auto">
+						<TOC headings={headings} />
+					</div>
+				</div>
+			</aside>
+		)}
+	</div>
+</SiteShellLayout>
 
-        <a href={entry.data.prevSlug ? getPostUrlBySlug(entry.data.prevSlug) : "#"}
-           class:list={["w-full font-bold overflow-hidden active:scale-95", {"pointer-events-none": !entry.data.prevSlug}]}>
-            {entry.data.prevSlug && <div class="btn-card w-full h-[3.75rem] max-w-full px-4 flex items-center !justify-end gap-4 border-t border-white/10" >
-                <div class="overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-white/75">
-                    {entry.data.prevTitle}
-                </div>
-                <Icon name="material-symbols:chevron-right-rounded" class="text-[2rem] text-[var(--primary)]" />
-            </div>}
-        </a>
-    </div>
+<script define:vars={{ assetsBaseUrl: serviceConfig.assetsBaseUrl }}>
+	// 随机封面图替换
+	function setupRandomCovers() {
+		const covers = document.querySelectorAll('.post-cover-random');
+		if (!covers.length) return;
+		const max = 1176;
+		for (const img of covers) {
+			const n = Math.floor(Math.random() * max) + 1;
+			img.src = `${assetsBaseUrl}/ri/h/${n}.webp`;
+		}
+	}
 
-</MainGridLayout>
-
-<style>
-    .post-container :global(img) {
-        opacity: 1;
-    }
-</style>
-
-<script define:vars={{ siteConfig, assetsBaseUrl: serviceConfig.assetsBaseUrl }}>
-    // 图片加载处理 (仅用于图片回退逻辑)
-    function setupImageLoading() {
-        // 保留此函数用于将来的其他处理，或者彻底删除
-    }
-
-    function setupPostPageEnhancements() {
-        setupImageLoading();
-    }
-
-    // 随机封面图替换
-    function setupRandomCovers() {
-        const covers = document.querySelectorAll('.post-cover-random');
-        if (!covers.length) return;
-        const max = 1176;
-        for (const img of covers) {
-            const n = Math.floor(Math.random() * max) + 1;
-            img.src = `${assetsBaseUrl}/ri/h/${n}.webp`;
-        }
-    }
-
-    // 在页面加载时执行
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            setupPostPageEnhancements();
-            setupRandomCovers();
-        });
-    } else {
-        setupPostPageEnhancements();
-        setupRandomCovers();
-    }
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', setupRandomCovers);
+	} else {
+		setupRandomCovers();
+	}
 </script>
 
 <style is:global>
-    /* 确保包裹容器继承原图的圆角等样式 */
-    .markdown-content img {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-
-    /* 文章 Diff 高亮样式 */
-    .post-inline-diff-add-target {
-        background-color: rgba(134, 239, 172, 0.15);
-        border-left: 3px solid rgb(134 239 172 / 1);
-        padding: 0.25rem 0.5rem;
-        margin: 0.25rem 0;
-        display: inline-block;
-        border-radius: 0.25rem;
-    }
-
-    .post-inline-diff-add-target-img {
-        outline: 2px solid rgb(134 239 172 / 1);
-        outline-offset: 2px;
-        border-radius: 0.5rem;
-        background-color: rgba(134, 239, 172, 0.1);
-    }
-
-    .post-inline-diff-del-line {
-        margin: 0.5rem 0;
-        color: rgb(252 165 165 / 1);
-    }
-
-    .post-inline-diff-del-line del {
-        text-decoration-thickness: 2px;
-        color: rgb(252 165 165 / 1);
-    }
-
-    .post-inline-diff-add-line {
-        margin: 0.5rem 0;
-        background-color: rgba(134, 239, 172, 0.15);
-        border-left: 3px solid rgb(134 239 172 / 1);
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-    }
-
-    .post-inline-diff-add-line .post-inline-diff-add-content {
-        display: inline-block;
-        vertical-align: top;
-        color: rgb(134 239 172 / 1);
-    }
-
-    .post-inline-diff-add-line img,
-    .post-inline-diff-add-content img {
-        outline: 2px solid rgb(134 239 172 / 1);
-        outline-offset: 2px;
-        border-radius: 0.5rem;
-        background-color: rgba(134, 239, 172, 0.1);
-    }
-
-    .post-inline-diff-del-line.post-inline-diff-del-line {
-        list-style: none;
-    }
-
-    .post-inline-diff-del-line img,
-    .post-inline-diff-del-line del img {
-        outline: 2px solid rgb(252 165 165 / 1);
-        outline-offset: 2px;
-        border-radius: 0.5rem;
-        opacity: 0.8;
-    }
-
-    /* 删除的内容 - 强制所有子元素都显示红色 */
-    .post-inline-diff-del-target {
-        color: rgb(252 165 165 / 1) !important;
-        text-decoration-line: line-through;
-        text-decoration-thickness: 2px;
-        text-decoration-color: rgb(252 165 165 / 1);
-    }
-
-    /* 删除内容中的超链接也强制显示红色 */
-    .post-inline-diff-del-target a,
-    .post-inline-diff-del-target a:hover,
-    .post-inline-diff-del-target a:visited {
-        color: rgb(252 165 165 / 1) !important;
-        text-decoration-line: line-through;
-        text-decoration-color: rgb(252 165 165 / 1);
-    }
-
-    /* 删除内容中的所有子元素都强制红色 */
-    .post-inline-diff-del-target * {
-        color: rgb(252 165 165 / 1) !important;
-    }
-
-    h1.post-inline-diff-del-target,
-    h2.post-inline-diff-del-target,
-    h3.post-inline-diff-del-target,
-    h4.post-inline-diff-del-target,
-    h5.post-inline-diff-del-target,
-    h6.post-inline-diff-del-target {
-        color: rgb(252 165 165 / 1) !important;
-        text-decoration-color: rgb(252 165 165 / 1);
-    }
-
-    /* 标题中的超链接也强制红色 */
-    h1.post-inline-diff-del-target a,
-    h2.post-inline-diff-del-target a,
-    h3.post-inline-diff-del-target a,
-    h4.post-inline-diff-del-target a,
-    h5.post-inline-diff-del-target a,
-    h6.post-inline-diff-del-target a {
-        color: rgb(252 165 165 / 1) !important;
-    }
-
-    .post-inline-diff-del-target-img {
-        outline: 2px solid rgb(252 165 165 / 1);
-        outline-offset: 2px;
-        border-radius: 0.5rem;
-    }
+	/* 确保包裹容器继承原图的圆角等样式 */
+	.markdown-content img {
+		margin-top: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+	}
 </style>

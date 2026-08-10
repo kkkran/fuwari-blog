@@ -1,9 +1,5 @@
 ﻿---
-import Icon from "@components/Icon.astro";
-
-import { serviceConfig } from "../config";
 import { formatPostDateForDisplay } from "../utils/date-utils";
-import { url, getDir } from "../utils/url-utils";
 
 interface Props {
 	class: string;
@@ -19,108 +15,24 @@ const {
 	updated,
 	hideUpdateDate = false,
 	hidePublishedDate = false,
-	slug,
 	showTime = true,
 } = Astro.props;
 const className = Astro.props.class;
 ---
 
-<div class:list={["flex flex-wrap text-neutral-400 items-center gap-3 gap-x-3 gap-y-2", className]}>
-    <!-- publish date -->
-    {!hidePublishedDate && (
-        <div class="flex items-center">
-            <div class="meta-icon">
-                <Icon name="material-symbols:schedule-outline-rounded" class="text-xl"></Icon>
-            </div>
-            <span class="text-50 text-xs font-medium">{formatPostDateForDisplay(published, showTime)}</span>
-        </div>
-    )}
-
-    <!-- update date -->
-    {!hideUpdateDate && updated && updated.getTime() !== published.getTime() && (
-        <div class="flex items-center">
-            <div class="meta-icon"
-            >
-                <Icon name="material-symbols:edit-calendar-outline-rounded" class="text-xl"></Icon>
-            </div>
-            <span class="text-50 text-xs font-medium">{formatPostDateForDisplay(updated, showTime)}</span>
-        </div>
-    )}
-
-    <!-- page views & visitors -->
-    {slug && (
-        <>
-            <div class="flex items-center" id={`page-views-wrapper-${slug}`} style="display: none;">
-                <div class="meta-icon">
-                    <Icon name="material-symbols:visibility-outline-rounded" class="text-xl"></Icon>
-                </div>
-                <span class="text-50 text-xs font-medium" id={`page-views-${slug}`}></span>
-            </div>
-            <!--
-            <div class="flex items-center">
-                <div class="meta-icon">
-                    <Icon name="material-symbols:person" class="text-xl"></Icon>
-                </div>
-                <span class="text-50 text-sm font-medium" id={`page-visitors-${slug}`}>0 人</span>
-            </div>
-            -->
-        </>
-    )}
+<div
+	class:list={[
+		"flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[var(--muted-foreground)]",
+		className,
+	]}
+>
+	{!hidePublishedDate && <span>{formatPostDateForDisplay(published, showTime)}</span>}
+	{!hideUpdateDate &&
+		updated &&
+		updated.getTime() !== published.getTime() && (
+			<>
+				<span>·</span>
+				<span>更新于 {formatPostDateForDisplay(updated, showTime)}</span>
+			</>
+		)}
 </div>
-
-{slug && (
-    <script is:inline define:vars={{ slug, trackerBaseUrl: serviceConfig.trackerBaseUrl }}>
-    // 注册需要获取访问量的文章
-    if (!window.__VIEWS_QUEUE__) {
-        window.__VIEWS_QUEUE__ = [];
-        window.__VIEWS_FETCHED__ = false;
-    }
-    window.__VIEWS_QUEUE__.push(slug);
-
-    // 批量获取访问量
-    async function batchFetchPageViews() {
-        // 如果已经获取过或者有排序脚本在处理，跳过
-        if (window.__VIEWS_FETCHED__ || window.__PAGE_POSTS_DATA__) return;
-        window.__VIEWS_FETCHED__ = true;
-
-        const slugs = window.__VIEWS_QUEUE__;
-        if (!slugs.length) return;
-
-        try {
-            const pathnames = slugs.map(s => `/posts/${s}/`);
-            const response = await fetch(`${trackerBaseUrl}/batch`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(pathnames),
-            });
-
-            if (!response.ok) return;
-
-            const views = await response.json();
-
-            // 更新所有文章的访问量
-            slugs.forEach((slug, index) => {
-                const wrapper = document.getElementById(`page-views-wrapper-${slug}`);
-                const viewsElement = document.getElementById(`page-views-${slug}`);
-                if (wrapper && viewsElement) {
-                    const pageViews = views[index] || 0;
-                    viewsElement.textContent = `${pageViews} 次`;
-                    wrapper.style.display = 'flex';
-                }
-            });
-        } catch (error) {
-            // 请求失败，保持隐藏
-        }
-    }
-
-    // 页面加载完成后获取统计数据
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', batchFetchPageViews);
-    } else {
-        // 使用 setTimeout 确保所有组件都注册完成
-        setTimeout(batchFetchPageViews, 0);
-    }
-</script>
-)}
