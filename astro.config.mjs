@@ -10,7 +10,12 @@ import remarkDirective from "remark-directive"; /* Handle directives */
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 import { SKIP, visit } from "unist-util-visit";
-import { imageFallbackConfig, siteConfig } from "./src/config.ts";
+import {
+	imageFallbackConfig,
+	serviceConfig,
+	siteConfig,
+	umamiConfig,
+} from "./src/config.ts";
 import { rehypeAIAdmonition } from "./src/plugins/rehype-ai-admonition.mjs";
 import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
@@ -115,7 +120,7 @@ export default defineConfig({
 		},
 		"/t": {
 			status: 302,
-			destination: `https://i.${siteConfig.customDomain}`,
+			destination: serviceConfig.forumBaseUrl,
 		},
 		"/ak": {
 			status: 302,
@@ -124,7 +129,7 @@ export default defineConfig({
 		},
 		"/yyb": {
 			status: 302,
-			destination: "https://www.rainyun.com/acofork_?s=bilibili",
+			destination: "/sponsors/",
 		},
 		"/wly": {
 			status: 302,
@@ -148,7 +153,7 @@ export default defineConfig({
 		},
 		"/ok": {
 			status: 302,
-			destination: "https://acofork-uptime.zeabur.app/status/acofork",
+			destination: `${serviceConfig.umamiBaseUrl}/share/${umamiConfig.shareId}`,
 		},
 		"/donate": {
 			status: 302,
@@ -165,8 +170,7 @@ export default defineConfig({
 		},
 		"/plan": {
 			status: 302,
-			destination:
-				"https://acofork.notion.site/2e11e011d4e5800fa050e8f7cf448347",
+			destination: "/archive/",
 		},
 		"/iku": {
 			status: 302,
@@ -211,7 +215,7 @@ export default defineConfig({
 				{
 					components: {
 						github: GithubCardComponent,
-						url: UrlCardComponent,
+						url: (x, y) => UrlCardComponent(x, y, serviceConfig.iconMetaBaseUrl),
 						note: (x, y) => AdmonitionComponent(x, y, "note"),
 						tip: (x, y) => AdmonitionComponent(x, y, "tip"),
 						important: (x, y) => AdmonitionComponent(x, y, "important"),

@@ -8,6 +8,7 @@ export const toolMeta = {
 
 import PageCardHeader from "@components/misc/PageCardHeader.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { serviceConfig } from "@/config";
 ---
 
 <MainGridLayout title="画廊">
@@ -22,7 +23,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 		</PageCardHeader>
 
 		<div class="text-sm text-50 mb-5 leading-relaxed">
-			图片二进制自托管于： <a href="https://p.2x.nz" target="_blank" rel="noopener noreferrer" class="font-medium text-75 hover:text-[var(--primary)] transition-colors">https://p.2x.nz</a> 
+			图片二进制自托管于： <a href={serviceConfig.assetsBaseUrl} target="_blank" rel="noopener noreferrer" class="font-medium text-75 hover:text-[var(--primary)] transition-colors">{serviceConfig.assetsBaseUrl}</a> 
             <br>
             特别鸣谢：<b class="font-bold text-75">锦瑟/瑞希</b> 大佬提供的图源
 		</div>
@@ -50,14 +51,14 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 		}
 	</style>
 
-	<script>
+	<script define:vars={{ assetsBaseUrl: serviceConfig.assetsBaseUrl }}>
 		import Masonry from "masonry-layout";
 		import imagesLoaded from "imagesloaded";
 		import { Fancybox } from "@fancyapps/ui";
 		import { fancyboxOptions as baseOptions } from "@utils/fancybox";
 
-		const COUNT_JSON_URL = "https://p.2x.nz/count.json";
-		const DOMAIN = "https://p.2x.nz";
+		const COUNT_JSON_URL = `${assetsBaseUrl}/count.json`;
+		const DOMAIN = assetsBaseUrl;
 
 		let counts = { h: 0, v: 0 };
 		let currentType = "h";

@@ -1,7 +1,8 @@
 ﻿<script lang="ts">
 import Icon from "@components/IconSvelte.svelte";
+import { serviceConfig } from "../config";
 
-export let apiBase = "https://e3.2x.nz/api/";
+export let apiBase = serviceConfig.fileApiBaseUrl;
 
 interface FileItem {
 	id: string;

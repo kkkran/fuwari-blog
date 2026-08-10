@@ -28,6 +28,7 @@ import { formatForumDateTime } from "@/utils/date-utils";
 import Icon from "@components/IconSvelte.svelte";
 import { onDestroy, onMount } from "svelte";
 import { get } from "svelte/store";
+import { siteConfig } from "../../../config";
 
 export let postId = "";
 
@@ -179,7 +180,7 @@ async function loadPost() {
 			},
 		};
 		if (typeof document !== "undefined" && result.title) {
-			document.title = `${result.title} - 《二叉树树》官方网站`;
+			document.title = `${result.title} - ${siteConfig.title}`;
 		}
 	} catch (error) {
 		console.error(error);

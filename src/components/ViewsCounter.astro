@@ -1,5 +1,6 @@
 ﻿---
 import Icon from "@components/Icon.astro";
+import { serviceConfig } from "../config";
 
 type Props = {
 	pathname: string;
@@ -19,7 +20,7 @@ const id =
 	<span class="text-50 text-sm font-medium" id={id}></span>
 </div>
 
-<script define:vars={{ pathname, id, suffix }}>
+<script define:vars={{ pathname, id, suffix, trackerBaseUrl: serviceConfig.trackerBaseUrl }}>
 	async function loadViews() {
 		const wrapper = document.getElementById(`${id}-wrapper`);
 		const el = document.getElementById(id);
@@ -27,7 +28,7 @@ const id =
 		
 		try {
 			const res = await fetch(
-				`https://t.2x.nz/share?pathname=${encodeURIComponent(pathname)}`,
+				`${trackerBaseUrl}/share?pathname=${encodeURIComponent(pathname)}`,
 			);
 			if (!res.ok) return;
 			

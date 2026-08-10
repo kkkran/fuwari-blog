@@ -59,6 +59,10 @@ _bmad-output/
 # Playwright MCP
 .playwright-mcp/
 
+# CodeGraph local index
+.codegraph/
+.preview*.log
+
 # 课表
 src/data/timetable/source/
 

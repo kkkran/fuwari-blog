@@ -40,7 +40,16 @@ export type SiteConfig = {
 		url: string;
 		text: string;
 	}[];
-	customDomain: string; // 统一管理的自定义域名，例如 2x.nz
+	customDomain: string; // 统一管理的自定义域名，例如 miscoke.top
+	serviceDomains: {
+		tracker: string;
+		assets: string;
+		umami: string;
+		forum: string;
+		fileApi: string;
+		iconMeta: string;
+		liveStatus: string;
+	};
 };
 
 export type Favicon = {

@@ -1,3 +1,7 @@
+---
+import { serviceConfig, siteConfig, umamiConfig } from "@/config";
+---
+
 <script type="text/javascript">
 (function () {
 	const load = () => {
@@ -16,7 +20,7 @@
 	window.addEventListener("load", load, { once: true });
 })();
 </script>
-<script type="text/javascript" charset="UTF-8">
+<script type="text/javascript" charset="UTF-8" define:vars={{ siteDomain: siteConfig.customDomain }}>
 (function () {
 	const getPalette = () => {
 		return "dark";
@@ -30,8 +34,8 @@
 		notice_banner_reject_button_hide: false,
 		preferences_center_close_button_hide: false,
 		page_refresh_confirmation_buttons: false,
-		website_name: "AcoFork Blog",
-		website_privacy_policy_url: "https://acofork.com/posts/privacy-policy/",
+		website_name: "世界树栈",
+		website_privacy_policy_url: `https://${siteDomain}/posts/privacy-policy/`,
 	};
 
 	const PERSISTENT_ATTR = "data-cookie-consent-persistent";
@@ -132,8 +136,8 @@
 })();
 </script>
 
-<script data-cookie-consent="strictly-necessary" defer src="https://t.2x.nz/tracker.js"></script>
-<script type="text/plain" data-cookie-consent="strictly-necessary" defer src="https://u.2x.nz/script.js" data-website-id="5d710dbd-3a2e-43e3-a553-97b415090c63"></script>
+<script data-cookie-consent="strictly-necessary" defer src={`${serviceConfig.trackerBaseUrl}/tracker.js`}></script>
+<script type="text/plain" data-cookie-consent="strictly-necessary" defer src={`${umamiConfig.baseUrl}/script.js`} data-website-id="5d710dbd-3a2e-43e3-a553-97b415090c63"></script>
 <script data-cookie-consent="strictly-necessary" defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "15fe148e91b34f10a15652e1a74ab26c"}'></script>
 
 <script>

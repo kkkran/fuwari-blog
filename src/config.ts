@@ -9,32 +9,50 @@ import type {
 } from "./types/config";
 import { LinkPreset } from "./types/config";
 
-const customDomain = "2x.nz";
+const customDomain = "miscoke.top";
+const serviceDomains = {
+	tracker: `t.${customDomain}`,
+	assets: `p.${customDomain}`,
+	umami: `u.${customDomain}`,
+	forum: `i.${customDomain}`,
+	fileApi: `e3.${customDomain}`,
+	iconMeta: `icon.${customDomain}`,
+	liveStatus: `b-live.${customDomain}`,
+};
+
+export const serviceConfig = {
+	trackerBaseUrl: `https://${serviceDomains.tracker}`,
+	assetsBaseUrl: `https://${serviceDomains.assets}`,
+	umamiBaseUrl: `https://${serviceDomains.umami}`,
+	forumBaseUrl: `https://${serviceDomains.forum}`,
+	fileApiBaseUrl: `https://${serviceDomains.fileApi}/api/`,
+	iconMetaBaseUrl: `https://${serviceDomains.iconMeta}`,
+	liveStatusUrl: `https://${serviceDomains.liveStatus}`,
+};
 
 export const siteConfig: SiteConfig = {
 	customDomain,
-	title: "《二叉树树》官方网站",
-	subtitle: "AcoFork",
+	serviceDomains,
+	title: "世界树栈",
+	subtitle: "Shijie’s Nook",
 	description:
-		"《二叉树树》是一个专注于IT/互联网技术分享与实践的个人技术博客，在这里你可以找到众多前沿技术的分享与实践经验。",
+		"世界树栈（Shijie’s Nook）是一个记录技术实验、AI 工作流、数字生活与长期写作的个人知识栈。",
 
 	keywords: [
-		"二叉树树",
-		"二叉树树官网",
-		"树",
-		"二叉树",
-		"二叉",
+		"世界树栈",
+		"Shijie’s Nook",
+		"Shijie Nook",
+		"miscoke",
+		"技术写作",
+		"AI 工作流",
+		"数字花园",
 		"博客",
-		"AcoFork Blog",
-		"AcoFork",
 		"Blog",
-		"acofork blog",
-		"acofork",
 		"blog",
 	],
 	lang: "zh_CN", // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th'
 	themeColor: {
-		hue: 255, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
+		hue: 165, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
 		fixed: true, // Hide the theme color picker for visitors
 	},
 	banner: {
@@ -65,18 +83,17 @@ export const siteConfig: SiteConfig = {
 	favicon: [
 		// Leave this array empty to use the default favicon
 		{
-			src: "https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0", // Path of the favicon, relative to the /public directory
+			src: "/favicon/shijies-nook.svg", // Path of the favicon, relative to the /public directory
 			//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
 		},
 	],
 	officialSites: [
-		{ url: "https://acofork.com", alias: "CN" },
-		{ url: `https://${customDomain}`, alias: "Global" },
+		{ url: `https://${customDomain}`, alias: "Main" },
 	],
 	server: [
 		{ url: "", text: "Blog" },
-		{ url: `https://u.${customDomain}`, text: "Umami" },
-		{ url: `https://p.${customDomain}`, text: "RandomPic" },
+		{ url: serviceConfig.umamiBaseUrl, text: "Umami" },
+		{ url: serviceConfig.assetsBaseUrl, text: "Assets" },
 	],
 };
 
@@ -91,7 +108,7 @@ export const navBarConfig: NavBarConfig = {
 			icon: "material-symbols:group-outline-rounded",
 		},
 		{
-			name: "赞助",
+			name: "支持",
 			url: "/sponsors/",
 			external: false,
 			icon: "material-symbols:volunteer-activism-outline-rounded",
@@ -103,8 +120,8 @@ export const navBarConfig: NavBarConfig = {
 			icon: "material-symbols:build-outline-rounded",
 		},
 		{
-			name: "统计",
-			url: `https://u.${customDomain}/share/CdkXbGgZr6ECKOyK`,
+			name: "状态",
+			url: `${serviceConfig.umamiBaseUrl}/share/CdkXbGgZr6ECKOyK`,
 			external: true,
 			icon: "material-symbols:table-chart",
 		},
@@ -118,34 +135,19 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-	name: "二叉树树",
-	bio: "Protect What You Love.",
+	avatar: "/favicon/shijies-nook.svg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+	name: "世界树栈",
+	bio: "Shijie’s Nook · 写作、实验与工具存放处。",
 	links: [
-		{
-			name: "QQ",
-			icon: "simple-icons:qq",
-			url: "https://qm.qq.com/q/FWqOHlwL2m",
-		},
-		{
-			name: "Telegram",
-			icon: "simple-icons:telegram",
-			url: "https://t.me/+_07DERp7k1ljYTc1",
-		},
-		{
-			name: "Bilibli",
-			icon: "simple-icons:bilibili",
-			url: "https://space.bilibili.com/325903362",
-		},
 		{
 			name: "GitHub",
 			icon: "simple-icons:github",
-			url: "https://github.com/afoim",
+			url: "https://github.com/miscoke",
 		},
 		{
-			name: "Folo",
-			icon: "simple-icons:folo",
-			url: "https://app.folo.is/share/feeds/245004133358075904",
+			name: "RSS",
+			icon: "material-symbols:rss-feed-rounded",
+			url: "/rss.xml",
 		},
 	],
 };
@@ -158,20 +160,20 @@ export const licenseConfig: LicenseConfig = {
 
 export const imageFallbackConfig: ImageFallbackConfig = {
 	enable: false,
-	originalDomain: "https://eopfapi.acofork.com/pic?img=ua",
-	fallbackDomain: "https://eopfapi.acofork.com/pic?img=ua",
+	originalDomain: `${serviceConfig.assetsBaseUrl}/pic?img=ua`,
+	fallbackDomain: `${serviceConfig.assetsBaseUrl}/pic?img=ua`,
 };
 
 export const umamiConfig: UmamiConfig = {
 	enable: true,
-	baseUrl: `https://u.${customDomain}`,
+	baseUrl: serviceConfig.umamiBaseUrl,
 	shareId: "CdkXbGgZr6ECKOyK",
 	timezone: "Asia/Shanghai",
 };
 
 export const gitHubEditConfig: GitHubEditConfig = {
 	enable: true,
-	baseUrl: "https://github.com/afoim/fuwari/blob/main/src/content/posts",
+	baseUrl: "https://github.com/miscoke/shijies-nook/blob/main/src/content/posts",
 };
 
 // todoConfig removed from here

@@ -19,6 +19,7 @@ import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 import Icon from "@components/IconSvelte.svelte";
 import QRCode from "qrcode";
 import { onMount } from "svelte";
+import { siteConfig } from "../../../config";
 
 let user: ForumUser | null = null;
 let loading = true;
@@ -112,8 +113,9 @@ function normalizeTotpUriTitle(uri: string) {
 		const accountName = parsed.pathname.startsWith("/")
 			? parsed.pathname.slice(1).split(":").slice(1).join(":")
 			: "";
-		parsed.pathname = `/${encodeURIComponent(`AcoFork Forum${accountName ? `:${accountName}` : ""}`)}`;
-		parsed.searchParams.set("issuer", "AcoFork Forum");
+		const issuer = `${siteConfig.title} Forum`;
+		parsed.pathname = `/${encodeURIComponent(`${issuer}${accountName ? `:${accountName}` : ""}`)}`;
+		parsed.searchParams.set("issuer", issuer);
 		return parsed.toString();
 	} catch {
 		return uri;

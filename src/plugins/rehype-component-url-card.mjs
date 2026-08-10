@@ -9,7 +9,7 @@ import { h } from "hastscript";
  * @param {import('mdast').RootContent[]} children - The children elements of the component.
  * @returns {import('mdast').Parent} The created URL Card component.
  */
-export function UrlCardComponent(properties, children) {
+export function UrlCardComponent(properties, children, iconMetaBaseUrl = "https://icon.miscoke.top") {
 	if (Array.isArray(children) && children.length !== 0)
 		return h("div", { class: "hidden" }, [
 			'Invalid directive. ("url" directive must be leaf type "::url{href="https://example.com"}")',
@@ -50,7 +50,7 @@ export function UrlCardComponent(properties, children) {
 		`script#${cardUuid}-script`,
 		{ type: "text/javascript", defer: true },
 		`
-      fetch('https://icon.2x.nz/?url=${url}').then(response => response.json()).then(meta => {
+      fetch('${iconMetaBaseUrl}/?url=${url}').then(response => response.json()).then(meta => {
         if (meta && meta.url) {
             document.getElementById('${cardUuid}-title').innerText = meta.title || "${url}";
             document.getElementById('${cardUuid}-description').innerText = meta.description || "No description available";

@@ -12,10 +12,10 @@ import { getCommitUrl, getPostHistory } from "@utils/git-history";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import Icon from "@components/Icon.astro";
 import { render } from "astro:content";
-import { gitHubEditConfig, licenseConfig } from "src/config";
+import { gitHubEditConfig, licenseConfig, serviceConfig } from "src/config";
 import PostMetadata from "../../components/PostMeta.astro";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
-import { profileConfig, siteConfig, umamiConfig } from "../../config";
+import { profileConfig, siteConfig } from "../../config";
 import {
 	formatDateToYYYYMMDD,
 	formatPostDateForDisplay,
@@ -250,7 +250,7 @@ const jsonLd = [
             
             <!-- Giscus 评论区 -->
             <div id="giscus-container" class="giscus"></div>
-            <script is:inline>
+            <script is:inline define:vars={{ siteDomain: siteConfig.customDomain }}>
                 function loadGiscus() {
                     const container = document.getElementById('giscus-container');
                     if (!container) return;
@@ -261,7 +261,7 @@ const jsonLd = [
                     // 创建新的 script 标签
                     const script = document.createElement('script');
                     script.src = 'https://giscus.app/client.js';
-                    script.setAttribute('data-repo', 'afoim/giscus-fuwari');
+                    script.setAttribute('data-repo', 'miscoke/shijies-nook');
                     script.setAttribute('data-repo-id', 'R_kgDOOi8quw');
                     script.setAttribute('data-category', 'Announcements');
                     script.setAttribute('data-category-id', 'DIC_kwDOOi8qu84CprDV');
@@ -270,7 +270,7 @@ const jsonLd = [
                     script.setAttribute('data-reactions-enabled', '1');
                     script.setAttribute('data-emit-metadata', '0');
                     script.setAttribute('data-input-position', 'top');
-                    script.setAttribute('data-theme', 'https://2x.nz/css/giscus.css');
+                    script.setAttribute('data-theme', `https://${siteDomain}/css/giscus.css`);
                     script.setAttribute('data-lang', 'zh-CN');
                     script.setAttribute('data-loading', 'lazy');
                     script.setAttribute('crossorigin', 'anonymous');
@@ -314,7 +314,7 @@ const jsonLd = [
     }
 </style>
 
-<script define:vars={{ siteConfig }}>
+<script define:vars={{ siteConfig, assetsBaseUrl: serviceConfig.assetsBaseUrl }}>
     // 图片加载处理 (仅用于图片回退逻辑)
     function setupImageLoading() {
         // 保留此函数用于将来的其他处理，或者彻底删除
@@ -331,7 +331,7 @@ const jsonLd = [
         const max = 1176;
         for (const img of covers) {
             const n = Math.floor(Math.random() * max) + 1;
-            img.src = `https://p.2x.nz/ri/h/${n}.webp`;
+            img.src = `${assetsBaseUrl}/ri/h/${n}.webp`;
         }
     }
 

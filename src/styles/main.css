@@ -4,17 +4,12 @@
 @tailwind components;
 
 @layer components {
-    /* 全局移除所有圆角 */
-    * {
-        border-radius: 0 !important;
-    }
-
     .card-base {
-        @apply overflow-hidden;
-        @apply border-b border-white/10;
+        @apply overflow-hidden rounded-lg border border-white/10 bg-[var(--card-bg-transparent)];
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
     }
     .card-hover {
-        @apply hover:bg-white/5;
+        @apply transition hover:border-white/20 hover:bg-white/[0.045];
     }
     .card-glass {
         @apply backdrop-blur-md;
@@ -38,7 +33,7 @@
         @apply p-1.5 -m-1.5;
     }
     .float-panel {
-        @apply top-[5.25rem] overflow-hidden bg-[var(--float-panel-bg)] shadow-none;
+        @apply top-[5.25rem] overflow-hidden rounded-lg bg-[var(--float-panel-bg)] shadow-none;
         @apply border border-white/10;
     }
     .float-panel-closed {
@@ -58,21 +53,21 @@
     }
 
     .btn-card {
-        @apply flex items-center justify-center bg-[var(--card-bg)] hover:bg-[var(--btn-card-bg-hover)]
+        @apply flex items-center justify-center rounded-lg bg-[var(--card-bg)] hover:bg-[var(--btn-card-bg-hover)]
         active:bg-[var(--btn-card-bg-active)]
     }
     .btn-card.disabled {
         @apply pointer-events-none text-white/10
     }
     .btn-plain {
-        @apply relative flex items-center justify-center bg-none
+        @apply relative flex items-center justify-center rounded-lg bg-none
         text-white/75 hover:text-[var(--primary)];
         &:not(.scale-animation) {
             @apply hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]
         }
     }
     .btn-regular {
-        @apply flex items-center justify-center bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)]
+        @apply flex items-center justify-center rounded-lg bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)]
         text-white/75
     }
 
@@ -107,11 +102,11 @@
     }
 
     .page-title-icon {
-        @apply h-8 w-8 bg-[var(--primary)] flex items-center justify-center text-black/70 border border-white/10;
+        @apply h-8 w-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-black/70 border border-white/10;
     }
 
     .meta-icon {
-        @apply w-8 h-8 flex items-center justify-center bg-[var(--btn-regular-bg)]
+        @apply w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--btn-regular-bg)]
         text-[var(--btn-content)] mr-2 border border-white/10
     }
     .with-divider {
@@ -120,7 +115,7 @@
     }
 
     .btn-regular-dark {
-        @apply flex items-center justify-center
+        @apply flex items-center justify-center rounded-lg
         bg-[oklch(0.30_0.02_var(--hue))] hover:bg-[oklch(0.35_0.03_var(--hue))] active:bg-[oklch(0.40_0.03_var(--hue))]
     }
     .btn-regular-dark.success {

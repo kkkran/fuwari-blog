@@ -1,4 +1,5 @@
 // 文章列表客户端排序（仅当前页面内排序）
+import { serviceConfig } from "../config";
 
 interface PostData {
 	id: string;
@@ -43,7 +44,7 @@ class PostListManager {
 		try {
 			const pathnames = ["/", ...this.posts.map((post) => `/posts/${post.id}/`)];
 			
-			const res = await fetch("https://t.2x.nz/batch", {
+			const res = await fetch(`${serviceConfig.trackerBaseUrl}/batch`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

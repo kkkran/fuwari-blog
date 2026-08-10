@@ -1,5 +1,6 @@
 import type { ForumApiEnv } from "@/forum/types/api";
 import type { Readable, Writable } from "svelte/store";
+import { serviceConfig } from "@/config";
 import { readLocalStorage, writeLocalStorage } from "@/forum/utils/storage";
 import { derived, get, writable } from "svelte/store";
 
@@ -8,7 +9,7 @@ export const FORUM_API_CUSTOM_BASE_URL_STORAGE_KEY =
 	"forum-api-custom-base-url";
 
 export const FORUM_API_BASE_URLS: Record<ForumApiEnv, string> = {
-	prod: "https://i.2x.nz",
+	prod: serviceConfig.forumBaseUrl,
 	dev: "http://127.0.0.1:8787",
 };
 
