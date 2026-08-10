@@ -63,4 +63,4 @@ _bmad-output/
 src/data/timetable/source/
 
 #  Git Diff
-json/git-history.json
+src/json/git-history.json

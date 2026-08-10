@@ -5,8 +5,8 @@
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",
-		"build": "astro build",
-		"build:cdn": "node scripts/cdnify-images.js && astro build",
+		"build": "pnpm update-diff && astro build",
+		"build:cdn": "pnpm update-diff && node scripts/cdnify-images.js && astro build",
 		"cdnify": "node scripts/cdnify-images.js",
 		"preview": "astro preview",
 		"astro": "astro",
