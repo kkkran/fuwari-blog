@@ -232,13 +232,13 @@ $: if (allPosts.length > 0 && keyword && sortAsc !== undefined) {
 </script>
 
 {#if variant === "wide"}
-    <div id="search-bar-wide" class="relative flex h-10 w-full items-center border border-white/10 bg-transparent transition focus-within:border-white/25">
-        <Icon icon="material-symbols:search" class="pointer-events-none absolute ml-3 text-[1.25rem] text-white/38 transition"></Icon>
+    <div id="search-bar-wide" class="relative flex h-10 w-full items-center border border-[var(--border)] bg-[var(--background)] transition focus-within:border-[var(--input)]">
+        <Icon icon="material-symbols:search" class="pointer-events-none absolute ml-3 text-[1.25rem] text-[var(--muted-foreground)] transition"></Icon>
         <input placeholder="搜索文章...(Ctrl+K)" bind:value={keyword} on:focus={() => { void reopenPanelIfHasQuery(); }}
                on:input={sanitizeKeyword}
                on:compositionstart={() => { isComposingDesktop = true; }}
                on:compositionend={() => { isComposingDesktop = false; sanitizeKeyword(); }}
-               class="h-full w-full min-w-0 bg-transparent pl-10 pr-3 text-sm text-white/62 outline-0 placeholder:text-white/30"
+               class="h-full w-full min-w-0 bg-transparent pl-10 pr-3 text-sm text-[var(--foreground)] outline-0 placeholder:text-[var(--muted-foreground)]"
         >
     </div>
 {:else}

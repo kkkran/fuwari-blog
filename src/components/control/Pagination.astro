@@ -54,40 +54,53 @@ const getPageUrl = (p: number) => {
 const prefix = sort ? `/${sort}` : "";
 ---
 
-<div class:list={[className, "flex flex-row gap-3 justify-center"]} style={style}>
-    <a href={page.url.prev || ""} aria-label="Previous Page"
-       class:list={["btn-card overflow-hidden rounded-lg text-[var(--primary)] w-11 h-11",
-           {"disabled": page.url.prev == undefined}
-       ]}
-    >
-        <Icon name="material-symbols:chevron-left-rounded" class="text-[1.75rem]"></Icon>
-    </a>
-    <div class="bg-[var(--card-bg)] flex flex-row rounded-lg items-center text-neutral-300 font-bold" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-        {pages.map((p) => {
-            if (p == HIDDEN)
-                return <button aria-label="Jump to page"
-                               class="jump-btn transition flex items-center justify-center w-8 h-11 rounded-lg overflow-hidden active:scale-[0.85] hover:bg-[var(--btn-card-bg-hover)] active:bg-[var(--btn-card-bg-active)] text-white/75"
-                >
-                    <Icon name="material-symbols:more-horiz" class="mx-1"/>
-                </button>;
-            if (p == page.currentPage)
-                return <div class="h-11 w-11 rounded-lg bg-[var(--primary)] flex items-center justify-center
-                    font-bold text-black/70"
-                >
-                    {p}
-                </div>
-            return <a href={url(getPageUrl(p))} aria-label=`Page ${p}`
-                class="transition flex items-center justify-center w-11 h-11 rounded-lg overflow-hidden active:scale-[0.85] hover:bg-[var(--btn-card-bg-hover)] active:bg-[var(--btn-card-bg-active)] text-white/75"
-            >{p}</a>
-        })}
-    </div>
-    <a href={page.url.next || ""} aria-label="Next Page"
-       class:list={["btn-card overflow-hidden rounded-lg text-[var(--primary)] w-11 h-11",
-           {"disabled": page.url.next == undefined}
-       ]}
-    >
-        <Icon name="material-symbols:chevron-right-rounded" class="text-[1.75rem]"></Icon>
-    </a>
+<div class:list={[className, "flex items-center justify-center gap-1.5 font-mono text-sm"]} style={style}>
+	<a
+		href={page.url.prev || ""}
+		aria-label="Previous Page"
+		class:list={[
+			"flex size-9 items-center justify-center border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]",
+			{ disabled: page.url.prev == undefined },
+		]}
+	>
+		<Icon name="material-symbols:chevron-left-rounded" class="size-4" />
+	</a>
+	{pages.map((p) => {
+		if (p == HIDDEN)
+			return (
+				<button
+					aria-label="Jump to page"
+					class="jump-btn flex size-9 items-center justify-center border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
+				>
+					<Icon name="material-symbols:more-horiz" class="size-4" />
+				</button>
+			);
+		if (p == page.currentPage)
+			return (
+				<div class="flex size-9 items-center justify-center bg-[var(--foreground)] font-semibold text-[var(--background)]">
+					{p}
+				</div>
+			);
+		return (
+			<a
+				href={url(getPageUrl(p))}
+				aria-label={`Page ${p}`}
+				class="flex size-9 items-center justify-center border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
+			>
+				{p}
+			</a>
+		);
+	})}
+	<a
+		href={page.url.next || ""}
+		aria-label="Next Page"
+		class:list={[
+			"flex size-9 items-center justify-center border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]",
+			{ disabled: page.url.next == undefined },
+		]}
+	>
+		<Icon name="material-symbols:chevron-right-rounded" class="size-4" />
+	</a>
 </div>
 
 <script is:inline define:vars={{ lastPage: page.lastPage, prefix }}>

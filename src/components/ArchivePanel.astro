@@ -42,7 +42,7 @@ function formatDate(date: Date) {
 }
 ---
 
-<div class="px-8 py-6 border-b border-white/10">
+<div class="px-8 py-6 border-b border-[var(--border)]">
     <div class="mb-6 flex flex-wrap items-center gap-2" data-archive-filters>
         <button
             type="button"
@@ -67,11 +67,11 @@ function formatDate(date: Date) {
         groups.map(group => (
             <div data-archive-year={String(group.year)}>
                 <div class="flex flex-row w-full items-center h-[3.75rem]">
-                    <div class="w-[15%] md:w-[10%] transition text-2xl font-bold text-right text-75">{group.year}</div>
+                    <div class="w-[15%] md:w-[10%] transition text-2xl font-bold text-right text-[var(--foreground)]">{group.year}</div>
                     <div class="w-[15%] md:w-[10%]">
                         <div class="h-3 w-3 bg-none outline outline-[var(--primary)] mx-auto -outline-offset-[2px] z-50 outline-3"></div>
                     </div>
-                    <div class="w-[70%] md:w-[80%] transition text-left text-50">{group.posts.length} 篇文章</div>
+                    <div class="w-[70%] md:w-[80%] transition text-left text-[var(--muted-foreground)]">{group.posts.length} 篇文章</div>
                 </div>
                 {group.posts.map(post => (
                     <a href={getPostUrlBySlug(post.id)}
@@ -80,15 +80,15 @@ function formatDate(date: Date) {
                     >
                         <div class="flex flex-row justify-start items-center h-full">
                             <!-- date -->
-                            <div class="w-[15%] md:w-[10%] transition text-sm text-right text-50">
+                            <div class="w-[15%] md:w-[10%] transition text-sm text-right text-[var(--muted-foreground)]">
                                 {formatDate(post.data.published)}
                             </div>
                             <!-- dot and line -->
                             <div class="w-[15%] md:w-[10%] relative dash-line h-full flex items-center">
                                 <div class="transition-all mx-auto w-1 h-1
-                                bg-[oklch(0.5_0.05_var(--hue))] group-hover:bg-[var(--primary)]
+                                bg-[var(--muted-foreground)] group-hover:bg-[var(--primary)]
                                 outline outline-4 z-50
-                                outline-[var(--card-bg)]
+                                outline-[var(--background)]
                                 group-hover:outline-[var(--btn-plain-bg-hover)]
                                 group-active:outline-[var(--btn-plain-bg-active)]
                                 "
@@ -97,7 +97,7 @@ function formatDate(date: Date) {
                             <!-- post title -->
                             <div class="w-[70%] md:max-w-[65%] md:w-[65%] text-left font-bold
                                 group-hover:translate-x-1 transition-all group-hover:text-[var(--primary)]
-                                text-75 pr-8 whitespace-nowrap overflow-ellipsis overflow-hidden"
+                                text-[var(--foreground)] pr-8 whitespace-nowrap overflow-ellipsis overflow-hidden"
                             >
                                     {post.data.title}
                             </div>
@@ -116,7 +116,7 @@ function formatDate(date: Date) {
 
 <style>
     .archive-filter-btn {
-        @apply px-3 py-1.5 text-sm font-medium transition active:scale-95 border border-white/10;
+        @apply px-3 py-1.5 text-sm font-medium transition active:scale-95 border border-[var(--border)];
     }
 
     .archive-filter-btn.is-active {
