@@ -1,12 +1,10 @@
 ---
 import Icon from "@components/Icon.astro";
 import SiteShellLayout from "@layouts/SiteShellLayout.astro";
-import { serviceConfig, siteConfig } from "../config";
-import { getSortedPosts } from "../utils/content-utils";
-import { getPostUrlBySlug, url } from "../utils/url-utils";
+import { profileConfig, serviceConfig, siteConfig } from "../config";
+import { url } from "../utils/url-utils";
 
-const posts = (await getSortedPosts()).slice(0, 3);
-const entryLinks = [
+const exploreLinks = [
 	{
 		title: "阅读博客",
 		description: "技术笔记、AI 工作流、工具实验和长期写作。",
@@ -33,120 +31,180 @@ const entryLinks = [
 	},
 ];
 
-const externalLinks = [
+const toolLinks = [
+	{
+		title: "封面制作",
+		description: "一键生成文章与社交媒体封面。",
+		href: "/tools/cover/",
+		icon: "material-symbols:image-outline-rounded",
+	},
+	{
+		title: "文件浏览",
+		description: "查看与分享站点托管的文件。",
+		href: "/tools/files/",
+		icon: "material-symbols:folder-open-outline-rounded",
+	},
+	{
+		title: "长链接",
+		description: "把长网址压缩为短链接。",
+		href: "/tools/long-link/",
+		icon: "material-symbols:link-rounded",
+	},
+];
+
+const socialLinks = [
 	{
 		title: "GitHub",
 		href: "https://github.com/miscoke",
-		description: "代码、实验和公开项目。",
 		icon: "simple-icons:github",
 	},
 	{
 		title: "RSS",
 		href: "/rss.xml",
-		description: "订阅世界树栈的更新。",
 		icon: "material-symbols:rss-feed-rounded",
 	},
 	{
 		title: "站点状态",
 		href: `${serviceConfig.umamiBaseUrl}/share/CdkXbGgZr6ECKOyK`,
-		description: "查看站点访问统计。",
 		icon: "material-symbols:monitor-heart-outline-rounded",
 	},
 ];
 ---
 
 <SiteShellLayout title="首页" description={siteConfig.description}>
-	<section class="border-b border-white/10 py-16 sm:py-24">
-		<p class="text-sm font-medium text-white/55">{siteConfig.subtitle}</p>
-		<div class="mt-4 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
-			<div>
-				<h1 class="max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-6xl">
-					世界树栈
-					<br class="hidden sm:block" />
-					把写作、实验和工具收进一个安静角落。
-				</h1>
-				<p class="mt-6 max-w-2xl text-base leading-7 text-white/62">
-					这里是 Shijie’s Nook。记录技术实践、AI 工作流、数字生活与持续维护的小工具，也保留一些正在生长的想法。
+	<!-- Hero -->
+	<section class="relative flex min-h-[calc(100vh-56px)] flex-col items-center justify-center px-4 py-24 text-center">
+		<img
+			src={profileConfig.avatar}
+			alt={siteConfig.title}
+			width="112"
+			height="112"
+			class="h-28 w-28 rounded-full object-cover"
+		/>
+		<p class="mt-5 rounded-full border border-[var(--border)]/60 px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]">
+			{siteConfig.subtitle}
+		</p>
+		<h1 class="mt-5 max-w-3xl text-center text-3xl font-bold tracking-tight sm:text-4xl">
+			{siteConfig.title}
+		</h1>
+		<p class="mt-5 max-w-2xl text-center text-base leading-relaxed text-[var(--muted-foreground)]">
+			{siteConfig.description}
+		</p>
+		<div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+			<a
+				href={url("/blog/")}
+				class="flex h-9 items-center gap-2 rounded-lg bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition-colors hover:bg-[var(--foreground)]/90"
+			>
+				阅读博客
+			</a>
+			<a
+				href={url("/tools/")}
+				class="flex h-9 items-center gap-2 rounded-lg border border-[var(--input)] bg-[var(--background)] px-4 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
+			>
+				探索工具
+			</a>
+		</div>
+	</section>
+
+	<!-- 探索我在做什么 -->
+	<section class="px-4 py-24">
+		<div class="mx-auto max-w-6xl">
+			<h2 class="text-3xl font-bold tracking-tight">探索我在做什么</h2>
+			<p class="mt-3 text-[var(--muted-foreground)]">
+				从技术博客到 AI 创作工具，这里是我的数字花园。
+			</p>
+			<div class="mt-8 grid grid-cols-1 gap-px border-y border-[var(--border)] bg-[var(--border)] sm:grid-cols-2 sm:border lg:grid-cols-4">
+				{exploreLinks.map((item) => (
+					<a
+						href={url(item.href)}
+						class="group flex items-start justify-between gap-4 bg-[var(--background)] p-6 transition-colors hover:bg-[var(--card)]"
+					>
+						<div>
+							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+								<Icon name={item.icon} class="size-5" />
+							</div>
+							<h3 class="mt-5 font-medium">{item.title}</h3>
+							<p class="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+								{item.description}
+							</p>
+						</div>
+						<Icon
+							name="material-symbols:arrow-forward-rounded"
+							class="mt-2 size-4 shrink-0 text-[var(--muted-foreground)] transition group-hover:translate-x-0.5"
+						/>
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<!-- 关于我 -->
+	<section class="border-t border-[var(--border)]/40 px-4 py-24">
+		<div class="mx-auto max-w-3xl">
+			<h2 class="text-3xl font-bold tracking-tight">关于我</h2>
+			<div class="mt-5 space-y-5 text-base leading-relaxed text-[var(--muted-foreground)]">
+				<p>
+					我把这个站点当作自己的知识栈：一些问题会从笔记开始，经过实验、复盘和工具化，最后沉淀成可复用的经验。
+				</p>
+				<p>
+					如果你也关心技术、创作自动化、个人系统和独立站，这里会陆续整理可阅读、可使用、也可追踪的内容。
 				</p>
 			</div>
-			<div class="flex shrink-0 flex-wrap gap-3">
-				<a href={url("/blog/")} class="rounded-md bg-white px-4 py-2 text-sm font-medium text-black transition hover:bg-white/85">
-					阅读博客
-				</a>
-				<a href={url("/tools/")} class="rounded-md border border-white/12 px-4 py-2 text-sm font-medium text-white/82 transition hover:bg-white/[0.07] hover:text-white">
-					探索工具
-				</a>
+		</div>
+	</section>
+
+	<!-- 实用工具集 -->
+	<section class="border-t border-[var(--border)]/40 px-4 py-24">
+		<div class="mx-auto max-w-6xl">
+			<h2 class="text-3xl font-bold tracking-tight">实用工具集</h2>
+			<p class="mt-3 text-[var(--muted-foreground)]">
+				日常开发与创作的副产品，开放给有需要的人使用。
+			</p>
+			<div class="mt-8 grid grid-cols-1 gap-px border-y border-[var(--border)] bg-[var(--border)] sm:grid-cols-2 sm:border lg:grid-cols-3">
+				{toolLinks.map((item) => (
+					<a
+						href={url(item.href)}
+						class="group flex items-start justify-between gap-4 bg-[var(--background)] p-6 transition-colors hover:bg-[var(--card)]"
+					>
+						<div>
+							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+								<Icon name={item.icon} class="size-5" />
+							</div>
+							<h3 class="mt-5 font-medium">{item.title}</h3>
+							<p class="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+								{item.description}
+							</p>
+						</div>
+						<Icon
+							name="material-symbols:arrow-forward-rounded"
+							class="mt-2 size-4 shrink-0 text-[var(--muted-foreground)] transition group-hover:translate-x-0.5"
+						/>
+					</a>
+				))}
 			</div>
 		</div>
 	</section>
 
-	<section class="grid gap-10 border-b border-white/10 py-14 lg:grid-cols-[0.9fr_1.1fr]">
-		<div>
-			<p class="text-sm font-medium text-white/45">About</p>
-			<h2 class="mt-3 text-2xl font-semibold text-white">关于我</h2>
-		</div>
-		<div class="space-y-5 text-sm leading-7 text-white/62">
-			<p>
-				我把这个站点当作自己的知识栈：一些问题会从笔记开始，经过实验、复盘和工具化，最后沉淀成可复用的经验。
-			</p>
-			<p>
-				如果你也关心技术、创作自动化、个人系统和独立站，这里会陆续整理可阅读、可使用、也可追踪的内容。
-			</p>
-		</div>
-	</section>
-
-	<section class="space-y-6 border-b border-white/10 py-14">
-		<div>
-			<p class="text-sm font-medium text-white/45">Explore</p>
-			<h2 class="mt-3 text-2xl font-semibold text-white">从这里开始</h2>
-		</div>
-		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-			{entryLinks.map((item) => (
-				<a href={url(item.href)} class="group min-h-40 rounded-lg border border-white/10 bg-[var(--card-bg)] p-5 transition hover:border-white/28 hover:bg-white/[0.05]">
-					<Icon name={item.icon} class="text-2xl text-white/45 transition group-hover:text-white/80" />
-					<h3 class="mt-5 font-medium text-white/90">{item.title}</h3>
-					<p class="mt-2 text-sm leading-6 text-white/52">{item.description}</p>
-				</a>
-			))}
-		</div>
-	</section>
-
-	<section class="grid gap-10 border-b border-white/10 py-14 lg:grid-cols-[0.9fr_1.1fr]">
-		<div>
-			<p class="text-sm font-medium text-white/45">Latest</p>
-			<h2 class="mt-3 text-2xl font-semibold text-white">最近内容</h2>
-		</div>
-		<div class="overflow-hidden rounded-lg border border-white/10">
-			{posts.map((entry) => (
-				<a href={getPostUrlBySlug(entry.id)} class="block border-b border-white/10 p-5 transition last:border-b-0 hover:bg-white/[0.05]">
-					<div class="text-xs text-white/42">{entry.data.published.toISOString().slice(0, 10)}</div>
-					<h3 class="mt-2 font-semibold text-white/90">{entry.data.title}</h3>
-					<p class="mt-2 line-clamp-2 text-sm leading-6 text-white/55">{entry.data.description}</p>
-				</a>
-			))}
-		</div>
-	</section>
-
-	<section class="space-y-6 py-14">
-		<div>
-			<p class="text-sm font-medium text-white/45">Links</p>
-			<h2 class="mt-3 text-2xl font-semibold text-white">站点与账号</h2>
-		</div>
-		<div class="grid gap-4 sm:grid-cols-3">
-			{externalLinks.map((item) => (
-				<a
-					href={item.href.startsWith("/") ? url(item.href) : item.href}
-					target={item.href.startsWith("/") ? null : "_blank"}
-					rel={item.href.startsWith("/") ? null : "noopener noreferrer"}
-					class="group rounded-lg border border-white/10 bg-[var(--card-bg)] p-5 transition hover:border-white/28 hover:bg-white/[0.05]"
-				>
-					<div class="flex items-center gap-2">
-						<Icon name={item.icon} class="text-xl text-white/45 transition group-hover:text-white/80" />
-						<h3 class="font-medium text-white/90">{item.title}</h3>
-					</div>
-					<p class="mt-2 text-sm leading-6 text-white/52">{item.description}</p>
-				</a>
-			))}
+	<!-- 关注联系 -->
+	<section class="border-t border-[var(--border)]/40 px-4 py-24">
+		<div class="mx-auto max-w-6xl">
+			<div class="flex flex-col items-center gap-6 text-center">
+				<h2 class="text-3xl font-bold tracking-tight">在这些平台上找到我</h2>
+				<div class="flex flex-wrap items-center justify-center gap-3">
+					{socialLinks.map((item) => (
+						<a
+							href={url(item.href)}
+							target={item.href.startsWith("http") ? "_blank" : null}
+							rel={item.href.startsWith("http") ? "noopener noreferrer" : null}
+							aria-label={item.title}
+							title={item.title}
+							class="flex size-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
+						>
+							<Icon name={item.icon} class="size-5" />
+						</a>
+					))}
+				</div>
+			</div>
 		</div>
 	</section>
 </SiteShellLayout>
