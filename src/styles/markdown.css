@@ -42,7 +42,7 @@
     code {
         @apply text-[var(--inline-code-color)] py-0.5 overflow-hidden;
 
-        font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+        font-family: "Geist Mono Variable", ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
         &:before {
             content:none;
         }

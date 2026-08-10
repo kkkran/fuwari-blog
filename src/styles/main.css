@@ -1,15 +1,17 @@
 @import "@toast-ui/editor/dist/toastui-editor.css";
 @import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
+@import "@fontsource-variable/geist/index.css";
+@import "@fontsource-variable/geist-mono/index.css";
 
 @tailwind components;
 
 @layer components {
     .card-base {
-        @apply overflow-hidden rounded-lg border border-white/10 bg-[var(--card-bg-transparent)];
+        @apply overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card-bg-transparent)];
         box-shadow: none;
     }
     .card-hover {
-        @apply transition hover:border-white/20 hover:bg-white/[0.04];
+        @apply transition hover:border-[var(--border)] hover:bg-[var(--card)];
     }
     .card-glass {
         @apply backdrop-blur-md;
@@ -34,7 +36,7 @@
     }
     .float-panel {
         @apply top-[3rem] overflow-hidden rounded-lg bg-[var(--float-panel-bg)] shadow-none;
-        @apply border border-white/10;
+        @apply border border-[var(--border)];
     }
     .float-panel-closed {
         @apply -translate-y-1 opacity-0 pointer-events-none
@@ -154,9 +156,9 @@ html {
 body {
     overflow-x: hidden;
     overflow-y: visible;
-    color: oklch(0.985 0 0);
+    color: var(--foreground);
     background: var(--page-bg);
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 *:not(html):not(body) {

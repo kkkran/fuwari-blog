@@ -5,10 +5,8 @@ white(a)
 black(a)
   rgba(0, 0, 0, a)
 
-rainbow-dark = linear-gradient(to right, oklch(0.70 0.10 0), oklch(0.70 0.10 30), oklch(0.70 0.10 60), oklch(0.70 0.10 90), oklch(0.70 0.10 120), oklch(0.70 0.10 150), oklch(0.70 0.10 180), oklch(0.70 0.10 210), oklch(0.70 0.10 240), oklch(0.70 0.10 270), oklch(0.70 0.10 300), oklch(0.70 0.10 330), oklch(0.70 0.10 360))
-
 :root
-  --radius-large 8px
+  --radius-large 0px
   --content-delay 150ms
 
 /* An util to define variables */
@@ -18,62 +16,79 @@ define(vars)
       {key}: value
 
 define({
-  --primary: oklch(0.985 0 0)
-  --primary-foreground: oklch(0.145 0 0)
+  /* ===== 2x.nz shadcn 语义 token（对齐 https://2x.nz 设计系统，暗色硬编码） ===== */
+  --background: #171717
+  --foreground: #e4e4e4
+  --card: #1f1f1f
+  --card-foreground: #e4e4e4
+  --popover: #242424
+  --popover-foreground: #e4e4e4
+  --muted: #2e2e2e
+  --muted-foreground: #a1a1a1
+  --accent: #383838
+  --accent-foreground: #e4e4e4
+  --border: #404040
+  --input: #4d4d4d
+  --primary: #e4e4e4
+  --primary-foreground: #171717
+  --secondary: #2e2e2e
+  --secondary-foreground: #e4e4e4
+  --destructive: #e40014
+  --ring: #85baff
+  --tap: #85baff
+
+  /* 布局 token */
   --site-shell-width: 72rem
-  --page-bg: oklch(0.145 0 0)
-  --card-bg: oklch(0.19 0 0)
-  --card-bg-transparent: oklch(0.19 0 0 / 0.95)
+  --header-height: 56px
+  --card-spacing: 1rem
 
-  --btn-content: oklch(0.985 0 0)
+  /* ===== 本地兼容 token（映射到 2x.nz 值） ===== */
+  --page-bg: var(--background)
+  --card-bg: var(--card)
+  --card-bg-transparent: rgba(31, 31, 31, 0.95)
 
-  --btn-regular-bg: oklch(0.24 0 0)
-  --btn-regular-bg-hover: oklch(0.28 0 0)
-  --btn-regular-bg-active: oklch(0.32 0 0)
-
-  --btn-plain-bg-hover: oklch(0.24 0 0)
-  --btn-plain-bg-active: oklch(0.30 0 0)
-
-  --btn-card-bg-hover: oklch(0.24 0 0)
-  --btn-card-bg-active: oklch(0.30 0 0)
-
+  --btn-content: var(--foreground)
+  --btn-regular-bg: #242424
+  --btn-regular-bg-hover: #2e2e2e
+  --btn-regular-bg-active: #383838
+  --btn-plain-bg-hover: #242424
+  --btn-plain-bg-active: #2e2e2e
+  --btn-card-bg-hover: #242424
+  --btn-card-bg-active: #2e2e2e
   --enter-btn-bg: var(--btn-regular-bg)
   --enter-btn-bg-hover: var(--btn-regular-bg-hover)
   --enter-btn-bg-active: var(--btn-regular-bg-active)
 
-  --deep-text: oklch(0.985 0 0)
+  --deep-text: var(--foreground)
+  --title-active: #c8c8c8
 
-  --title-active: oklch(0.86 0 0)
+  --line-divider: var(--border)
+  --line-color: var(--border)
+  --meta-divider: var(--muted-foreground)
 
-  --line-divider: white(0.12)
-
-  --line-color: white(0.2)
-  --meta-divider: white(0.5)
-
-  --inline-code-bg: oklch(0.24 0 0)
-  --inline-code-color: oklch(0.86 0 0)
-  --selection-bg: oklch(0.30 0 0)
-  --codeblock-selection: oklch(0.24 0 0)
-  --codeblock-bg: oklch(0.18 0 0)
-  --codeblock-topbar-bg: oklch(0.15 0 0)
+  --inline-code-bg: #242424
+  --inline-code-color: #e4e4e4
+  --selection-bg: #383838
+  --codeblock-selection: #242424
+  --codeblock-bg: #1e1e2e
+  --codeblock-topbar-bg: #181825
 
   --license-block-bg: var(--codeblock-bg)
 
-  --link-underline: oklch(0.60 0.18 var(--hue))
-  --link-hover: oklch(0.70 0.18 var(--hue))
-  --link-active: oklch(0.75 0.20 var(--hue))
+  --link-underline: var(--foreground)
+  --link-hover: #ffffff
+  --link-active: var(--tap)
 
-  --float-panel-bg: oklch(0.19 0 0)
-  --float-panel-bg-transparent: oklch(0.19 0 0 / 0.92)
-  --float-panel-bg-opaque: oklch(0.19 0 0)
+  --float-panel-bg: var(--popover)
+  --float-panel-bg-transparent: rgba(36, 36, 36, 0.92)
+  --float-panel-bg-opaque: var(--popover)
 
-  --scrollbar-bg: white(0.4)
-  --scrollbar-bg-hover: white(0.5)
-  --scrollbar-bg-active: white(0.6)
+  --scrollbar-bg: var(--border)
+  --scrollbar-bg-hover: #4d4d4d
+  --scrollbar-bg-active: #525252
 
-  --color-selection-bar: rainbow-dark
+  --color-selection-bar: var(--foreground)
 
-  --admonitions-color-tip: oklch(0.85 0.12 180)
   --admonitions-color-note: oklch(0.85 0.12 250)
   --admonitions-color-important: oklch(0.85 0.12 310)
   --admonitions-color-warning: oklch(0.85 0.12 60)
@@ -81,8 +96,8 @@ define({
   --admonitions-color-ai: oklch(0.85 0.12 280)
 
   --toc-badge-bg: var(--btn-regular-bg)
-  --toc-btn-hover: unquote("rgba(from oklch(0.41 0.12 var(--hue)) r g b / 0.3)")
-  --toc-btn-active: unquote("rgba(from oklch(0.48 0.15 var(--hue)) r g b / 0.5)")
+  --toc-btn-hover: #242424
+  --toc-btn-active: #383838
   --toc-width: clamp(11rem, calc((100vw - var(--page-width)) / 2 - 1rem), 22rem)
-  --toc-item-active: oklch(0.40 0.10 var(--hue))
+  --toc-item-active: #383838
 })
