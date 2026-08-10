@@ -2,7 +2,7 @@
 import { siteConfig } from "@/config";
 import type { Sponsor } from "@/types/data";
 import LinkSubmitInfo from "@components/misc/LinkSubmitInfo.astro";
-import MainGridLayout from "@layouts/MainGridLayout.astro";
+import SiteShellLayout from "@layouts/SiteShellLayout.astro";
 import Icon from "@components/Icon.astro";
 
 const sponsors = Object.values(
@@ -32,138 +32,98 @@ const breadcrumbSchema = {
 };
 ---
 
-<MainGridLayout title="赞助支持">
-    <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
-    <div class="p-6 md:p-8 border-b border-white/10">
-        <div class="flex items-center gap-2 mb-6">
-            <div class="h-8 w-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-black/70">
-                <Icon name="material-symbols:favorite" class="text-[1.5rem]" />
-            </div>
-            <h1 class="text-2xl font-bold text-white">赞助支持</h1>
-        </div>
+<SiteShellLayout title="赞助支持">
+	<script
+		is:inline
+		slot="head"
+		type="application/ld+json"
+		set:html={JSON.stringify(breadcrumbSchema)}
+	></script>
+	<section class="py-8">
+		<h1 class="text-2xl font-bold tracking-tight">赞助支持</h1>
+		<p class="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">
+			如果您觉得我的内容对您有帮助，欢迎通过以下方式支持我的创作。您的每一份支持都是我持续创作的动力！
+		</p>
+		<p class="mt-1 text-sm text-[var(--muted-foreground)]">
+			所有赞助将用于网站维护、服务器费用以及内容创作。
+		</p>
 
-        <div class="mb-8 pb-6 border-b border-white/10">
-            <p class="text-lg text-white/80 mb-3">
-                如果您觉得我的内容对您有帮助，欢迎通过以下方式支持我的创作。您的每一份支持都是我持续创作的动力！
-            </p>
-            <p class="text-sm text-white/60">
-                所有赞助将用于网站维护、服务器费用以及内容创作。
-            </p>
-        </div>
+		<!-- 支付方式 -->
+		<div class="mb-12 mt-8 border-y border-[var(--border)] py-8">
+			<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+				<!-- 支付宝 -->
+				<div>
+					<div class="mb-4 flex items-center gap-3">
+						<div class="flex h-10 w-10 items-center justify-center bg-blue-500">
+							<Icon name="simple-icons:alipay" class="text-[1.5rem] text-white" />
+						</div>
+						<div>
+							<h3 class="text-lg font-bold">支付宝</h3>
+							<p class="text-sm text-[var(--muted-foreground)]">扫码支付</p>
+						</div>
+					</div>
+					<div class="inline-block border border-[var(--border)] bg-[var(--card)] p-4">
+						<img src="/sponsors/alipay.svg" alt="支付宝二维码" class="h-48 w-48 object-cover" />
+					</div>
+				</div>
 
-        <!-- 支付方式 -->
-        <div class="mb-8 pb-6 border-b border-white/10">
-            <h2 class="text-xl font-bold text-white mb-4">支付方式</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 支付宝 -->
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="h-10 w-10 bg-blue-500 flex items-center justify-center border border-white/10">
-                            <Icon name="simple-icons:alipay" class="text-[1.5rem] text-white" />
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-white">支付宝</h3>
-                            <p class="text-sm text-white/60">扫码支付</p>
-                        </div>
-                    </div>
-                    <div class="ml-13">
-                        <div class="relative w-48 h-48 overflow-hidden border border-white/10" style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
-                            <img src="/sponsors/alipay.svg" alt="支付宝二维码" class="w-full h-full object-cover transition duration-500" />
-                        </div>
-                    </div>
-                </div>
+				<!-- 微信支付 -->
+				<div>
+					<div class="mb-4 flex items-center gap-3">
+						<div class="flex h-10 w-10 items-center justify-center bg-green-500">
+							<Icon name="simple-icons:wechat" class="text-[1.5rem] text-white" />
+						</div>
+						<div>
+							<h3 class="text-lg font-bold">微信支付</h3>
+							<p class="text-sm text-[var(--muted-foreground)]">扫码支付</p>
+						</div>
+					</div>
+					<div class="inline-block border border-[var(--border)] bg-[var(--card)] p-4">
+						<img src="/sponsors/wechat.svg" alt="微信支付二维码" class="h-48 w-48 object-cover" />
+					</div>
+				</div>
+			</div>
+		</div>
 
-                <!-- 微信支付 -->
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="h-10 w-10 bg-green-500 flex items-center justify-center border border-white/10">
-                            <Icon name="simple-icons:wechat" class="text-[1.5rem] text-white" />
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-white">微信支付</h3>
-                            <p class="text-sm text-white/60">扫码支付</p>
-                        </div>
-                    </div>
-                    <div class="ml-13">
-                        <div class="relative w-48 h-48 overflow-hidden border border-white/10" style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
-                            <img src="/sponsors/wechat.svg" alt="微信支付二维码" class="w-full h-full object-cover transition duration-500" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 其他支持方式 -->
-        <div class="mb-8 pb-6 border-b border-white/10">
-            <h2 class="text-xl font-bold text-white mb-4">其他支持方式</h2>
-            <div class="space-y-0">
-                <div class="p-4 hover:bg-white/5 transition border-b border-white/10 last:border-b-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <Icon name="material-symbols:share" class="text-[1.2rem] text-[var(--primary)]" />
-                        <span class="font-semibold text-white">分享推荐</span>
-                    </div>
-                    <p class="text-sm text-white/60 ml-7">
-                        将我的博客分享给更多朋友
-                    </p>
-                </div>
-
-                <div class="p-4 hover:bg-white/5 transition border-b border-white/10 last:border-b-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <Icon name="material-symbols:comment" class="text-[1.2rem] text-[var(--primary)]" />
-                        <span class="font-semibold text-white">留言互动</span>
-                    </div>
-                    <p class="text-sm text-white/60 ml-7">
-                        在文章下方留下您的想法
-                    </p>
-                </div>
-
-                <div class="p-4 hover:bg-white/5 transition border-b border-white/10 last:border-b-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <Icon name="material-symbols:star" class="text-[1.2rem] text-[var(--primary)]" />
-                        <span class="font-semibold text-white">关注订阅</span>
-                    </div>
-                    <p class="text-sm text-white/60 ml-7">
-                        订阅RSS或关注社交媒体
-                    </p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="sponsors-section">
-            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                <Icon name="material-symbols:group" class="text-[1.5rem] text-[var(--primary)]"></Icon>
-                <span>已赞助的小伙伴</span>
-            </h2>
-            <div class="mb-4">
-                <LinkSubmitInfo dataType="sponsors"></LinkSubmitInfo>
-            </div>
-            <div class="space-y-0">
-                {sponsors.map((sponsor) => (
-                    <div class="p-4 hover:bg-white/5 transition border-b border-white/10 last:border-b-0">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 flex items-center justify-center overflow-hidden border border-white/10">
-                                <div class="relative w-full h-full overflow-hidden" style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
-                                    <Icon name="material-symbols:person" class="absolute inset-0 m-auto text-gray-400 text-[1.2rem]" />
-                                    {sponsor.avatar && (
-                                        <img src={sponsor.avatar} alt={`${sponsor.name}的头像`} loading="lazy" class="w-full h-full object-cover" onload="this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />
-                                    )}
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold text-white text-sm">{sponsor.name}</h4>
-                                <p class="text-xs text-white/60">{sponsor.date}</p>
-                            </div>
-                            <div class="text-xs text-[var(--primary)] font-medium">{sponsor.amount}</div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    </div>
-</MainGridLayout>
+		<!-- 已赞助的小伙伴 -->
+		<div class="sponsors-section">
+			<h2 class="mb-1 flex items-center gap-2 text-xl font-bold">
+				<Icon name="material-symbols:group" class="text-[1.5rem] text-[var(--primary)]"></Icon>
+				<span>已赞助的小伙伴</span>
+			</h2>
+			<p class="mb-4 text-sm text-[var(--muted-foreground)]">
+				感谢每一位支持者，让这个站点可以继续运转。
+			</p>
+			<LinkSubmitInfo dataType="sponsors"></LinkSubmitInfo>
+			<div class="mt-4 grid grid-cols-1 border-t border-l border-[var(--border)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+				{sponsors.map((sponsor) => (
+					<div class="flex items-center gap-3 border-b border-r border-[var(--border)] bg-[var(--background)] p-3">
+						{sponsor.avatar ? (
+							<img
+								src={sponsor.avatar}
+								alt={`${sponsor.name}的头像`}
+								loading="lazy"
+								class="h-10 w-10 shrink-0 rounded-full object-cover"
+							/>
+						) : (
+							<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--card)] text-[var(--muted-foreground)]">
+								<Icon name="material-symbols:person" class="text-[1.2rem]" />
+							</div>
+						)}
+						<div class="min-w-0 flex-1">
+							<h4 class="truncate text-sm font-semibold">{sponsor.name}</h4>
+							<p class="text-xs text-[var(--muted-foreground)]">{sponsor.date}</p>
+						</div>
+						<div class="text-xs font-medium text-[var(--primary)]">{sponsor.amount}</div>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+</SiteShellLayout>
 
 <style>
-.sponsors-section {
-    @apply mt-6;
-}
+	.sponsors-section {
+		@apply mt-6;
+	}
 </style>

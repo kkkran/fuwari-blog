@@ -2,7 +2,7 @@
 import { siteConfig } from "@/config";
 import type { Friend } from "@/types/data";
 import LinkSubmitInfo from "@components/misc/LinkSubmitInfo.astro";
-import MainGridLayout from "@layouts/MainGridLayout.astro";
+import SiteShellLayout from "@layouts/SiteShellLayout.astro";
 import Icon from "@components/Icon.astro";
 
 const friends = Object.values(
@@ -32,52 +32,47 @@ const breadcrumbSchema = {
 };
 ---
 
-<MainGridLayout title="友链">
-    <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
-    <div class="p-6 md:p-8 border-b border-white/10">
-        <div class="flex items-center gap-2 mb-6">
-            <div class="h-8 w-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-black/70">
-                <Icon name="material-symbols:diversity-3" class="text-[1.5rem]" />
-            </div>
-            <h1 class="text-2xl font-bold text-white">友链</h1>
-        </div>
+<SiteShellLayout title="友链">
+	<script
+		is:inline
+		slot="head"
+		type="application/ld+json"
+		set:html={JSON.stringify(breadcrumbSchema)}
+	></script>
+	<section class="py-8">
+		<h1 class="text-2xl font-bold tracking-tight">友链</h1>
+		<p class="mt-2 text-sm text-[var(--muted-foreground)]">
+			与志同道合的创作者互换友链；如果这里的内容帮到了你，欢迎考虑赞助支持。
+		</p>
 
-        <!-- 申请友链 -->
-            <div class="mb-4">
-                <LinkSubmitInfo dataType="friends"></LinkSubmitInfo>
-            </div>
-        <div class="space-y-0">
-            {friends.map((friend) => (
-                <a href={friend.url} target="_blank" class="friend-card block p-4 hover:bg-white/5 transition border-b border-white/10 last:border-b-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <div class="relative w-5 h-5 overflow-hidden border border-white/10" style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
-                            <Icon name="material-symbols:person" class="absolute inset-0 m-auto text-gray-400 text-[0.7rem]" />
-                            <img src={friend.avatar} loading="lazy" class="w-full h-full object-cover" alt={`${friend.name}的头像`} onload="this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />
-                        </div>
-                        <div class="font-bold text-white">{friend.name}</div>
-                    </div>
-                    <div class="text-sm text-white/50 ml-7">{friend.description}</div>
-                </a>
-            ))}
-        </div>
+		<div class="mt-6">
+			<LinkSubmitInfo dataType="friends"></LinkSubmitInfo>
+		</div>
 
-
-
-</MainGridLayout>
-
-<style>
-    .friend-card:hover .font-bold {
-        color: var(--primary);
-    }
-
-    .friend-card:hover .text-sm {
-        @apply text-white/75;
-    }
-
-    .friend-card .font-bold,
-    .friend-card .text-sm {
-        transition-property: color;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 0.15s;
-    }
-</style>
+		<div class="mt-8 grid grid-cols-1 border-t border-l border-[var(--border)] md:grid-cols-2 lg:grid-cols-3">
+			{friends.map((friend) => (
+				<a
+					href={friend.url}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="flex items-center gap-4 border-b border-r border-[var(--border)] bg-[var(--background)] p-4 transition-colors hover:bg-[var(--card)]"
+				>
+					<img
+						src={friend.avatar}
+						alt={`${friend.name}的头像`}
+						loading="lazy"
+						class="h-16 w-16 shrink-0 rounded-full object-cover"
+					/>
+					<div class="min-w-0">
+						<div class="flex items-center gap-2">
+							<span class="truncate font-semibold">{friend.name}</span>
+						</div>
+						<p class="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">
+							{friend.description}
+						</p>
+					</div>
+				</a>
+			))}
+		</div>
+	</section>
+</SiteShellLayout>

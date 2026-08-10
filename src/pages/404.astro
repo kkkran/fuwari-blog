@@ -1,24 +1,32 @@
 ---
-import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import SiteShellLayout from "@/layouts/SiteShellLayout.astro";
 import Icon from "@components/Icon.astro";
 ---
 
-<MainGridLayout title="页面未找到">
-	<section class="card-base mx-auto flex min-h-[56vh] max-w-2xl flex-col justify-center p-8 md:p-10">
-		<div class="mb-5 text-xs uppercase tracking-[0.2em] text-white/35">404 / Missing Page</div>
-		<h1 class="text-4xl font-bold leading-tight text-white md:text-5xl">这条枝路还没有长出来。</h1>
-		<p class="mt-5 max-w-[42rem] text-base leading-relaxed text-white/58">
+<SiteShellLayout title="页面未找到">
+	<section class="mx-auto flex min-h-[56vh] max-w-2xl flex-col justify-center py-16">
+		<div class="mb-5 font-mono text-xs uppercase tracking-[0.2em] text-[var(--muted-foreground)]">
+			404 / Missing Page
+		</div>
+		<h1 class="text-4xl font-bold leading-tight md:text-5xl">这条枝路还没有长出来。</h1>
+		<p class="mt-5 max-w-[42rem] text-base leading-relaxed text-[var(--muted-foreground)]">
 			你访问的页面不存在，或已经被移动到新的位置。可以回到首页继续浏览，也可以去归档里按时间查找文章。
 		</p>
 		<div class="mt-8 flex flex-col gap-3 sm:flex-row">
-			<a href="/" class="btn-regular h-11 px-5 font-bold active:scale-[0.98]">
-				<Icon name="material-symbols:home-outline-rounded" class="mr-2 text-xl" />
+			<a
+				href="/"
+				class="inline-flex h-11 items-center gap-2 bg-[var(--primary)] px-5 text-sm font-medium text-[var(--primary-foreground)] transition-colors hover:bg-[var(--foreground)]/90"
+			>
+				<Icon name="material-symbols:home-outline-rounded" class="text-xl" />
 				返回首页
 			</a>
-			<a href="/archive/" class="btn-plain h-11 border border-white/10 px-5 font-bold active:scale-[0.98]">
-				<Icon name="material-symbols:archive-outline-rounded" class="mr-2 text-xl" />
+			<a
+				href="/archive/"
+				class="inline-flex h-11 items-center gap-2 border border-[var(--input)] px-5 text-sm font-medium transition-colors hover:bg-[var(--accent)]"
+			>
+				<Icon name="material-symbols:archive-outline-rounded" class="text-xl" />
 				文章归档
 			</a>
 		</div>
 	</section>
-</MainGridLayout>
+</SiteShellLayout>

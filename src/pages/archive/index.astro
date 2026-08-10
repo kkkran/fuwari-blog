@@ -1,7 +1,7 @@
 ---
 import ArchivePanel from "@components/ArchivePanel.astro";
 
-import MainGridLayout from "@layouts/MainGridLayout.astro";
+import SiteShellLayout from "@layouts/SiteShellLayout.astro";
 
 const breadcrumbSchema = {
 	"@context": "https://schema.org",
@@ -23,8 +23,12 @@ const breadcrumbSchema = {
 };
 ---
 
-<MainGridLayout title="归档">
-    <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
-    <ArchivePanel></ArchivePanel>
-</MainGridLayout>
-
+<SiteShellLayout title="归档">
+	<script
+		is:inline
+		slot="head"
+		type="application/ld+json"
+		set:html={JSON.stringify(breadcrumbSchema)}
+	></script>
+	<ArchivePanel></ArchivePanel>
+</SiteShellLayout>
