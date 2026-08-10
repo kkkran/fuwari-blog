@@ -2,6 +2,8 @@
 import Icon from "@components/IconSvelte.svelte";
 import { url } from "@utils/url-utils.ts";
 
+export let variant: "nav" | "wide" = "nav";
+
 interface SearchResult {
 	title: string;
 	description: string;
@@ -229,30 +231,42 @@ $: if (allPosts.length > 0 && keyword && sortAsc !== undefined) {
 }
 </script>
 
-<!-- search bar for desktop view -->
-<div id="search-bar" class="hidden min-[1066px]:flex transition-all items-center h-9 mr-1 rounded-md
-      bg-white/5 hover:bg-white/10 focus-within:bg-white/10
-">
-    <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-white/30"></Icon>
-    <input placeholder="搜索" bind:value={keyword} on:focus={() => { void reopenPanelIfHasQuery(); }}
-           on:input={sanitizeKeyword}
-           on:compositionstart={() => { isComposingDesktop = true; }}
-           on:compositionend={() => { isComposingDesktop = false; sanitizeKeyword(); }}
-           class="transition-all pl-10 text-sm bg-transparent outline-0
-         h-full w-36 active:w-56 focus:w-56 text-white/50"
-    >
-</div>
+{#if variant === "wide"}
+    <div id="search-bar-wide" class="relative flex h-10 w-full items-center border border-white/10 bg-transparent transition focus-within:border-white/25">
+        <Icon icon="material-symbols:search" class="pointer-events-none absolute ml-3 text-[1.25rem] text-white/38 transition"></Icon>
+        <input placeholder="搜索文章...(Ctrl+K)" bind:value={keyword} on:focus={() => { void reopenPanelIfHasQuery(); }}
+               on:input={sanitizeKeyword}
+               on:compositionstart={() => { isComposingDesktop = true; }}
+               on:compositionend={() => { isComposingDesktop = false; sanitizeKeyword(); }}
+               class="h-full w-full min-w-0 bg-transparent pl-10 pr-3 text-sm text-white/62 outline-0 placeholder:text-white/30"
+        >
+    </div>
+{:else}
+    <!-- search bar for desktop view -->
+    <div id="search-bar" class="hidden min-[1066px]:flex transition-all items-center h-9 mr-1 rounded-md
+          bg-white/5 hover:bg-white/10 focus-within:bg-white/10
+    ">
+        <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-white/30"></Icon>
+        <input placeholder="搜索" bind:value={keyword} on:focus={() => { void reopenPanelIfHasQuery(); }}
+               on:input={sanitizeKeyword}
+               on:compositionstart={() => { isComposingDesktop = true; }}
+               on:compositionend={() => { isComposingDesktop = false; sanitizeKeyword(); }}
+               class="transition-all pl-10 text-sm bg-transparent outline-0
+             h-full w-36 active:w-56 focus:w-56 text-white/50"
+        >
+    </div>
 
-<!-- search bar for phone/tablet view -->
-<div id="search-bar-mobile" class="relative flex h-10 min-w-0 flex-1 max-w-[15rem] items-center rounded-md bg-white/5 transition hover:bg-white/10 focus-within:bg-white/10 sm:max-w-none min-[1066px]:hidden">
-    <Icon icon="material-symbols:search" class="pointer-events-none absolute ml-3 text-[1.25rem] text-white/30 transition"></Icon>
-    <input placeholder="搜索" bind:value={keyword} on:focus={() => { void openPanel(); }}
-           on:input={sanitizeKeyword}
-           on:compositionstart={() => { isComposingMobile = true; }}
-           on:compositionend={() => { isComposingMobile = false; sanitizeKeyword(); }}
-           class="h-full w-full min-w-0 rounded-md bg-transparent pl-10 pr-3 text-sm text-white/50 outline-0"
-    >
-</div>
+    <!-- search bar for phone/tablet view -->
+    <div id="search-bar-mobile" class="relative flex h-10 min-w-0 flex-1 max-w-[15rem] items-center rounded-md bg-white/5 transition hover:bg-white/10 focus-within:bg-white/10 sm:max-w-none min-[1066px]:hidden">
+        <Icon icon="material-symbols:search" class="pointer-events-none absolute ml-3 text-[1.25rem] text-white/30 transition"></Icon>
+        <input placeholder="搜索" bind:value={keyword} on:focus={() => { void openPanel(); }}
+               on:input={sanitizeKeyword}
+               on:compositionstart={() => { isComposingMobile = true; }}
+               on:compositionend={() => { isComposingMobile = false; sanitizeKeyword(); }}
+               class="h-full w-full min-w-0 rounded-md bg-transparent pl-10 pr-3 text-sm text-white/50 outline-0"
+        >
+    </div>
+{/if}
 
 <!-- search panel -->
 <div id="search-panel" class="float-panel float-panel-closed search-panel absolute z-50 md:w-[30rem]

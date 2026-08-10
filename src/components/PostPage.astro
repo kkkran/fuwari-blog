@@ -6,10 +6,13 @@ import PostCard from "./PostCard.astro";
 const { page } = Astro.props;
 ---
 
-<div id="post-list-container" class="transition flex flex-col bg-transparent gap-2 mb-4">
+<div
+	id="post-list-container"
+	class="mb-6 grid overflow-hidden border border-white/10 bg-transparent md:grid-cols-2"
+>
 
     {page.data.map((entry: CollectionEntry<"posts">) => (
-        <article class="">
+        <article class="border-b border-white/10 md:odd:border-r">
             <PostCard
                     entry={entry}
                     title={entry.data.title}

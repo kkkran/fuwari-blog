@@ -1,64 +1,149 @@
-﻿---
+---
 import Icon from "@components/Icon.astro";
-import { navBarConfig, siteConfig } from "../config";
-import { LinkPresets } from "../constants/link-presets";
-import { LinkPreset, type NavBarLink } from "../types/config";
+import { navBarConfig, profileConfig, siteConfig } from "../config";
+import type { NavBarLink } from "../types/config";
 import { url } from "../utils/url-utils";
 
-import Search from "./Search.svelte";
-import NavMenuPanel from "./widget/NavMenuPanel.astro";
 const className = Astro.props.class;
-
-let links: NavBarLink[] = navBarConfig.links.map(
-	(item: NavBarLink | LinkPreset): NavBarLink => {
-		if (typeof item === "number") {
-			return LinkPresets[item];
-		}
-		return item;
+const links = navBarConfig.links as NavBarLink[];
+const primaryLinks = links.filter((link) => link.name !== "工具");
+const toolsLink = links.find((link) => link.name === "工具");
+const toolLinks: NavBarLink[] = [
+	{
+		name: "画廊",
+		url: "/tools/gallery/",
+		icon: "material-symbols:photo-library-outline-rounded",
 	},
-);
+	{
+		name: "文件",
+		url: "/tools/files/",
+		icon: "material-symbols:folder-open-outline-rounded",
+	},
+	{
+		name: "封面",
+		url: "/tools/cover/",
+		icon: "material-symbols:image-outline-rounded",
+	},
+	{
+		name: "长链接",
+		url: "/tools/long-link/",
+		icon: "material-symbols:link-rounded",
+	},
+	{
+		name: "全部工具",
+		url: "/tools/",
+		icon: "material-symbols:grid-view-outline-rounded",
+	},
+];
 ---
-<div id="navbar" class="z-50">
-    <div class="absolute h-6 left-0 right-0 -top-6 bg-[var(--card-bg)]"></div> <!-- used for onload animation -->
-    <div class:list={[
-        className,
-        "card-base nav-shell !overflow-visible max-w-[var(--page-width)] h-[3.75rem] mx-auto flex items-center justify-between gap-2 px-2 md:px-3"]}>
-        <a href={url("/")} aria-label={siteConfig.title} class="group flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 transition hover:bg-white/[0.045] active:scale-[0.99]">
-            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]">
-                <img src="/favicon/shijies-nook.svg" alt="" class="h-5 w-5" width="20" height="20" />
-            </span>
-            <span class="hidden min-[760px]:block leading-tight">
-                <span class="block text-[13px] font-bold text-white/90">{siteConfig.title}</span>
-                <span class="block text-[10px] uppercase tracking-[0.14em] text-white/35">{siteConfig.subtitle}</span>
-            </span>
-        </a>
-        <nav class="hidden min-[1066px]:flex items-center gap-1" aria-label="主导航">
-            {links.map((l) => {
-                return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation h-9 rounded-md px-3 text-sm font-bold active:scale-95"
-                >
-                    <div class="flex items-center">
-                        {l.icon && <Icon name={l.icon} class="text-[1rem] mr-1.5" />}
-                        {l.name}
-                        {l.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.875rem] transition -translate-y-[1px] ml-1 text-white/[0.2]"></Icon>}
-                    </div>
-                </a>;
-            })}
-        </nav>
-        <div class="flex min-w-0 flex-1 items-center gap-2 min-[1066px]:flex-none min-[1066px]:gap-1">
-            <a aria-label="Home" href={url("/")}
-               class="btn-plain scale-animation flex h-10 w-10 shrink-0 items-center justify-center active:scale-90 min-[1066px]:!hidden border border-white/10">
-                <Icon name="material-symbols:home-rounded" class="text-[1.25rem]"></Icon>
-            </a>
-            <!--<SearchPanel client:load>-->
-            <Search client:idle></Search>
 
-            <details class="shrink-0 min-[1066px]:!hidden">
-                <summary aria-label="Menu" class="btn-plain scale-animation w-10 h-10 active:scale-90 border border-white/10 cursor-pointer">
-                    <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
-                </summary>
-                <NavMenuPanel links={links}></NavMenuPanel>
-            </details>
-        </div>
-    </div>
-</div>
+<header
+	id="navbar"
+	class:list={[
+		className,
+		"nav-shell z-50 w-full border-b border-white/10 bg-[var(--page-bg)]/95",
+	]}
+>
+	<div class="mx-auto flex h-11 max-w-[var(--site-shell-width)] items-center justify-between px-3 sm:px-4">
+		<a
+			href={url("/")}
+			aria-label={siteConfig.title}
+			class="group flex min-w-0 items-center gap-2 font-semibold tracking-tight"
+		>
+			<span class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 bg-white/[0.04]">
+				<img
+					src={profileConfig.avatar || "/favicon/shijies-nook.svg"}
+					alt=""
+					class="h-full w-full object-cover p-0.5"
+					width="28"
+					height="28"
+				/>
+			</span>
+			<span class="truncate text-sm font-bold text-white/90">{siteConfig.title}</span>
+		</a>
+
+		<nav class="hidden items-center gap-1 md:flex" aria-label="主导航">
+			{primaryLinks.map((link) => (
+				<a
+					href={link.external ? link.url : url(link.url)}
+					target={link.external ? "_blank" : null}
+					rel={link.external ? "noopener noreferrer" : null}
+					class="group flex h-9 items-center gap-1.5 rounded-md px-2.5 text-sm text-white/62 transition-colors hover:bg-white/[0.07] hover:text-white"
+				>
+					{link.icon && (
+						<Icon
+							name={link.icon}
+							class="text-[1rem] text-white/45 transition-colors group-hover:text-white/75"
+						/>
+					)}
+					<span>{link.name}</span>
+				</a>
+			))}
+
+			{toolsLink && (
+				<details class="group relative">
+					<summary class="flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-md px-2.5 text-sm text-white/62 transition-colors hover:bg-white/[0.07] hover:text-white">
+						{toolsLink.icon && (
+							<Icon
+								name={toolsLink.icon}
+								class="text-[1rem] text-white/45 transition-colors group-hover:text-white/75"
+							/>
+						)}
+						<span>{toolsLink.name}</span>
+						<Icon
+							name="material-symbols:keyboard-arrow-down-rounded"
+							class="text-[1rem] text-white/38 transition group-open:rotate-180"
+						/>
+					</summary>
+					<div class="absolute right-0 top-full mt-1 w-56 rounded-lg border border-white/10 bg-[var(--float-panel-bg-opaque)] p-2 shadow-xl">
+						{toolLinks.map((link) => (
+							<a
+								href={url(link.url)}
+								class="group/tool flex items-center gap-2 rounded-md px-3 py-2 text-sm text-white/68 transition hover:bg-white/[0.07] hover:text-white"
+							>
+								{link.icon && (
+									<Icon
+										name={link.icon}
+										class="text-[1rem] text-white/42 transition group-hover/tool:text-white/75"
+									/>
+								)}
+								<span>{link.name}</span>
+							</a>
+						))}
+					</div>
+				</details>
+			)}
+		</nav>
+
+		<details class="relative shrink-0 md:hidden">
+			<summary
+				aria-label="打开菜单"
+				class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-md text-white/72 transition hover:bg-white/[0.07] hover:text-white"
+			>
+				<Icon name="material-symbols:menu-rounded" class="text-[1.35rem]"></Icon>
+			</summary>
+			<div class="fixed inset-x-0 top-11 border-b border-white/10 bg-[var(--page-bg)] p-3 shadow-xl">
+				<nav class="mx-auto grid max-w-[var(--site-shell-width)] gap-1" aria-label="移动主导航">
+					{primaryLinks.map((link) => (
+						<a
+							href={url(link.url)}
+							class="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm text-white/72 transition hover:bg-white/[0.07] hover:text-white"
+						>
+							{link.icon && <Icon name={link.icon} class="text-[1rem] text-white/45" />}
+							<span>{link.name}</span>
+						</a>
+					))}
+					<div class="mt-2 border-t border-white/10 pt-2">
+						<a
+							href={url("/tools/")}
+							class="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm text-white/72 transition hover:bg-white/[0.07] hover:text-white"
+						>
+							<Icon name="material-symbols:business-center-outline-rounded" class="text-[1rem] text-white/45" />
+							<span>工具</span>
+						</a>
+					</div>
+				</nav>
+			</div>
+		</details>
+	</div>
+</header>

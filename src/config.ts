@@ -7,7 +7,6 @@ import type {
 	SiteConfig,
 	UmamiConfig,
 } from "./types/config";
-import { LinkPreset } from "./types/config";
 
 const customDomain = "miscoke.top";
 const serviceDomains = {
@@ -99,37 +98,41 @@ export const siteConfig: SiteConfig = {
 
 export const navBarConfig: NavBarConfig = {
 	links: [
-		LinkPreset.Home,
-		LinkPreset.Archive,
+		{
+			name: "博客",
+			url: "/blog/",
+			external: false,
+			icon: "material-symbols:article-outline-rounded",
+		},
+		{
+			name: "AI 生图",
+			url: "/tools/gallery/",
+			external: false,
+			icon: "material-symbols:palette-outline-rounded",
+		},
+		{
+			name: "追番",
+			url: "/timetable/",
+			external: false,
+			icon: "material-symbols:play-circle-outline-rounded",
+		},
 		{
 			name: "友链",
 			url: "/friends/",
 			external: false,
-			icon: "material-symbols:group-outline-rounded",
+			icon: "material-symbols:link-rounded",
 		},
 		{
-			name: "支持",
+			name: "赞助",
 			url: "/sponsors/",
 			external: false,
-			icon: "material-symbols:volunteer-activism-outline-rounded",
+			icon: "material-symbols:favorite-rounded",
 		},
 		{
 			name: "工具",
 			url: "/tools/",
 			external: false,
-			icon: "material-symbols:build-outline-rounded",
-		},
-		{
-			name: "状态",
-			url: `${serviceConfig.umamiBaseUrl}/share/CdkXbGgZr6ECKOyK`,
-			external: true,
-			icon: "material-symbols:table-chart",
-		},
-		{
-			name: "论坛",
-			url: "/forum/",
-			external: false,
-			icon: "material-symbols:forum-outline-rounded",
+			icon: "material-symbols:business-center-outline-rounded",
 		},
 	],
 };

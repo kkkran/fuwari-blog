@@ -1,13 +1,11 @@
-﻿---
+---
 import path from "node:path";
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import Icon from "@components/Icon.astro";
 
-import { serviceConfig } from "../config";
-import { formatPostDateForDisplay } from "../utils/date-utils";
+import { formatDateToYYYYMMDD } from "../utils/date-utils";
 import { getDir } from "../utils/url-utils";
-import PostMetadata from "./PostMeta.astro";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 
 interface Props {
@@ -17,18 +15,18 @@ interface Props {
 	url: string;
 	published: Date;
 	updated?: Date;
-	image: string;
+	image?: string;
 	description: string;
-	draft: boolean;
-	style: string;
+	draft?: boolean;
+	style?: string;
 	loading?: "eager" | "lazy";
 }
+
 const {
 	entry,
 	title,
 	url,
 	published,
-	updated,
 	image,
 	description,
 	style,
@@ -37,100 +35,57 @@ const {
 
 const isPinned = entry.data.pinned === true;
 const className = Astro.props.class;
-
 const hasCover = image !== undefined && image !== null && image !== "";
-
-const coverWidth = "12.5rem";
-
+const tags = entry.data.tags?.slice(0, 1) ?? [];
 const { remarkPluginFrontmatter } = await render(entry);
+const summary = description || remarkPluginFrontmatter.excerpt;
 ---
+
 <a
-    href={url}
-    aria-label={title}
-    class:list={["group card-base card-hover post-row flex w-full flex-col relative p-4 md:min-h-[10.75rem] md:p-4", className]}
-    style={style}
+	href={url}
+	aria-label={title}
+	class:list={[
+		"group flex min-h-[8.25rem] w-full gap-4 p-5 transition-colors hover:bg-white/[0.04]",
+		className,
+	]}
+	style={style}
 >
-    <div class:list={["relative min-w-0", {"pr-12": !hasCover, "md:pr-[calc(var(--coverWidth)_+_1.25rem)]": hasCover}]}>
-        <div class="mb-2 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-white/35">
-            {isPinned && <span class="rounded-md border border-[var(--primary)] px-2 py-0.5 text-[var(--primary)]">Pinned</span>}
-            <span>Note</span>
-        </div>
-        <h2
-            class="transition w-full block font-bold mb-2 text-lg md:text-xl text-90 relative leading-snug
-        group-hover:text-[var(--primary)]
-        group-active:text-[var(--title-active)]
-        "
-        >
-            {title}
-        </h2>
+	<div class="h-24 w-36 shrink-0 overflow-hidden bg-white/[0.03] sm:w-40">
+		{hasCover ? (
+			<ImageWrapper
+				src={image}
+				basePath={path.join("content/posts/", getDir(entry.id))}
+				alt={`Cover Image of ${title}`}
+				class="h-full w-full"
+				loading={loading}
+				objectFit="cover"
+			/>
+		) : (
+			<div class="flex h-full w-full items-center justify-center border border-white/10">
+				<img src="/favicon/shijies-nook.svg" alt="" class="h-9 w-9 opacity-55" width="36" height="36" />
+			</div>
+		)}
+	</div>
 
-        <!-- description -->
-        <div class:list={["transition text-75 mb-3 pr-0 md:pr-4 line-clamp-2 text-sm leading-relaxed"]}>
-            { description || remarkPluginFrontmatter.excerpt }
-        </div>
-
-        <!-- metadata -->
-        <PostMetadata
-            published={published}
-            updated={updated}
-            hideUpdateDate={true}
-            hidePublishedDate={false}
-            slug={entry.id}
-            showTime={false}
-            class="mb-2"
-        ></PostMetadata>
-
-        <!-- word count, read time and page views -->
-        <div class="flex gap-3 font-mono text-xs text-white/35 transition">
-            <div>{remarkPluginFrontmatter.words} 字</div>
-            <div>{remarkPluginFrontmatter.minutes} 分钟</div>
-        </div>
-
-    </div>
-
-    {hasCover && <div
-                    class:list={[
-                        "mt-4 md:mt-0",
-                        "aspect-[16/9] md:aspect-auto md:w-[var(--coverWidth)] md:absolute md:top-4 md:bottom-4 md:right-4 overflow-hidden rounded-md border border-white/10 active:scale-[0.99] flex items-center bg-white/[0.025]"
-                    ]} >
-        <div class="absolute pointer-events-none z-10 w-full h-full group-hover:bg-black/20 group-active:bg-black/35 transition"></div>
-        <!-- 封面图上的箭头 -->
-        <div class="absolute pointer-events-none z-20 w-full h-full flex items-center justify-center ">
-            <Icon name="material-symbols:chevron-right-rounded"
-                  class="transition opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 text-white text-5xl">
-            </Icon>
-        </div>
-        <ImageWrapper src={image} basePath={path.join("content/posts/", getDir(entry.id))} alt="Cover Image of the Post"
-                  class="h-full w-full min-h-0" loading={loading} objectFit="contain">
-        </ImageWrapper>
-    </div>}
-
-    {!hasCover &&
-        <div class="!flex btn-regular w-10
-         absolute right-4 top-4 bottom-4 bg-[var(--enter-btn-bg)]
-         group-hover:bg-[var(--enter-btn-bg-hover)] group-active:bg-[var(--enter-btn-bg-active)] active:scale-95
-        ">
-            <Icon name="material-symbols:chevron-right-rounded"
-                  class="transition text-white/80 text-3xl mx-auto">
-            </Icon>
-        </div>
-    }
+	<div class="flex min-w-0 flex-1 flex-col justify-center">
+		<div class="mb-2 flex flex-wrap items-center gap-2 text-xs text-white/48">
+			{isPinned && (
+				<span class="font-medium text-amber-300">
+					<Icon name="material-symbols:push-pin-rounded" class="mr-0.5 inline-block text-[0.9rem]" />
+					置顶
+				</span>
+			)}
+			<span>{formatDateToYYYYMMDD(published)}</span>
+			<span>·</span>
+			{tags.length > 0 ? <span>{tags[0]}</span> : <span>随笔</span>}
+			<span>·</span>
+			<span>{remarkPluginFrontmatter.minutes} 分钟</span>
+		</div>
+		<h2 class="line-clamp-2 text-[1.05rem] font-bold leading-snug text-white/92 transition-colors group-hover:text-white">
+			{title}
+		</h2>
+		<p class="mt-2 line-clamp-2 text-sm leading-6 text-white/58">
+			{summary}
+		</p>
+	</div>
 </a>
-
-
-
-<style define:vars={{coverWidth}}>
-</style>
-
-<script define:vars={{ assetsBaseUrl: serviceConfig.assetsBaseUrl }}>
-	(function() {
-		const covers = document.querySelectorAll('.post-cover-random');
-		if (!covers.length) return;
-		const max = 1176;
-		for (const img of covers) {
-			const n = Math.floor(Math.random() * max) + 1;
-			img.src = `${assetsBaseUrl}/ri/h/${n}.webp`;
-		}
-	})();
-
-</script>
