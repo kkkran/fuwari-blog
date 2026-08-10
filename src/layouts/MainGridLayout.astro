@@ -53,7 +53,7 @@ const isForumRoute =
 
 <!-- Navbar -->
 <slot slot="head" name="head"></slot>
-<div id="top-row" class="z-50 pointer-events-none relative max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
+<div id="top-row" class="z-50 pointer-events-none relative max-w-[var(--page-width)] px-2 md:px-4 mx-auto" class:list={[""]}>
     <div id="navbar-wrapper" class="pointer-events-auto sticky top-0" style="top: var(--navbar-offset, 0px);">
         <Navbar></Navbar>
     </div>
@@ -71,8 +71,8 @@ const isForumRoute =
 <div class="relative w-full z-30 pointer-events-none" style=`margin-top: ${mainPanelTop}`>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-        <div id="main-grid" class:list={["w-full left-0 right-0 grid grid-cols-1 grid-rows-[auto_auto_auto] mx-auto gap-4 px-0 md:px-4",
-            {"md:grid-cols-[17.5rem_auto] lg:grid-rows-[auto_1fr] md:grid-rows-[auto_1fr]": !isForumRoute}]}
+        <div id="main-grid" class:list={["w-full left-0 right-0 grid grid-cols-1 grid-rows-[auto_auto_auto] mx-auto gap-4 px-2 md:px-4",
+            {"md:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-[auto_1fr] md:grid-rows-[auto_1fr]": !isForumRoute}]}
         >
             <!-- Banner image credit -->
             {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
@@ -87,7 +87,7 @@ const isForumRoute =
                 </Icon>
             </a>}
 
-            <div id="sidebar" class:list={["mb-4 row-start-2 col-span-1 lg:row-span-2 lg:row-start-1 lg:col-span-1 md:row-span-2 md:row-start-1 md:col-span-1 lg:max-w-[17.5rem] md:max-w-[17.5rem] relative", {"hidden": isForumRoute}]} data-forum-base-path={forumBasePath}>
+            <div id="sidebar" class:list={["mb-4 row-start-2 col-span-1 lg:row-span-2 lg:row-start-1 lg:col-span-1 md:row-span-2 md:row-start-1 md:col-span-1 lg:max-w-[17rem] md:max-w-[16rem] relative", {"hidden": isForumRoute}]} data-forum-base-path={forumBasePath}>
                 <div id="sidebar-content" transition:persist>
                     <SideBar headings={headings}></SideBar>
                 </div>

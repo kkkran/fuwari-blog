@@ -40,23 +40,23 @@ const className = Astro.props.class;
 
 const hasCover = image !== undefined && image !== null && image !== "";
 
-const coverWidth = "28%";
+const coverWidth = "12.5rem";
 
 const { remarkPluginFrontmatter } = await render(entry);
 ---
 <a
     href={url}
     aria-label={title}
-    class:list={["group card-base card-hover flex flex-col w-full relative p-5 md:p-6", className]}
+    class:list={["group card-base card-hover post-row flex w-full flex-col relative p-4 md:min-h-[10.75rem] md:p-4", className]}
     style={style}
 >
-    <div class:list={["relative min-w-0", {"pr-16": !hasCover, "md:w-[calc(100%_-_var(--coverWidth)_-_1rem)] md:pr-4": hasCover}]}>
-        <div class="mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/35">
+    <div class:list={["relative min-w-0", {"pr-12": !hasCover, "md:pr-[calc(var(--coverWidth)_+_1.25rem)]": hasCover}]}>
+        <div class="mb-2 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-white/35">
             {isPinned && <span class="rounded-md border border-[var(--primary)] px-2 py-0.5 text-[var(--primary)]">Pinned</span>}
             <span>Note</span>
         </div>
         <h2
-            class="transition w-full block font-bold mb-2 md:mb-3 text-xl md:text-2xl text-90 relative leading-tight
+            class="transition w-full block font-bold mb-2 text-lg md:text-xl text-90 relative leading-snug
         group-hover:text-[var(--primary)]
         group-active:text-[var(--title-active)]
         "
@@ -65,7 +65,7 @@ const { remarkPluginFrontmatter } = await render(entry);
         </h2>
 
         <!-- description -->
-        <div class:list={["transition text-75 mb-4 pr-4 line-clamp-2 leading-relaxed"]}>
+        <div class:list={["transition text-75 mb-3 pr-0 md:pr-4 line-clamp-2 text-sm leading-relaxed"]}>
             { description || remarkPluginFrontmatter.excerpt }
         </div>
 
@@ -77,13 +77,12 @@ const { remarkPluginFrontmatter } = await render(entry);
             hidePublishedDate={false}
             slug={entry.id}
             showTime={false}
-            class="mb-2 md:mb-4"
+            class="mb-2"
         ></PostMetadata>
 
         <!-- word count, read time and page views -->
-        <div class="text-sm text-white/35 flex gap-4 transition">
+        <div class="flex gap-3 font-mono text-xs text-white/35 transition">
             <div>{remarkPluginFrontmatter.words} 字</div>
-            <div>|</div>
             <div>{remarkPluginFrontmatter.minutes} 分钟</div>
         </div>
 
@@ -92,7 +91,7 @@ const { remarkPluginFrontmatter } = await render(entry);
     {hasCover && <div
                     class:list={[
                         "mt-4 md:mt-0",
-                        "md:w-[var(--coverWidth)] md:absolute md:top-5 md:bottom-5 md:right-5 overflow-hidden rounded-lg border border-white/10 active:scale-[0.99] flex items-center"
+                        "aspect-[16/9] md:aspect-auto md:w-[var(--coverWidth)] md:absolute md:top-4 md:bottom-4 md:right-4 overflow-hidden rounded-md border border-white/10 active:scale-[0.99] flex items-center bg-white/[0.025]"
                     ]} >
         <div class="absolute pointer-events-none z-10 w-full h-full group-hover:bg-black/20 group-active:bg-black/35 transition"></div>
         <!-- 封面图上的箭头 -->
@@ -102,13 +101,13 @@ const { remarkPluginFrontmatter } = await render(entry);
             </Icon>
         </div>
         <ImageWrapper src={image} basePath={path.join("content/posts/", getDir(entry.id))} alt="Cover Image of the Post"
-                  class="w-full min-h-0" loading={loading} objectFit="contain">
+                  class="h-full w-full min-h-0" loading={loading} objectFit="contain">
         </ImageWrapper>
     </div>}
 
     {!hasCover &&
-        <div class="!flex btn-regular w-11
-         absolute right-5 top-5 bottom-5 bg-[var(--enter-btn-bg)]
+        <div class="!flex btn-regular w-10
+         absolute right-4 top-4 bottom-4 bg-[var(--enter-btn-bg)]
          group-hover:bg-[var(--enter-btn-bg-hover)] group-active:bg-[var(--enter-btn-bg-active)] active:scale-95
         ">
             <Icon name="material-symbols:chevron-right-rounded"

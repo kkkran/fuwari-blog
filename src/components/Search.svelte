@@ -230,7 +230,7 @@ $: if (allPosts.length > 0 && keyword && sortAsc !== undefined) {
 </script>
 
 <!-- search bar for desktop view -->
-<div id="search-bar" class="hidden min-[1066px]:flex transition-all items-center h-11 mr-2 rounded-lg
+<div id="search-bar" class="hidden min-[1066px]:flex transition-all items-center h-9 mr-1 rounded-md
       bg-white/5 hover:bg-white/10 focus-within:bg-white/10
 ">
     <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-white/30"></Icon>
@@ -239,18 +239,18 @@ $: if (allPosts.length > 0 && keyword && sortAsc !== undefined) {
            on:compositionstart={() => { isComposingDesktop = true; }}
            on:compositionend={() => { isComposingDesktop = false; sanitizeKeyword(); }}
            class="transition-all pl-10 text-sm bg-transparent outline-0
-         h-full w-40 active:w-60 focus:w-60 text-white/50"
+         h-full w-36 active:w-56 focus:w-56 text-white/50"
     >
 </div>
 
 <!-- search bar for phone/tablet view -->
-<div id="search-bar-mobile" class="relative flex h-11 flex-1 items-center rounded-lg bg-white/5 transition hover:bg-white/10 focus-within:bg-white/10 min-[1066px]:hidden">
+<div id="search-bar-mobile" class="relative flex h-10 min-w-0 flex-1 max-w-[15rem] items-center rounded-md bg-white/5 transition hover:bg-white/10 focus-within:bg-white/10 sm:max-w-none min-[1066px]:hidden">
     <Icon icon="material-symbols:search" class="pointer-events-none absolute ml-3 text-[1.25rem] text-white/30 transition"></Icon>
     <input placeholder="搜索" bind:value={keyword} on:focus={() => { void openPanel(); }}
            on:input={sanitizeKeyword}
            on:compositionstart={() => { isComposingMobile = true; }}
            on:compositionend={() => { isComposingMobile = false; sanitizeKeyword(); }}
-           class="h-full w-full rounded-lg bg-transparent pl-10 pr-3 text-sm text-white/50 outline-0"
+           class="h-full w-full min-w-0 rounded-md bg-transparent pl-10 pr-3 text-sm text-white/50 outline-0"
     >
 </div>
 

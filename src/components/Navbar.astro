@@ -19,42 +19,42 @@ let links: NavBarLink[] = navBarConfig.links.map(
 );
 ---
 <div id="navbar" class="z-50">
-    <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)]"></div> <!-- used for onload animation -->
+    <div class="absolute h-6 left-0 right-0 -top-6 bg-[var(--card-bg)]"></div> <!-- used for onload animation -->
     <div class:list={[
         className,
-        "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] mx-auto flex items-center justify-between gap-3 px-3 md:px-4"]}>
-        <a href={url("/")} aria-label={siteConfig.title} class="group flex min-w-0 items-center gap-3 rounded-lg px-2 py-2 transition hover:bg-white/5 active:scale-[0.99]">
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
-                <img src="/favicon/shijies-nook.svg" alt="" class="h-6 w-6" width="24" height="24" />
+        "card-base nav-shell !overflow-visible max-w-[var(--page-width)] h-[3.75rem] mx-auto flex items-center justify-between gap-2 px-2 md:px-3"]}>
+        <a href={url("/")} aria-label={siteConfig.title} class="group flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 transition hover:bg-white/[0.045] active:scale-[0.99]">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]">
+                <img src="/favicon/shijies-nook.svg" alt="" class="h-5 w-5" width="20" height="20" />
             </span>
             <span class="hidden min-[760px]:block leading-tight">
-                <span class="block text-sm font-bold text-white/90">{siteConfig.title}</span>
-                <span class="block text-[11px] text-white/40">{siteConfig.subtitle}</span>
+                <span class="block text-[13px] font-bold text-white/90">{siteConfig.title}</span>
+                <span class="block text-[10px] uppercase tracking-[0.14em] text-white/35">{siteConfig.subtitle}</span>
             </span>
         </a>
-        <nav class="hidden min-[1066px]:flex items-center" aria-label="主导航">
+        <nav class="hidden min-[1066px]:flex items-center gap-1" aria-label="主导航">
             {links.map((l) => {
                 return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation h-10 font-bold px-4 active:scale-95"
+                          class="btn-plain scale-animation h-9 rounded-md px-3 text-sm font-bold active:scale-95"
                 >
                     <div class="flex items-center">
-                        {l.icon && <Icon name={l.icon} class="text-[1.1rem] mr-1.5" />}
+                        {l.icon && <Icon name={l.icon} class="text-[1rem] mr-1.5" />}
                         {l.name}
                         {l.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.875rem] transition -translate-y-[1px] ml-1 text-white/[0.2]"></Icon>}
                     </div>
                 </a>;
             })}
         </nav>
-        <div class="flex flex-1 items-center gap-2 min-[1066px]:flex-none min-[1066px]:gap-0">
+        <div class="flex min-w-0 flex-1 items-center gap-2 min-[1066px]:flex-none min-[1066px]:gap-1">
             <a aria-label="Home" href={url("/")}
-               class="btn-plain scale-animation flex h-11 w-11 items-center justify-center active:scale-90 min-[1066px]:!hidden border border-white/10">
+               class="btn-plain scale-animation flex h-10 w-10 shrink-0 items-center justify-center active:scale-90 min-[1066px]:!hidden border border-white/10">
                 <Icon name="material-symbols:home-rounded" class="text-[1.25rem]"></Icon>
             </a>
             <!--<SearchPanel client:load>-->
             <Search client:idle></Search>
 
-            <details class="min-[1066px]:!hidden">
-                <summary aria-label="Menu" class="btn-plain scale-animation w-11 h-11 active:scale-90 border border-white/10 cursor-pointer">
+            <details class="shrink-0 min-[1066px]:!hidden">
+                <summary aria-label="Menu" class="btn-plain scale-animation w-10 h-10 active:scale-90 border border-white/10 cursor-pointer">
                     <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
                 </summary>
                 <NavMenuPanel links={links}></NavMenuPanel>

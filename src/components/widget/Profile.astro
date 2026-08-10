@@ -19,60 +19,62 @@ for (const post of posts) {
 	}
 }
 ---
-<div class="card-base p-4">
-    <div class="mb-4">
-        <div class="text-xs uppercase tracking-[0.16em] text-white/35">Shijie’s Nook</div>
+<div class="card-base p-3">
+    <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+            <div class="text-[10px] uppercase tracking-[0.18em] text-white/35">Shijie’s Nook</div>
+            <div class="mt-1 truncate text-sm font-bold text-white/88">{config.name}</div>
+        </div>
+        <span class="h-2 w-2 shrink-0 rounded-full bg-[var(--primary)]"></span>
     </div>
-    <div id="profile-avatar-container" class="relative mx-auto lg:mx-0 mb-4 max-w-[12rem] md:max-w-[16rem] lg:max-w-none">
-        <div id="profile-avatar-wrapper" class="relative aspect-square rounded-lg border border-white/10 bg-white/5 p-6" style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
-            <img src={config.avatar} alt="Profile Image of the Author" class="w-full h-full object-cover" width="640" height="640" loading="eager" decoding="async" />
+    <div id="profile-avatar-container" class="relative mb-3">
+        <div id="profile-avatar-wrapper" class="relative aspect-[16/10] overflow-hidden rounded-md border border-white/10 bg-white/[0.045] p-5 md:aspect-square" style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
+            <img src={config.avatar} alt="Profile Image of the Author" class="mx-auto h-full w-full object-contain" width="640" height="640" loading="eager" decoding="async" />
         </div>
     </div>
-    <div class="px-2">
-        <div class="font-bold text-2xl text-center lg:text-left mb-1 text-neutral-50"><h3>{config.name}</h3></div>
-        <div class="h-1 w-8 bg-[var(--primary)] mx-auto lg:mx-0 mb-3"></div>
-        <div class="text-center lg:text-left text-sm leading-relaxed text-neutral-400 mb-3">{config.bio}</div>
-        <div class="flex flex-wrap gap-2 justify-center mb-1">
+    <div>
+        <div class="mb-3 border-l border-[var(--primary)] pl-3 text-sm leading-relaxed text-neutral-400">{config.bio}</div>
+        <div class="flex flex-wrap gap-2 mb-1">
             {config.links.length > 1 && config.links.map(item =>
-                    <a rel="me" aria-label={item.name} href={item.url} target="_blank" class="btn-regular h-10 w-10 active:scale-90 border border-white/10">
-                        <Icon name={item.icon} class="text-[1.5rem]"></Icon>
+                    <a rel="me" aria-label={item.name} href={item.url} target="_blank" class="btn-regular h-9 w-9 active:scale-90 border border-white/10">
+                        <Icon name={item.icon} class="text-[1.25rem]"></Icon>
                     </a>
             )}
             {config.links.length == 1 && <a rel="me" aria-label={config.links[0].name} href={config.links[0].url} target="_blank"
-                                            class="btn-regular h-10 gap-2 px-3 font-bold active:scale-95 border border-white/10">
-                <Icon name={config.links[0].icon} class="text-[1.5rem]"></Icon>
+                                            class="btn-regular h-9 gap-2 px-3 font-bold active:scale-95 border border-white/10">
+                <Icon name={config.links[0].icon} class="text-[1.25rem]"></Icon>
                 {config.links[0].name}
             </a>}
         </div>
         
         <!-- 全站文章与字数统计 -->
-        <div class="grid grid-cols-2 mt-4 pt-4 border-t border-white/10">
-            <div class="text-center">
-                <div class="text-xs text-neutral-500 mb-1 flex items-center justify-center gap-1">
+        <div class="mt-4 grid grid-cols-2 border-t border-white/10 pt-3">
+            <div>
+                <div class="mb-1 flex items-center gap-1 text-xs text-neutral-500">
                     <Icon name="material-symbols:article-outline" class="text-base"></Icon>
                     <span class="text-xs">文章数</span>
                 </div>
-                <div class="font-bold text-lg text-neutral-300">{totalPosts}</div>
+                <div class="font-mono text-lg font-bold text-neutral-300">{totalPosts}</div>
             </div>
-            <div class="text-center border-l border-white/10">
-                <div class="text-xs text-neutral-500 mb-1 flex items-center justify-center gap-1">
+            <div class="border-l border-white/10 pl-3">
+                <div class="mb-1 flex items-center gap-1 text-xs text-neutral-500">
                     <Icon name="material-symbols:format-list-numbered" class="text-base"></Icon>
                     <span class="text-xs">总字数</span>
                 </div>
-                <div class="font-bold text-lg text-neutral-300">
+                <div class="font-mono text-lg font-bold text-neutral-300">
                     {(totalWords / 10000).toFixed(1)}w
                 </div>
             </div>
         </div>
 
         <!-- 全站访问量统计 -->
-        <div id="site-views-wrapper" class="grid grid-cols-1 mt-3 pt-3 border-t border-white/10" style="display: none;">
-            <div class="text-center">
-                <div class="text-xs text-neutral-500 mb-1 flex items-center justify-center gap-1">
+        <div id="site-views-wrapper" class="mt-3 grid grid-cols-1 border-t border-white/10 pt-3" style="display: none;">
+            <div>
+                <div class="mb-1 flex items-center gap-1 text-xs text-neutral-500">
                     <Icon name="material-symbols:visibility-outline" class="text-base"></Icon>
                     <span class="text-xs">访问量</span>
                 </div>
-                <div id="site-views" class="font-bold text-lg text-neutral-300"></div>
+                <div id="site-views" class="font-mono text-lg font-bold text-neutral-300"></div>
             </div>
             <!--
             <div class="text-center border-l border-neutral-700">
