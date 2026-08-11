@@ -19,9 +19,15 @@ function createAuthStore(): AuthStore {
 		loading: true,
 	});
 
+	// 登录态只初始化一次：首次需要时请求 /session，此后由 setUser/clear
+	// 维护，避免页面切换/挂载时反复请求导致顶部登录按钮反复消失再显示。
+	let initialized = false;
+
 	return {
 		subscribe,
 		async refresh(): Promise<void> {
+			if (initialized) return;
+			initialized = true;
 			try {
 				const { user } = await authApi.getSession();
 				set({ user, loading: false });
@@ -30,9 +36,11 @@ function createAuthStore(): AuthStore {
 			}
 		},
 		setUser(user: BlogUser): void {
+			initialized = true;
 			update((state) => ({ ...state, user, loading: false }));
 		},
 		clear(): void {
+			initialized = true;
 			set({ user: null, loading: false });
 		},
 	};
