@@ -192,5 +192,3 @@ export const gitHubEditConfig: GitHubEditConfig = {
 	enable: true,
 	baseUrl: "https://github.com/miscoke/shijies-nook/blob/main/src/content/posts",
 };
-
-// todoConfig removed from here

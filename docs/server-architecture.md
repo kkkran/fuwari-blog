@@ -207,6 +207,21 @@ notifications(id INTEGER PK, user_id REFERENCES users(id) ON DELETE CASCADE,
 回归保障：`server/test/auth.test.ts`（`pnpm test`）覆盖注册/登录/会话/重复注册/密码错误、
 CORS 放行与 403、同日过期 session、邮箱规范化。
 
+### 7.1 前端会话状态与缓存策略（2026-08 改进）
+
+前端登录态由 `src/blog/stores/auth.ts`（`blogAuth` store）维护，策略如下：
+
+- **本地缓存**：`localStorage` 键 `fuwari:blog-auth-user` 仅存公开用户概要（无 token）。
+  整页刷新/导航后先用缓存立即渲染顶部登录按钮（免去等待 `/session` 请求期间的 loading
+  占位），再由 `refresh()` 后台校验并更新缓存。
+- **校验策略**（`refresh()`，会话校验只初始化一次，避免页面切换时反复请求）：
+  - `GET /session` 返回 **401**（会话过期/失效）→ 清除缓存并置未登录，避免会话过期后
+    仍显示已登录；
+  - **网络不可用或服务 5xx**（`BlogApiError` 非 401，含 status=0）→ 保留缓存登录态，
+    避免服务抖动导致误登出，仅结束 loading。
+- **未登录跳过请求**：`BlogManagePage` 在 `refresh()` 后未登录时跳过 `loadMine()`，
+  避免发起注定 401 的"我的文章"列表请求（页面直接渲染登录引导）。
+
 ## 8. 测试
 
 ```bash
