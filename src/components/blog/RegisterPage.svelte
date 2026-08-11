@@ -70,7 +70,7 @@
 
 	{#if githubEnabled}
 		<a
-			href={`/api/auth/github?redirect=${encodeURIComponent(redirect)}`}
+			href={`${BLOG_API_BASE}/api/auth/github?redirect=${encodeURIComponent(redirect)}`}
 			class="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10"
 		>
 			<svg viewBox="0 0 16 16" class="size-4 fill-current" aria-hidden="true">
