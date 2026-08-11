@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { getSessionUser } from "./users.js";
+import { config } from "./config.js";
 import type { User } from "./types.js";
 
 declare global {
@@ -12,14 +13,18 @@ declare global {
 }
 
 export function getSessionToken(req: Request): string | null {
-	const cookieName = process.env.SESSION_COOKIE_NAME ?? "fuwari_session";
+	const cookieName = config.sessionCookieName;
 	const raw = (req as Request & { cookies?: Record<string, string> }).cookies?.[
 		cookieName
 	];
 	return typeof raw === "string" && raw.length > 0 ? raw : null;
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+export function requireAuth(
+	req: Request,
+	res: Response,
+	next: NextFunction,
+): void {
 	const token = getSessionToken(req);
 	if (!token) {
 		res.status(401).json({ error: "未登录" });
@@ -34,7 +39,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 	next();
 }
 
-export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+export function requireAdmin(
+	req: Request,
+	res: Response,
+	next: NextFunction,
+): void {
 	if (!req.user) {
 		res.status(401).json({ error: "未登录" });
 		return;

@@ -21,7 +21,10 @@ import {
 
 export const authRouter = Router();
 
-function setSessionCookie(res: import("express").Response, token: string): void {
+function setSessionCookie(
+	res: import("express").Response,
+	token: string,
+): void {
 	res.cookie(config.sessionCookieName, token, {
 		httpOnly: true,
 		sameSite: config.cookieSameSite,
@@ -33,6 +36,13 @@ function setSessionCookie(res: import("express").Response, token: string): void 
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** 校验并规范化邮箱（去首尾空格 + 统一小写），非法返回 null */
+function normalizeEmail(raw: unknown): string | null {
+	if (typeof raw !== "string") return null;
+	const email = raw.trim().toLowerCase();
+	return EMAIL_RE.test(email) ? email : null;
+}
+
 function normalizeRedirect(raw: unknown): string {
 	if (typeof raw !== "string" || !raw.startsWith("/") || raw.startsWith("//")) {
 		return "/";
@@ -43,11 +53,13 @@ function normalizeRedirect(raw: unknown): string {
 // ---------- 注册 ----------
 
 authRouter.post("/register", (req, res) => {
-	const { email, password, displayName } = (req.body ?? {}) as Record<
-		string,
-		unknown
-	>;
-	if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+	const {
+		email: rawEmail,
+		password,
+		displayName,
+	} = (req.body ?? {}) as Record<string, unknown>;
+	const email = normalizeEmail(rawEmail);
+	if (!email) {
 		res.status(400).json({ error: "邮箱格式不正确" });
 		return;
 	}
@@ -73,8 +85,12 @@ authRouter.post("/register", (req, res) => {
 // ---------- 登录 ----------
 
 authRouter.post("/login", (req, res) => {
-	const { email, password } = (req.body ?? {}) as Record<string, unknown>;
-	if (typeof email !== "string" || typeof password !== "string") {
+	const { email: rawEmail, password } = (req.body ?? {}) as Record<
+		string,
+		unknown
+	>;
+	const email = normalizeEmail(rawEmail);
+	if (!email || typeof password !== "string") {
 		res.status(400).json({ error: "邮箱和密码不能为空" });
 		return;
 	}
@@ -143,7 +159,10 @@ authRouter.get("/github/callback", async (req, res) => {
 			return;
 		}
 		const ghUser = await authenticateWithGithub(code);
-		const email = ghUser.email && EMAIL_RE.test(ghUser.email) ? ghUser.email : null;
+		const email =
+			ghUser.email && EMAIL_RE.test(ghUser.email)
+				? ghUser.email.trim().toLowerCase()
+				: null;
 		const displayName = ghUser.name?.trim() || ghUser.login;
 
 		// 已绑定 GitHub → 直接登录；邮箱已注册 → 绑定；否则新注册

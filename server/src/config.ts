@@ -26,7 +26,7 @@ export const config = {
 	},
 	frontendBaseUrl: process.env.FRONTEND_BASE_URL ?? "http://127.0.0.1:4321",
 	corsOrigins: parseList(
-		process.env.CORS_ORIGIN ?? "http://127.0.0.1:4321",
+		process.env.CORS_ORIGIN ?? "http://127.0.0.1:4321,http://localhost:4321",
 	),
 	databasePath: process.env.DATABASE_PATH ?? "./data/fuwari.db",
 };

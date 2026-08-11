@@ -27,16 +27,16 @@ function toUser(row: UserRow): User {
 }
 
 export function getUserById(id: number): User | null {
-	const row = db
-		.prepare("SELECT * FROM users WHERE id = ?")
-		.get(id) as UserRow | undefined;
+	const row = db.prepare("SELECT * FROM users WHERE id = ?").get(id) as
+		| UserRow
+		| undefined;
 	return row ? toUser(row) : null;
 }
 
 export function getUserByEmail(email: string): User | null {
 	const row = db
-		.prepare("SELECT * FROM users WHERE email = ?")
-		.get(email) as UserRow | undefined;
+		.prepare("SELECT * FROM users WHERE lower(email) = ?")
+		.get(email.toLowerCase()) as UserRow | undefined;
 	return row ? toUser(row) : null;
 }
 
@@ -54,8 +54,8 @@ export function verifyUserPassword(
 	bcryptCompare: (hash: string, plain: string) => boolean,
 ): User | null {
 	const row = db
-		.prepare("SELECT * FROM users WHERE email = ?")
-		.get(email) as UserRow | undefined;
+		.prepare("SELECT * FROM users WHERE lower(email) = ?")
+		.get(email.toLowerCase()) as UserRow | undefined;
 	if (!row || !row.password_hash) return null;
 	if (!bcryptCompare(row.password_hash, password)) return null;
 	return toUser(row);
@@ -89,7 +89,12 @@ export function createUser(input: {
 
 export function updateUserGithub(
 	userId: number,
-	input: { githubId: string; displayName: string; avatarUrl: string; email?: string | null },
+	input: {
+		githubId: string;
+		displayName: string;
+		avatarUrl: string;
+		email?: string | null;
+	},
 ): User {
 	const current = getUserById(userId)!;
 	const role: UserRole = config.adminEmails.includes(input.email ?? "")
@@ -117,21 +122,24 @@ export function createSession(userId: number): string {
 	const expiresAt = new Date(
 		Date.now() + config.sessionTtlDays * 24 * 60 * 60 * 1000,
 	).toISOString();
-	db.prepare("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)").run(
-		token,
-		userId,
-		expiresAt,
-	);
+	db.prepare(
+		"INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+	).run(token, userId, expiresAt);
 	return token;
 }
 
 export function getSessionUser(token: string): User | null {
-	db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
+	// expires_at 历史上存 ISO 8601（如 2026-09-10T10:33:05.410Z），
+	// 与 datetime('now')（2026-08-11 18:33:05）直接字符串比较在同日内会失效，
+	// 统一用 julianday() 解析为时间戳比较
+	db.prepare(
+		"DELETE FROM sessions WHERE julianday(expires_at) < julianday('now')",
+	).run();
 	const row = db
 		.prepare(
 			`SELECT u.* FROM sessions s
        JOIN users u ON u.id = s.user_id
-       WHERE s.token = ? AND s.expires_at > datetime('now')`,
+       WHERE s.token = ? AND julianday(s.expires_at) > julianday('now')`,
 		)
 		.get(token) as UserRow | undefined;
 	return row ? toUser(row) : null;
