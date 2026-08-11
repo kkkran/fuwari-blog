@@ -1,0 +1,8 @@
+---
+import BlogComposer from "@/components/blog/BlogComposer.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="写文章" description="撰写并提交博客文章，审核通过后自动公开。">
+	<BlogComposer client:only="svelte" />
+</MainGridLayout>

@@ -126,7 +126,7 @@
 			on:click={submit}
 		>
 			{#if loading}
-				<Icon name="svg-spinners:ring-resize" class="size-4" />
+				<Icon icon="svg-spinners:ring-resize" class="size-4" />
 			{/if}
 			注册
 		</button>

@@ -1,0 +1,8 @@
+---
+import BlogAdminPage from "@/components/blog/BlogAdminPage.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="审核管理" description="管理员审核博客文章。">
+	<BlogAdminPage client:only="svelte" />
+</MainGridLayout>

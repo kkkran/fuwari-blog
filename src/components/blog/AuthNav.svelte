@@ -73,7 +73,7 @@
 			href={loginUrl}
 			class="inline-flex items-center gap-1 rounded-md border border-[var(--foreground)]/30 px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition-colors hover:border-[var(--foreground)] hover:text-[var(--foreground)]"
 		>
-			<Icon name="material-symbols:login-rounded" class="size-4" />
+			<Icon icon="material-symbols:login-rounded" class="size-4" />
 			<span>登录</span>
 		</a>
 	{:else}
@@ -83,7 +83,7 @@
 			aria-label="写文章"
 			class="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 		>
-			<Icon name="material-symbols:add-rounded" class="text-[1.35rem]" />
+			<Icon icon="material-symbols:add-rounded" class="text-[1.35rem]" />
 		</a>
 		<div class="relative">
 			<button
@@ -133,14 +133,14 @@
 						href="/blog/new/"
 						class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 					>
-						<Icon name="material-symbols:edit-rounded" class="size-4" />
+						<Icon icon="material-symbols:edit-rounded" class="size-4" />
 						<span>写文章</span>
 					</a>
 					<a
 						href="/blog/manage/"
 						class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 					>
-						<Icon name="material-symbols:article-rounded" class="size-4" />
+						<Icon icon="material-symbols:article-rounded" class="size-4" />
 						<span>我的文章</span>
 						{#if unread > 0}
 							<span class="ml-auto rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white"
@@ -153,7 +153,7 @@
 							href="/blog/admin/"
 							class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 						>
-							<Icon name="material-symbols:fact-check-rounded" class="size-4" />
+							<Icon icon="material-symbols:fact-check-rounded" class="size-4" />
 							<span>审核管理</span>
 						</a>
 					{/if}
@@ -163,7 +163,7 @@
 						on:click={logout}
 						class="mt-1 flex w-full cursor-pointer items-center gap-2 rounded-sm border-t border-[var(--foreground)]/10 px-2 py-1.5 text-left text-sm text-red-400 outline-none transition-colors hover:bg-red-500/10"
 					>
-						<Icon name="material-symbols:logout-rounded" class="size-4" />
+						<Icon icon="material-symbols:logout-rounded" class="size-4" />
 						<span>退出登录</span>
 					</button>
 				</div>

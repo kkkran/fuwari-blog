@@ -172,6 +172,37 @@ export const publicApi = {
 	},
 };
 
+// ---------- 上传 ----------
+
+export const uploadApi = {
+	async uploadImage(file: File): Promise<string> {
+		const form = new FormData();
+		form.append("file", file);
+		let response: Response;
+		try {
+			response = await fetch(`${BLOG_API_BASE}/api/upload`, {
+				method: "POST",
+				body: form,
+				credentials: "include",
+			});
+		} catch {
+			throw new BlogApiError("无法连接博客服务，请稍后再试", 0);
+		}
+		if (!response.ok) {
+			let message = `上传失败（${response.status}）`;
+			try {
+				const data = (await response.json()) as { error?: string };
+				if (data.error) message = data.error;
+			} catch {
+				// 非 JSON 响应
+			}
+			throw new BlogApiError(message, response.status);
+		}
+		const data = (await response.json()) as { url: string };
+		return `${BLOG_API_BASE}${data.url}`;
+	},
+};
+
 // ---------- 通知 ----------
 
 export const notificationApi = {

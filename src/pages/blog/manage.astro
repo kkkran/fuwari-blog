@@ -1,0 +1,8 @@
+---
+import BlogManagePage from "@/components/blog/BlogManagePage.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="我的文章" description="管理自己提交的博客文章与审核状态。">
+	<BlogManagePage client:only="svelte" />
+</MainGridLayout>
