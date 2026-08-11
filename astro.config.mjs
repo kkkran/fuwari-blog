@@ -294,6 +294,19 @@ export default defineConfig({
 		},
 		server: {
 			allowedHosts: [siteConfig.customDomain],
+			// 开发环境把博客后端 API/上传静态资源代理到同源路径：
+			// 浏览器端 BLOG_API_BASE 为空（请求 /api、/uploads），Cookie 同源写入/携带，
+			// 避免 localhost 与 127.0.0.1 跨站导致 SameSite=Lax 会话 Cookie 失效。
+			proxy: {
+				"/api": {
+					target: "http://127.0.0.1:3001",
+					changeOrigin: true,
+				},
+				"/uploads": {
+					target: "http://127.0.0.1:3001",
+					changeOrigin: true,
+				},
+			},
 		},
 		build: {
 			rollupOptions: {

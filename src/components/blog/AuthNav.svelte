@@ -66,7 +66,7 @@
 </script>
 
 <div data-authnav class="flex shrink-0 items-center gap-1.5">
-	{#if loading}
+	{#if loading && !user}
 		<div class="h-8 w-8 animate-pulse rounded-full bg-[var(--foreground)]/10"></div>
 	{:else if !user}
 		<a

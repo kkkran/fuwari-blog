@@ -17,8 +17,10 @@
 | 启动 | `pnpm dev`（tsx watch）/ `pnpm start` |
 | 测试 | `pnpm test`（node:test + tsx，集成测试，见 §8） |
 
-前端通过 `src/blog/api.ts`（`BLOG_API_BASE`，默认 `http://127.0.0.1:3001`）调用本服务；
-`credentials: "include"` 携带会话 Cookie。
+前端通过 `src/blog/api.ts`（`BLOG_API_BASE`）调用本服务；`credentials: "include"` 携带会话 Cookie。
+**开发环境浏览器端**走 Astro dev 代理（`astro.config.mjs` `vite.server.proxy` 将 `/api`、`/uploads` 转发到 `http://127.0.0.1:3001`，`BLOG_API_BASE` 为空字符串、请求同源），
+避免 `localhost:4321` 与 `127.0.0.1:3001` 跨站导致 `SameSite=Lax` 会话 Cookie 被浏览器拒绝设置/携带（登录态无法持久化）；
+**SSR 端与生产环境**使用绝对地址（`serviceConfig.blogApiBaseUrl`）。
 
 ## 2. 目录结构与模块职责
 
@@ -221,7 +223,8 @@ pnpm type-check    # tsc --noEmit（src + test）
 1. **CORS**：生产 `CORS_ORIGIN` 必须包含站点域名（如 `https://example.com`）；
    跨站部署（前端与 API 不同站点）还需 `COOKIE_SAME_SITE=none` + `COOKIE_SECURE=true`。
 2. **前端地址**：构建时通过 `PUBLIC_BLOG_API_BASE_URL` 指向 API 根地址
-   （`src/config.ts` 的 `serviceConfig.blogApiBaseUrl`，默认开发为 `http://127.0.0.1:3001`）。
+   （`src/config.ts` 的 `serviceConfig.blogApiBaseUrl`；开发环境浏览器端 `src/blog/api.ts`
+   的 `BLOG_API_BASE` 为空字符串走 Astro dev 同源代理，SSR 端仍为 `http://127.0.0.1:3001`）。
 3. **Cookie 安全**：`HttpOnly` 已开；生产务必 `COOKIE_SECURE=true`。
 4. **数据备份**：SQLite 单文件 + WAL，备份需同时处理 `-wal`/`-shm`（或用 `VACUUM INTO`）。
 

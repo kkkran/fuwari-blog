@@ -1,6 +1,14 @@
 import { serviceConfig } from "@/config";
 
-export const BLOG_API_BASE: string = serviceConfig.blogApiBaseUrl;
+// 开发环境浏览器端走 Astro dev 代理（/api、/uploads → http://127.0.0.1:3001，见
+// astro.config.mjs vite.server.proxy）：请求与页面同源，会话 Cookie 可正常写入/携带。
+// 若直接跨站请求 127.0.0.1:3001（如从 localhost:4321 访问），浏览器会因
+// SameSite=Lax 拒绝设置/携带 Cookie，导致登录态无法持久化。
+// SSR 端（博客列表/详情等服务端渲染）与生产环境仍使用绝对地址。
+export const BLOG_API_BASE: string =
+	import.meta.env.DEV && !import.meta.env.SSR
+		? ""
+		: serviceConfig.blogApiBaseUrl;
 
 export type BlogUserRole = "user" | "admin";
 
