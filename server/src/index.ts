@@ -3,6 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { config } from "./config.js";
 import { authRouter } from "./auth.js";
+import { blogRouter } from "./blog.js";
+import { notificationsRouter } from "./notifications.js";
+import { publicRouter } from "./public.js";
 
 const app = express();
 
@@ -27,6 +30,9 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/blog", blogRouter);
+app.use("/api/notifications", notificationsRouter);
+app.use("/api/public", publicRouter);
 
 // 404
 app.use((_req, res) => {
