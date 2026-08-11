@@ -11,6 +11,11 @@ export const config = {
 	port: Number(process.env.PORT ?? 3001),
 	sessionCookieName: process.env.SESSION_COOKIE_NAME ?? "fuwari_session",
 	sessionTtlDays: Number(process.env.SESSION_TTL_DAYS ?? 30),
+	// 生产跨域（前端 https://x 与 API https://api.x 非同站）需 COOKIE_SAME_SITE=none 且 COOKIE_SECURE=true
+	cookieSameSite: (process.env.COOKIE_SAME_SITE === "none" ? "none" : "lax") as
+		| "lax"
+		| "none",
+	cookieSecure: process.env.COOKIE_SECURE === "true",
 	adminEmails: parseList(process.env.ADMIN_EMAILS),
 	github: {
 		clientId: process.env.GITHUB_CLIENT_ID ?? "",

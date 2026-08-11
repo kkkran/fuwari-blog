@@ -1,0 +1,8 @@
+---
+import LoginPage from "@/components/blog/LoginPage.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="登录" description="登录后即可发布博客文章。">
+	<LoginPage client:only="svelte" />
+</MainGridLayout>

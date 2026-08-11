@@ -24,7 +24,8 @@ export const authRouter = Router();
 function setSessionCookie(res: import("express").Response, token: string): void {
 	res.cookie(config.sessionCookieName, token, {
 		httpOnly: true,
-		sameSite: "lax",
+		sameSite: config.cookieSameSite,
+		secure: config.cookieSecure,
 		maxAge: config.sessionTtlDays * 24 * 60 * 60 * 1000,
 		path: "/",
 	});

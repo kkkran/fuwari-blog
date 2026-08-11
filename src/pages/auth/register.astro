@@ -1,0 +1,8 @@
+---
+import RegisterPage from "@/components/blog/RegisterPage.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="注册" description="创建账号，登录后即可发布博客文章。">
+	<RegisterPage client:only="svelte" />
+</MainGridLayout>
