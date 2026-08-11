@@ -6,7 +6,14 @@ interface AuthState {
 	loading: boolean;
 }
 
-function createAuthStore() {
+interface AuthStore {
+	subscribe: ReturnType<typeof writable<AuthState>>["subscribe"];
+	refresh(): Promise<void>;
+	setUser(user: BlogUser): void;
+	clear(): void;
+}
+
+function createAuthStore(): AuthStore {
 	const { subscribe, set, update } = writable<AuthState>({
 		user: null,
 		loading: true,
@@ -31,4 +38,4 @@ function createAuthStore() {
 	};
 }
 
-export const blogAuth = createAuthStore();
+export const blogAuth: ReturnType<typeof createAuthStore> = createAuthStore();

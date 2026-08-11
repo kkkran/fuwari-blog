@@ -13,7 +13,7 @@ export function emitErrorToast(title: string, description: string): void {
 }
 
 // Alias for emitSuccessToast for backward compatibility
-export const emitInfoToast = emitSuccessToast;
+export const emitInfoToast: typeof emitSuccessToast = emitSuccessToast;
 
 // Alias for emitErrorToast for backward compatibility
-export const emitWarningToast = emitErrorToast;
+export const emitWarningToast: typeof emitErrorToast = emitErrorToast;

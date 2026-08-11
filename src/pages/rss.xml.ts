@@ -1,13 +1,16 @@
 import { getImage } from "astro:assets";
-import { getCollection } from "astro:content";
 import { siteConfig } from "@/config";
 import { getSortedPosts } from "@/utils/content-utils";
+import { fetchDbPostsAll } from "@/utils/blog-db";
 import rss from "@astrojs/rss";
 import type { RSSFeedItem } from "@astrojs/rss";
 import type { APIContext, ImageMetadata } from "astro";
 import MarkdownIt from "markdown-it";
 import { parse as htmlParser } from "node-html-parser";
 import sanitizeHtml from "sanitize-html";
+
+// 动态生成（混合数据源：md 文章 + 数据库文章）
+export const prerender = false;
 
 const markdownParser = new MarkdownIt();
 
@@ -23,6 +26,8 @@ export async function GET(context: APIContext): Promise<Response> {
 
 	// Use the same ordering as site listing (pinned first, then by published desc)
 	const posts = await getSortedPosts();
+	// 数据库文章（后端不可用时为空数组）
+	const dbPosts = await fetchDbPostsAll();
 	const feed: RSSFeedItem[] = [];
 
 	for (const post of posts) {
@@ -75,6 +80,24 @@ export async function GET(context: APIContext): Promise<Response> {
 			}),
 		});
 	}
+
+	// 数据库文章（图片为绝对 URL，直接渲染摘要预览）
+	for (const post of dbPosts) {
+		feed.push({
+			title: post.title,
+			description: post.description,
+			pubDate: new Date(post.publishedAt ?? post.updatedAt),
+			link: new URL(`posts/${post.slug}/`, context.site).href,
+			content: sanitizeHtml(
+				markdownParser.render(post.contentPreview ?? post.description ?? ""),
+				{
+					allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
+				},
+			),
+		});
+	}
+
+	feed.sort((a, b) => (b.pubDate?.getTime() ?? 0) - (a.pubDate?.getTime() ?? 0));
 
 	return rss({
 		title: siteConfig.title,

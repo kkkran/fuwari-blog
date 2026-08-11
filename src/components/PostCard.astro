@@ -6,6 +6,7 @@ import Icon from "@components/Icon.astro";
 
 import { formatDateToYYYYMMDD } from "../utils/date-utils";
 import { getDir } from "../utils/url-utils";
+import { estimateMinutes } from "../utils/blog-db";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 
 interface Props {
@@ -37,7 +38,16 @@ const isPinned = entry.data.pinned === true;
 const className = Astro.props.class;
 const hasCover = image !== undefined && image !== null && image !== "";
 const tags = entry.data.tags?.slice(0, 1) ?? [];
-const { remarkPluginFrontmatter } = await render(entry);
+// 数据库文章（混合数据源）不经过 content collection 的 render，直接使用描述与估算值
+const isDb = (entry as CollectionEntry<"posts"> & { __source?: string }).__source === "db";
+const remarkPluginFrontmatter = isDb
+	? {
+			excerpt:
+				description ||
+				(entry.body ? entry.body.slice(0, 120).replace(/\s+/g, " ").trim() : ""),
+			minutes: estimateMinutes(entry.body || entry.data.title),
+		}
+	: (await render(entry)).remarkPluginFrontmatter;
 const summary = description || remarkPluginFrontmatter.excerpt;
 ---
 
@@ -52,15 +62,26 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 >
 	<div class="cover-skeleton-wrapper relative h-16 w-24 shrink-0 overflow-hidden bg-[var(--card)] sm:h-24 sm:w-36">
 		{hasCover ? (
-			<div class="cover-skeleton absolute inset-0" aria-hidden="true"></div>
-			<ImageWrapper
-				src={image}
-				basePath={path.join("content/posts/", getDir(entry.id))}
-				alt={`Cover Image of ${title}`}
-				class="h-full w-full"
-				loading={loading}
-				objectFit="cover"
-			/>
+			<Fragment>
+				<div class="cover-skeleton absolute inset-0" aria-hidden="true"></div>
+				{isDb ? (
+					<img
+						src={image}
+						alt={`Cover Image of ${title}`}
+						class="h-full w-full object-cover"
+						loading={loading}
+					/>
+				) : (
+					<ImageWrapper
+						src={image}
+						basePath={path.join("content/posts/", getDir(entry.id))}
+						alt={`Cover Image of ${title}`}
+						class="h-full w-full"
+						loading={loading}
+						objectFit="cover"
+					/>
+				)}
+			</Fragment>
 		) : (
 			<div class="flex h-full w-full items-center justify-center border border-[var(--border)]">
 				<img src="/favicon/shijies-nook.svg" alt="" class="h-9 w-9 opacity-55" width="36" height="36" />

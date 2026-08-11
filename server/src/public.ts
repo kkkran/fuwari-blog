@@ -12,12 +12,13 @@ interface PostRow {
 	image: string;
 	tags: string;
 	content: string;
+	content_preview: string | null;
 	author_id: number;
 	author_name: string;
 	published_at: string | null;
 }
 
-function toPublicMeta(row: PostRow): Omit<PostRecord, "content"> {
+function toPublicMeta(row: PostRow): Omit<PostRecord, "content"> & { contentPreview: string } {
 	let tags: string[] = [];
 	try {
 		const parsed = JSON.parse(row.tags);
@@ -41,11 +42,13 @@ function toPublicMeta(row: PostRow): Omit<PostRecord, "content"> {
 		createdAt: row.published_at ?? "",
 		updatedAt: row.published_at ?? "",
 		publishedAt: row.published_at,
+		contentPreview: row.content_preview ?? "",
 	};
 }
 
 const SELECT = `
   SELECT p.id, p.slug, p.title, p.description, p.image, p.tags, p.content,
+         substr(p.content, 1, 300) AS content_preview,
          p.author_id, u.display_name AS author_name, p.published_at
   FROM posts p
   JOIN users u ON u.id = p.author_id

@@ -1,5 +1,9 @@
 import { getCollection } from "astro:content";
+import { fetchDbPostsAll } from "@/utils/blog-db";
 import type { APIRoute } from "astro";
+
+// 动态生成（混合数据源，含数据库文章 slug）
+export const prerender = false;
 
 interface SitemapPage {
 	url: string;
@@ -29,6 +33,17 @@ export const GET: APIRoute = async () => {
 		changefreq: "weekly",
 		lastmod: post.data.updated || post.data.published,
 	}));
+
+	// 数据库文章
+	const dbPosts = await fetchDbPostsAll();
+	for (const post of dbPosts) {
+		postPages.push({
+			url: `/posts/${post.slug}/`,
+			priority: 0.7,
+			changefreq: "weekly",
+			lastmod: post.updatedAt ? new Date(post.updatedAt) : undefined,
+		});
+	}
 
 	const allPages: SitemapPage[] = [...staticPages, ...postPages];
 

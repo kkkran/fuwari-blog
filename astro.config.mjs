@@ -1,5 +1,6 @@
 import svelte from "@astrojs/svelte";
 import tailwind from "@astrojs/tailwind";
+import node from "@astrojs/node";
 import { defineConfig, passthroughImageService } from "astro/config";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeComponents from "rehype-components"; /* Render the custom directive content */
@@ -99,7 +100,11 @@ export default defineConfig({
 		defaultStrategy: "load",
 	},
 	base: "/",
-	output: "static",
+	// 博客列表/详情/数据端点通过 prerender=false 动态渲染（运行时查后端数据库）；
+	// Astro 6 默认即"静态为主 + 按页面动态"（原 hybrid 语义），其余页面保持静态构建
+	adapter: node({
+		mode: "standalone",
+	}),
 	redirects: {
 		"/privacy-policy": {
 			status: 302,

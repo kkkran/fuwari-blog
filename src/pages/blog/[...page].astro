@@ -1,5 +1,4 @@
 ---
-import type { GetStaticPaths } from "astro";
 import Icon from "@components/Icon.astro";
 import PostPage from "../../components/PostPage.astro";
 import Pagination from "../../components/control/Pagination.astro";
@@ -8,14 +7,49 @@ import { siteConfig } from "../../config";
 import { PAGE_SIZE } from "../../constants/constants";
 import SiteShellLayout from "../../layouts/SiteShellLayout.astro";
 import { getSortedPosts } from "../../utils/content-utils";
+import { fetchDbPostsAll, toCollectionEntry } from "../../utils/blog-db";
 import { url } from "../../utils/url-utils";
 
-export const getStaticPaths = (async ({ paginate }) => {
-	const allBlogPosts = await getSortedPosts();
-	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
-}) satisfies GetStaticPaths;
+// 混合数据源：md 文章（content collection）+ 数据库文章（后端），运行时实时合并
+export const prerender = false;
 
-const { page } = Astro.props;
+const allBlogPosts = await getSortedPosts();
+// 后端不可用时降级为纯 md 文章
+const dbPosts = (await fetchDbPostsAll()).map(toCollectionEntry);
+
+const merged = [...dbPosts, ...allBlogPosts].sort(
+	(a, b) => b.data.published.getTime() - a.data.published.getTime(),
+);
+
+const paramPage = Astro.params.page ? Number(Astro.params.page) : 1;
+const currentPage = Number.isFinite(paramPage) && paramPage > 0 ? paramPage : 1;
+const totalPages = Math.max(1, Math.ceil(merged.length / PAGE_SIZE));
+const pageItems = merged.slice(
+	(currentPage - 1) * PAGE_SIZE,
+	currentPage * PAGE_SIZE,
+);
+
+const page = {
+	data: pageItems,
+	currentPage,
+	lastPage: totalPages,
+	total: merged.length,
+	size: PAGE_SIZE,
+	start: (currentPage - 1) * PAGE_SIZE + 1,
+	end: (currentPage - 1) * PAGE_SIZE + pageItems.length,
+	url: {
+		prev:
+			currentPage > 1
+				? currentPage === 2
+					? "/blog/"
+					: `/blog/${currentPage - 1}/`
+				: undefined,
+		next: currentPage < totalPages ? `/blog/${currentPage + 1}/` : undefined,
+		current: currentPage === 1 ? "/blog/" : `/blog/${currentPage}/`,
+		first: "/blog/",
+		last: `/blog/${totalPages}/`,
+	},
+};
 
 const jsonLd = {
 	"@context": "https://schema.org",

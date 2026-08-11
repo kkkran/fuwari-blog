@@ -19,7 +19,16 @@ const serviceDomains = {
 	liveStatus: `b-live.${customDomain}`,
 };
 
-export const serviceConfig = {
+export const serviceConfig: {
+	trackerBaseUrl: string;
+	assetsBaseUrl: string;
+	umamiBaseUrl: string;
+	forumBaseUrl: string;
+	fileApiBaseUrl: string;
+	iconMetaBaseUrl: string;
+	liveStatusUrl: string;
+	blogApiBaseUrl: string;
+} = {
 	trackerBaseUrl: `https://${serviceDomains.tracker}`,
 	assetsBaseUrl: `https://${serviceDomains.assets}`,
 	umamiBaseUrl: `https://${serviceDomains.umami}`,
@@ -28,8 +37,7 @@ export const serviceConfig = {
 	iconMetaBaseUrl: `https://${serviceDomains.iconMeta}`,
 	liveStatusUrl: `https://${serviceDomains.liveStatus}`,
 	// 博客后端（自建 Express 服务）；开发环境走本地，生产可用 PUBLIC_BLOG_API_BASE_URL 覆盖
-	blogApiBaseUrl:
-		import.meta.env.PUBLIC_BLOG_API_BASE_URL ??
+	blogApiBaseUrl: (import.meta.env.PUBLIC_BLOG_API_BASE_URL as string | undefined) ??
 		(import.meta.env.DEV
 			? "http://127.0.0.1:3001"
 			: "https://api.miscoke.top"),

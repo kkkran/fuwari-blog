@@ -1,6 +1,6 @@
 import { serviceConfig } from "@/config";
 
-export const BLOG_API_BASE = serviceConfig.blogApiBaseUrl;
+export const BLOG_API_BASE: string = serviceConfig.blogApiBaseUrl;
 
 export type BlogUserRole = "user" | "admin";
 
@@ -90,25 +90,29 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 // ---------- 认证 ----------
 
 export const authApi = {
-	register(input: { email: string; password: string; displayName: string }) {
+	register(input: {
+		email: string;
+		password: string;
+		displayName: string;
+	}): Promise<{ user: BlogUser }> {
 		return request<{ user: BlogUser }>("/api/auth/register", {
 			method: "POST",
 			body: JSON.stringify(input),
 		});
 	},
-	login(input: { email: string; password: string }) {
+	login(input: { email: string; password: string }): Promise<{ user: BlogUser }> {
 		return request<{ user: BlogUser }>("/api/auth/login", {
 			method: "POST",
 			body: JSON.stringify(input),
 		});
 	},
-	logout() {
+	logout(): Promise<{ ok: boolean }> {
 		return request<{ ok: boolean }>("/api/auth/logout", { method: "POST" });
 	},
-	getSession() {
+	getSession(): Promise<{ user: BlogUser | null }> {
 		return request<{ user: BlogUser | null }>("/api/auth/session");
 	},
-	getProviders() {
+	getProviders(): Promise<{ github: boolean }> {
 		return request<{ github: boolean }>("/api/auth/providers");
 	},
 };
@@ -116,42 +120,42 @@ export const authApi = {
 // ---------- 博客 ----------
 
 export const blogApi = {
-	create(input: PostDraft) {
+	create(input: PostDraft): Promise<{ post: BlogPost }> {
 		return request<{ post: BlogPost }>("/api/blog/posts", {
 			method: "POST",
 			body: JSON.stringify(input),
 		});
 	},
-	update(slug: string, input: PostDraft) {
+	update(slug: string, input: PostDraft): Promise<{ post: BlogPost }> {
 		return request<{ post: BlogPost }>(`/api/blog/posts/${encodeURIComponent(slug)}`, {
 			method: "PUT",
 			body: JSON.stringify(input),
 		});
 	},
-	mine() {
+	mine(): Promise<{ items: BlogPost[] }> {
 		return request<{ items: BlogPost[] }>("/api/blog/posts/mine");
 	},
-	getMine(slug: string) {
+	getMine(slug: string): Promise<{ post: BlogPost }> {
 		return request<{ post: BlogPost }>(`/api/blog/posts/${encodeURIComponent(slug)}`);
 	},
-	remove(slug: string) {
+	remove(slug: string): Promise<{ ok: boolean }> {
 		return request<{ ok: boolean }>(`/api/blog/posts/${encodeURIComponent(slug)}`, {
 			method: "DELETE",
 		});
 	},
 	// admin
-	listByStatus(status: PostStatus) {
+	listByStatus(status: PostStatus): Promise<{ items: BlogPost[] }> {
 		return request<{ items: BlogPost[] }>(
 			`/api/blog/posts?status=${encodeURIComponent(status)}`,
 		);
 	},
-	approve(slug: string) {
+	approve(slug: string): Promise<{ ok: boolean }> {
 		return request<{ ok: boolean }>(
 			`/api/blog/posts/${encodeURIComponent(slug)}/approve`,
 			{ method: "POST" },
 		);
 	},
-	reject(slug: string, reason: string) {
+	reject(slug: string, reason: string): Promise<{ ok: boolean }> {
 		return request<{ ok: boolean }>(
 			`/api/blog/posts/${encodeURIComponent(slug)}/reject`,
 			{ method: "POST", body: JSON.stringify({ reason }) },
@@ -162,12 +166,23 @@ export const blogApi = {
 // ---------- 公开查询 ----------
 
 export const publicApi = {
-	list(page = 1, pageSize = 20) {
-		return request<{ items: Omit<BlogPost, "content">[]; total: number; page: number; pageSize: number }>(
-			`/api/public/posts?page=${page}&pageSize=${pageSize}`,
-		);
+	list(
+		page = 1,
+		pageSize = 20,
+	): Promise<{
+		items: Omit<BlogPost, "content">[];
+		total: number;
+		page: number;
+		pageSize: number;
+	}> {
+		return request<{
+			items: Omit<BlogPost, "content">[];
+			total: number;
+			page: number;
+			pageSize: number;
+		}>(`/api/public/posts?page=${page}&pageSize=${pageSize}`);
 	},
-	get(slug: string) {
+	get(slug: string): Promise<{ post: BlogPost }> {
 		return request<{ post: BlogPost }>(`/api/public/posts/${encodeURIComponent(slug)}`);
 	},
 };
@@ -206,13 +221,13 @@ export const uploadApi = {
 // ---------- 通知 ----------
 
 export const notificationApi = {
-	unreadCount() {
+	unreadCount(): Promise<{ count: number }> {
 		return request<{ count: number }>("/api/notifications/unread-count");
 	},
-	list() {
+	list(): Promise<{ items: BlogNotification[] }> {
 		return request<{ items: BlogNotification[] }>("/api/notifications");
 	},
-	markRead(ids?: number[]) {
+	markRead(ids?: number[]): Promise<{ ok: boolean }> {
 		return request<{ ok: boolean }>("/api/notifications/read", {
 			method: "POST",
 			body: JSON.stringify({ ids }),
