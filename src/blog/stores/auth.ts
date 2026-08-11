@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { authApi, type BlogUser } from "@/blog/api";
+import { authApi, BlogApiError, type BlogUser } from "@/blog/api";
 
 interface AuthState {
 	user: BlogUser | null;
@@ -61,8 +61,14 @@ function createAuthStore(): AuthStore {
 				const { user } = await authApi.getSession();
 				set({ user, loading: false });
 				writeCachedUser(user);
-			} catch {
-				// 网络/服务异常时保留缓存登录态，避免误登出；仅结束 loading
+			} catch (error) {
+				// 会话明确失效（401）：清除缓存并置未登录，避免会话过期后仍显示已登录
+				if (error instanceof BlogApiError && error.status === 401) {
+					writeCachedUser(null);
+					set({ user: null, loading: false });
+					return;
+				}
+				// 网络/服务不可用（status=0 或 5xx）：保留缓存登录态避免误登出，仅结束 loading
 				update((state) => ({ ...state, loading: false }));
 			}
 		},

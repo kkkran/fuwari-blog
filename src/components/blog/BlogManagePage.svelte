@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { get } from "svelte/store";
 	import { blogApi, type BlogPost } from "@/blog/api";
 	import { blogAuth } from "@/blog/stores/auth";
 	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
@@ -64,7 +65,10 @@
 
 	onMount(async () => {
 		await blogAuth.refresh();
-		await loadMine();
+		// 未登录时页面渲染登录引导，跳过注定 401 的列表请求
+		if (get(blogAuth).user) {
+			await loadMine();
+		}
 	});
 </script>
 
