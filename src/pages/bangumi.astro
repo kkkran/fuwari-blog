@@ -1,0 +1,122 @@
+---
+export const prerender = false;
+
+import PageCardHeader from "@components/misc/PageCardHeader.astro";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import {
+	fetchBangumiCards,
+} from "@utils/bangumi-data";
+import {
+	groupCardsByCategory,
+} from "@utils/bangumi-cards";
+
+const cards = await fetchBangumiCards();
+const groups = groupCardsByCategory(cards);
+const categoryOrder = ["在看", "想看", "看过"];
+const orderedCategories = categoryOrder.filter((key) => groups[key]);
+const fallbackCategories = Object.keys(groups).filter((key) => !categoryOrder.includes(key));
+const tabs = [...orderedCategories, ...fallbackCategories];
+const totalCount = cards.length;
+---
+
+<MainGridLayout title="追番">
+	<div class="p-6 md:p-8 border-b border-white/10">
+		<PageCardHeader title="追番" icon="material-symbols:play-circle-outline-rounded" pathname="/bangumi/">
+			<div slot="title-extra" class="text-sm font-medium text-white/80">共 {totalCount} 部</div>
+		</PageCardHeader>
+
+		<p class="text-sm text-50 mb-5 leading-relaxed">
+			最近在追、想看与看过的番剧动态，数据来自
+			<a href="https://bgm.tv/user/1272604" target="_blank" rel="noopener noreferrer" class="font-medium text-75 hover:text-[var(--primary)] transition-colors">我的 Bangumi 收藏</a>。
+		</p>
+
+		{tabs.length > 0 ? (
+			<>
+				<div class="flex flex-wrap items-center gap-2 mb-6" data-bangumi-tabs>
+					{tabs.map((cat) => (
+						<button
+							type="button"
+							data-bangumi-tab={cat}
+							class:list={[
+								"btn-regular h-9 px-4 rounded-lg text-sm font-medium",
+								{ "opacity-60": cat !== tabs[0] },
+							]}
+						>
+							{cat} <span class="text-white/50 ml-1">{groups[cat].length}</span>
+						</button>
+					))}
+				</div>
+
+				<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+					{tabs.map((cat) => (
+						<div class="contents" data-bangumi-panel={cat} class:list={[{ "hidden": cat !== tabs[0] }]}>
+							{groups[cat].map((card) => (
+								<a
+									href={card.detailUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="card-base flex flex-col overflow-hidden hover:border-[var(--border)] hover:bg-[var(--card)] transition"
+								>
+									<div class="relative aspect-[3/4] w-full overflow-hidden bg-black/20">
+										{card.coverUrl ? (
+											<img
+												src={card.coverUrl}
+												alt={card.title}
+												loading="lazy"
+												referrerpolicy="no-referrer"
+												class="h-full w-full object-cover"
+											/>
+										) : (
+											<div class="flex h-full w-full items-center justify-center text-white/30">
+												无封面
+											</div>
+										)}
+										{card.score != null && (
+											<span class="absolute left-2 top-2 rounded-md bg-black/70 px-2 py-0.5 text-xs font-bold text-[var(--primary)] backdrop-blur-sm">
+												{card.score.toFixed(1)}
+											</span>
+										)}
+									</div>
+									<div class="flex flex-1 flex-col gap-1 p-3">
+										<div class="line-clamp-2 text-sm font-semibold text-white/85 leading-snug">{card.title}</div>
+										{card.totalEps != null && (
+											<div class="text-xs text-white/50">
+												{card.eps ?? 0}/{card.totalEps} 话
+											</div>
+										)}
+									</div>
+								</a>
+							))}
+						</div>
+					))}
+				</div>
+			</>
+		) : (
+			<div class="rounded-lg border border-white/10 bg-[var(--card-bg)] p-8 text-center">
+				<p class="text-lg font-semibold text-white/75 mb-2">还没有追番记录</p>
+				<p class="text-sm text-white/50">
+					去
+					<a href="https://bgm.tv/user/1272604" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--primary)] hover:underline">
+						Bangumi
+					</a>
+					添加想看的番剧，这里会自动同步展示。
+				</p>
+			</div>
+		)}
+	</div>
+
+	<script>
+		const tabButtons = document.querySelectorAll<HTMLButtonElement>("[data-bangumi-tab]");
+		const panels = document.querySelectorAll<HTMLElement>("[data-bangumi-panel]");
+
+		tabButtons.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const target = btn.dataset.bangumiTab;
+				tabButtons.forEach((b) => b.classList.toggle("opacity-60", b !== btn));
+				panels.forEach((p) => {
+					p.classList.toggle("hidden", p.dataset.bangumiPanel !== target);
+				});
+			});
+		});
+	</script>
+</MainGridLayout>

@@ -126,7 +126,7 @@ export const navBarConfig: NavBarConfig = {
 		},
 		{
 			name: "追番",
-			url: "/timetable/",
+			url: "/bangumi/",
 			external: false,
 			icon: "material-symbols:play-circle-outline-rounded",
 		},
