@@ -11,6 +11,7 @@
 		"preview": "astro preview",
 		"astro": "astro",
 		"type-check": "tsc --noEmit --isolatedDeclarations",
+		"test": "vitest run",
 		"new-post": "node scripts/new-post.js",
 		"post-commit": "node scripts/post-commit.js",
 		"clean": "node scripts/clean-unused-images.js",
@@ -84,7 +85,8 @@
 		"sanitize-html": "^2.16.0",
 		"stylus": "^0.64.0",
 		"typescript": "^5.8.3",
-		"unist-util-visit": "^5.0.0"
+		"unist-util-visit": "^5.0.0",
+		"vitest": "^4.1.10"
 	},
 	"packageManager": "pnpm@9.14.4",
 	"pnpm": {
