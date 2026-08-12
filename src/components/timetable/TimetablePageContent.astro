@@ -21,14 +21,14 @@ const liveStatusPayload = {
 ---
 
 <div class="p-6 md:p-8 border-b border-white/10">
-	<PageCardHeader title={viewModel.tableName} icon="material-symbols:calendar-month" pathname="/timetable/">
+	<PageCardHeader title={viewModel.tableName} icon="material-symbols:calendar-month" pathname="/tools/timetable/">
 		<div slot="title-extra" class="text-sm font-medium text-white/80">共 {viewModel.maxWeek} 周</div>
 	</PageCardHeader>
 
 	<div class="flex flex-wrap items-center gap-3 mb-5 text-sm">
 		<div class="inline-flex items-center gap-1">
 			<a
-				href={`/timetable/${Math.max(1, viewModel.currentWeek - 1)}/`}
+				href={`/tools/timetable/${Math.max(1, viewModel.currentWeek - 1)}/`}
 				class:list={[
 					"btn-regular h-9 w-9 rounded-lg flex items-center justify-center font-medium",
 					{ "pointer-events-none opacity-50": viewModel.currentWeek <= 1 },
@@ -39,7 +39,7 @@ const liveStatusPayload = {
 			</a>
 			<span class="min-w-[4.5rem] px-1 text-center font-medium text-white">第 {viewModel.currentWeek} 周</span>
 			<a
-				href={`/timetable/${Math.min(viewModel.maxWeek, viewModel.currentWeek + 1)}/`}
+				href={`/tools/timetable/${Math.min(viewModel.maxWeek, viewModel.currentWeek + 1)}/`}
 				class:list={[
 					"btn-regular h-9 w-9 rounded-lg flex items-center justify-center font-medium",
 					{ "pointer-events-none opacity-50": viewModel.currentWeek >= viewModel.maxWeek },
