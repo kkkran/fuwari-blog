@@ -215,7 +215,7 @@ function getResultStyle(type: string) {
 }
 </script>
 
-<div class="flex flex-col gap-6 w-full max-w-4xl mx-auto">
+<div class="flex flex-col gap-6 w-full max-w-6xl mx-auto">
   <div class="flex flex-col gap-4 bg-[var(--card-bg)] border border-[var(--line-color)] rounded-2xl p-6 relative">
     
     <div class="text-sm text-50 mb-4 px-2">

@@ -3,6 +3,7 @@ import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
 } from "../constants/constants";
+import { isNoSidebarRoute } from "../utils/layout-utils";
 import { bindPostInlineDiff } from "../scripts/post-inline-diff";
 
 const bannerEnabled = !!document.getElementById("banner-wrapper");
@@ -67,18 +68,19 @@ function syncSidebarProfileMode() {
 	const isForumRoute =
 		normalizedCurrentPath === normalizedForumBasePath ||
 		normalizedCurrentPath.startsWith(normalizedForumBasePath);
+	const isNoSidebar = isNoSidebarRoute(currentPath);
 
 	// 控制整个 sidebar 的显示/隐藏
-	sidebar.classList.toggle("hidden", isForumRoute);
+	sidebar.classList.toggle("hidden", isNoSidebar);
 
-	// 同步 main-grid 的 grid 布局类（服务端根据 isForumRoute 渲染，客户端导航后需要同步）
+	// 同步 main-grid 的 grid 布局类（服务端根据路由渲染，客户端导航后需要同步）
 	if (mainGrid) {
 		const gridCols = "md:grid-cols-[17.5rem_auto]";
 		const lgRows = "lg:grid-rows-[auto_1fr]";
 		const mdRows = "md:grid-rows-[auto_1fr]";
-		mainGrid.classList.toggle(gridCols, !isForumRoute);
-		mainGrid.classList.toggle(lgRows, !isForumRoute);
-		mainGrid.classList.toggle(mdRows, !isForumRoute);
+		mainGrid.classList.toggle(gridCols, !isNoSidebar);
+		mainGrid.classList.toggle(lgRows, !isNoSidebar);
+		mainGrid.classList.toggle(mdRows, !isNoSidebar);
 	}
 
 	// 同步 main-content 的定位类
@@ -88,7 +90,7 @@ function syncSidebarProfileMode() {
 			"md:row-start-1", "md:col-start-2", "md:col-span-1"
 		];
 		for (const cls of contentClasses) {
-			mainContent.classList.toggle(cls, !isForumRoute);
+			mainContent.classList.toggle(cls, !isNoSidebar);
 		}
 	}
 
@@ -99,7 +101,7 @@ function syncSidebarProfileMode() {
 			"md:col-span-1", "md:col-start-2", "md:row-start-2"
 		];
 		for (const cls of footerClasses) {
-			footer.classList.toggle(cls, !isForumRoute);
+			footer.classList.toggle(cls, !isNoSidebar);
 		}
 	}
 
