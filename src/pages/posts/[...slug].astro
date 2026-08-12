@@ -227,24 +227,24 @@ const pageDescription = entry
 
 					<!-- 上一篇 / 下一篇 -->
 					<div class="mt-8 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-6 sm:grid-cols-2">
-						{hasNext ? (
+						{hasPrev ? (
 							<a
-								href={getPostUrlBySlug(next!.slug)}
+								href={getPostUrlBySlug(prev!.slug)}
 								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-colors hover:bg-[var(--accent)]"
 							>
 								<div class="text-xs text-[var(--muted-foreground)]">上一篇</div>
-								<div class="mt-1 line-clamp-2 text-sm font-semibold">{next!.title}</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{prev!.title}</div>
 							</a>
 						) : (
 							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
 						)}
-						{hasPrev ? (
+						{hasNext ? (
 							<a
-								href={getPostUrlBySlug(prev!.slug)}
+								href={getPostUrlBySlug(next!.slug)}
 								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-right transition-colors hover:bg-[var(--accent)]"
 							>
 								<div class="text-xs text-[var(--muted-foreground)]">下一篇</div>
-								<div class="mt-1 line-clamp-2 text-sm font-semibold">{prev!.title}</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{next!.title}</div>
 							</a>
 						) : (
 							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
@@ -313,24 +313,24 @@ const pageDescription = entry
 
 					<!-- 上一篇 / 下一篇（社区文章同样纳入） -->
 					<div class="mt-8 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-6 sm:grid-cols-2">
-						{hasNext ? (
+						{hasPrev ? (
 							<a
-								href={getPostUrlBySlug(next!.slug)}
+								href={getPostUrlBySlug(prev!.slug)}
 								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-colors hover:bg-[var(--accent)]"
 							>
 								<div class="text-xs text-[var(--muted-foreground)]">上一篇</div>
-								<div class="mt-1 line-clamp-2 text-sm font-semibold">{next!.title}</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{prev!.title}</div>
 							</a>
 						) : (
 							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
 						)}
-						{hasPrev ? (
+						{hasNext ? (
 							<a
-								href={getPostUrlBySlug(prev!.slug)}
+								href={getPostUrlBySlug(next!.slug)}
 								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-right transition-colors hover:bg-[var(--accent)]"
 							>
 								<div class="text-xs text-[var(--muted-foreground)]">下一篇</div>
-								<div class="mt-1 line-clamp-2 text-sm font-semibold">{prev!.title}</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{next!.title}</div>
 							</a>
 						) : (
 							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
