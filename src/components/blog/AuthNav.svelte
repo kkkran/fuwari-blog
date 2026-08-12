@@ -32,6 +32,21 @@
 		menuOpen = !menuOpen;
 	}
 
+	async function handleManageClick(event: MouseEvent): Promise<void> {
+		// 点击「我的文章」时先标记全部通知已读（红点消失），再跳转；
+		// 避免整页导航中断进行中的已读请求。
+		event.preventDefault();
+		const target = event.currentTarget as HTMLAnchorElement | null;
+		const href = target?.href ?? "/blog/manage/";
+		try {
+			await notificationApi.markRead();
+			unread = 0;
+		} catch {
+			// 标记失败不阻塞导航；红点保留，待下次轮询或点击重试
+		}
+		window.location.href = href;
+	}
+
 	function handleDocClick(event: MouseEvent): void {
 		const target = event.target as HTMLElement | null;
 		if (target && target.closest("[data-authnav]")) return;
@@ -138,6 +153,7 @@
 					</a>
 					<a
 						href="/blog/manage/"
+						on:click={handleManageClick}
 						class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
 					>
 						<Icon icon="material-symbols:article-rounded" class="size-4" />
