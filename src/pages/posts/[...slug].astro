@@ -13,9 +13,14 @@ import { profileConfig, serviceConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
 import {
 	fetchDbPost,
+	fetchDbPostsAll,
 	renderDbMarkdown,
 	type DbPostFull,
 } from "../../utils/blog-db";
+import {
+	computePrevNext,
+	mergeSortedPosts,
+} from "../../utils/post-sorting";
 
 // 混合数据源详情：先查 md 文章（content collection），未命中再查数据库文章；均未命中 404
 export const prerender = false;
@@ -23,6 +28,11 @@ export const prerender = false;
 const slug = Astro.params.slug ?? "";
 const allPosts = await getSortedPosts();
 const entry = allPosts.find((post) => post.id === slug) ?? null;
+
+// 合并 md + db 计算上一篇/下一篇（跨数据源）
+const dbAllPosts = await fetchDbPostsAll();
+const mergedPosts = mergeSortedPosts({ mdPosts: allPosts, dbPosts: dbAllPosts });
+const { prev, next } = computePrevNext(mergedPosts, slug);
 
 let dbPost: DbPostFull | null = null;
 let dbContentHtml = "";
@@ -120,8 +130,8 @@ const jsonLdDb = dbPost
 	: null;
 
 const tags = entry ? (entry.data.tags ?? []) : (dbPost?.tags ?? []);
-const hasNext = !!entry?.data.nextSlug;
-const hasPrev = !!entry?.data.prevSlug;
+const hasNext = !!next;
+const hasPrev = !!prev;
 const pageTitle = entry ? entry.data.title : (dbPost?.title ?? "");
 const pageDescription = entry
 	? entry.data.description
@@ -219,22 +229,22 @@ const pageDescription = entry
 					<div class="mt-8 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-6 sm:grid-cols-2">
 						{hasNext ? (
 							<a
-								href={getPostUrlBySlug(entry.data.nextSlug)}
+								href={getPostUrlBySlug(next!.slug)}
 								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-colors hover:bg-[var(--accent)]"
 							>
 								<div class="text-xs text-[var(--muted-foreground)]">上一篇</div>
-								<div class="mt-1 line-clamp-2 text-sm font-semibold">{entry.data.nextTitle}</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{next!.title}</div>
 							</a>
 						) : (
 							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
 						)}
 						{hasPrev ? (
 							<a
-								href={getPostUrlBySlug(entry.data.prevSlug)}
+								href={getPostUrlBySlug(prev!.slug)}
 								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-right transition-colors hover:bg-[var(--accent)]"
 							>
 								<div class="text-xs text-[var(--muted-foreground)]">下一篇</div>
-								<div class="mt-1 line-clamp-2 text-sm font-semibold">{entry.data.prevTitle}</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{prev!.title}</div>
 							</a>
 						) : (
 							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
@@ -300,6 +310,32 @@ const pageDescription = entry
 							))}
 						</div>
 					)}
+
+					<!-- 上一篇 / 下一篇（社区文章同样纳入） -->
+					<div class="mt-8 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-6 sm:grid-cols-2">
+						{hasNext ? (
+							<a
+								href={getPostUrlBySlug(next!.slug)}
+								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-colors hover:bg-[var(--accent)]"
+							>
+								<div class="text-xs text-[var(--muted-foreground)]">上一篇</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{next!.title}</div>
+							</a>
+						) : (
+							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
+						)}
+						{hasPrev ? (
+							<a
+								href={getPostUrlBySlug(prev!.slug)}
+								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-right transition-colors hover:bg-[var(--accent)]"
+							>
+								<div class="text-xs text-[var(--muted-foreground)]">下一篇</div>
+								<div class="mt-1 line-clamp-2 text-sm font-semibold">{prev!.title}</div>
+							</a>
+						) : (
+							<div class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-50"></div>
+						)}
+					</div>
 				</Fragment>
 			)}
 

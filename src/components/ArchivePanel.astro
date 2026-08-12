@@ -2,17 +2,22 @@
 
 import { getSortedPosts } from "../utils/content-utils";
 import { getPostUrlBySlug } from "../utils/url-utils";
+import { fetchDbPostsAll } from "../utils/blog-db";
+import { mergeSortedPosts } from "../utils/post-sorting";
 
 interface Props {
 	keyword?: string;
 }
 
-let posts = await getSortedPosts();
+const mdPosts = await getSortedPosts();
+// 后端不可用时降级为纯 md 文章
+const dbPosts = await fetchDbPostsAll();
+const posts = mergeSortedPosts({ mdPosts, dbPosts });
 
 const groups: { year: number; posts: typeof posts }[] = (() => {
 	const groupedPosts = posts.reduce(
 		(grouped: { [year: number]: typeof posts }, post) => {
-			const year = post.data.published.getFullYear();
+			const year = post.published.getFullYear();
 			if (!grouped[year]) {
 				grouped[year] = [];
 			}
@@ -74,14 +79,14 @@ function formatDate(date: Date) {
                     <div class="w-[70%] md:w-[80%] transition text-left text-[var(--muted-foreground)]">{group.posts.length} 篇文章</div>
                 </div>
                 {group.posts.map(post => (
-                    <a href={getPostUrlBySlug(post.id)}
-                       aria-label={post.data.title}
+                    <a href={getPostUrlBySlug(post.slug)}
+                       aria-label={post.title}
                        class="group btn-plain !block h-10 w-full hover:text-[initial]"
                     >
                         <div class="flex flex-row justify-start items-center h-full">
                             <!-- date -->
                             <div class="w-[15%] md:w-[10%] transition text-sm text-right text-[var(--muted-foreground)]">
-                                {formatDate(post.data.published)}
+                                {formatDate(post.published)}
                             </div>
                             <!-- dot and line -->
                             <div class="w-[15%] md:w-[10%] relative dash-line h-full flex items-center">
@@ -99,7 +104,7 @@ function formatDate(date: Date) {
                                 group-hover:translate-x-1 transition-all group-hover:text-[var(--primary)]
                                 text-[var(--foreground)] pr-8 whitespace-nowrap overflow-ellipsis overflow-hidden"
                             >
-                                    {post.data.title}
+                                    {post.title}
                             </div>
                             <!-- tag list -->
                             <div class="hidden md:block md:w-[15%] text-left text-sm transition

@@ -3,6 +3,9 @@ import ArchivePanel from "@components/ArchivePanel.astro";
 
 import SiteShellLayout from "@layouts/SiteShellLayout.astro";
 
+// 归档需运行时合并数据库文章，关闭静态预渲染
+export const prerender = false;
+
 const breadcrumbSchema = {
 	"@context": "https://schema.org",
 	"@type": "BreadcrumbList",
