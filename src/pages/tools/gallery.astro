@@ -28,6 +28,7 @@ import { serviceConfig } from "@/config";
             特别鸣谢：<b class="font-bold text-75">锦瑟/瑞希</b> 大佬提供的图源
 		</div>
 
+		<div id="gallery-skeleton" class="gallery-skeleton" aria-hidden="true" style="display:none"></div>
 		<div id="gallery" class="gallery-grid" data-ready="false"></div>
 		<div id="footer-status" class="text-center text-sm text-50 h-10 mt-4"></div>
 		<div id="sentinel" class="h-4"></div>
@@ -48,6 +49,30 @@ import { serviceConfig } from "@/config";
 		}
 		.gallery-item {
 			line-height: 24px;
+		}
+		.gallery-skeleton {
+			width: 100%;
+			gap: 16px;
+			justify-content: start;
+		}
+		.gallery-skeleton-card {
+			border-radius: 12px;
+			background: linear-gradient(
+				100deg,
+				rgba(255, 255, 255, 0.05) 40%,
+				rgba(255, 255, 255, 0.12) 50%,
+				rgba(255, 255, 255, 0.05) 60%
+			);
+			background-size: 200% 100%;
+			animation: gallery-skeleton-shimmer 1.4s infinite;
+		}
+		@keyframes gallery-skeleton-shimmer {
+			0% {
+				background-position: 120% 0;
+			}
+			100% {
+				background-position: -80% 0;
+			}
 		}
 	</style>
 
@@ -158,7 +183,7 @@ import { serviceConfig } from "@/config";
 			return `${DOMAIN}/ri/${currentType}/${n}.webp`;
 		}
 
-		function buildCard(url, width) {
+		function buildCard(url, width, eager = false) {
 			const a = document.createElement("a");
 			a.href = url;
 			// a.target = "_blank";
@@ -173,7 +198,7 @@ import { serviceConfig } from "@/config";
 
 			const img = document.createElement("img");
 			img.src = url;
-			img.loading = "lazy";
+			img.loading = eager ? "eager" : "lazy";
 			img.decoding = "async";
 			img.alt = "gallery";
 			img.className = "w-full h-auto block";
@@ -182,6 +207,29 @@ import { serviceConfig } from "@/config";
 			a.appendChild(wrapper);
 			a.appendChild(document.createElement("br"));
 			return a;
+		}
+
+		function showSkeleton() {
+			const skeletonEl = document.getElementById("gallery-skeleton");
+			const galleryEl = document.getElementById("gallery");
+			if (!skeletonEl || !galleryEl) return;
+			const { cols, columnWidth } = getLayoutConfig(galleryEl);
+			const ratio = currentType === "v" ? 3 / 4 : 4 / 3;
+			skeletonEl.style.display = "grid";
+			skeletonEl.style.gridTemplateColumns = `repeat(${cols}, ${columnWidth}px)`;
+			skeletonEl.innerHTML = "";
+			for (let i = 0; i < cols * 2; i++) {
+				const card = document.createElement("div");
+				card.className = "gallery-skeleton-card";
+				card.style.width = `${columnWidth}px`;
+				card.style.height = `${Math.round(columnWidth * ratio)}px`;
+				skeletonEl.appendChild(card);
+			}
+		}
+
+		function hideSkeleton() {
+			const skeletonEl = document.getElementById("gallery-skeleton");
+			if (skeletonEl) skeletonEl.style.display = "none";
 		}
 
 		function clearGallery() {
@@ -196,7 +244,9 @@ import { serviceConfig } from "@/config";
 			}
 		}
 
-		async function loadMore(batch = 20) {
+		const REVEAL_TIMEOUT_MS = 8000;
+
+		async function loadMore(batch = 20, { eager = false } = {}) {
 			const galleryEl = document.getElementById("gallery");
 			const footerStatus = document.getElementById("footer-status");
 			if (!galleryEl || loading) return;
@@ -222,7 +272,7 @@ import { serviceConfig } from "@/config";
 					const n = getNextIndex(max);
 					if (!n) break;
 					const url = buildImgUrl(n);
-					const el = buildCard(url, columnWidth);
+					const el = buildCard(url, columnWidth, eager);
 					items.push(el);
 					frag.appendChild(el);
 				}
@@ -230,16 +280,23 @@ import { serviceConfig } from "@/config";
 				if (items.length > 0) {
 					galleryEl.appendChild(frag);
 					await new Promise((resolve) => {
-						imagesLoaded(items, () => {
+						let settled = false;
+						const finish = () => {
+							if (settled) return;
+							settled = true;
 							if (!msnry) return resolve();
 							msnry.appended(items);
 							msnry.layout();
-							// 显示图片
+							// 该批全部就绪后统一显示
 							for (const item of items) {
 								item.classList.remove("opacity-0");
 							}
-							if (galleryEl.dataset.ready !== "true") galleryEl.dataset.ready = "true";
 							resolve();
+						};
+						const timer = setTimeout(finish, REVEAL_TIMEOUT_MS);
+						imagesLoaded(items, () => {
+							clearTimeout(timer);
+							finish();
 						});
 					});
 				}
@@ -270,6 +327,16 @@ import { serviceConfig } from "@/config";
 			}
 		}
 
+		async function loadFirstScreen(batch = 24) {
+			const galleryEl = document.getElementById("gallery");
+			if (!galleryEl) return;
+			showSkeleton();
+			await loadMore(batch, { eager: true });
+			// 首屏整批就绪后统一显示并隐藏骨架
+			galleryEl.dataset.ready = "true";
+			hideSkeleton();
+		}
+
 		function setType(type) {
 			if (type !== "h" && type !== "v") return;
 			if (currentType === type) return;
@@ -277,7 +344,7 @@ import { serviceConfig } from "@/config";
 			setActiveButton();
 			updateStatus();
 			clearGallery();
-			loadMore(24);
+			loadFirstScreen(24);
 		}
 
 		function setupInfiniteLoad() {
@@ -315,7 +382,7 @@ import { serviceConfig } from "@/config";
 			isReverse = !isReverse;
 			updateSortButton();
 			clearGallery();
-			loadMore(24);
+			loadFirstScreen(24);
 		}
 
 		const fancyboxOptions = {
@@ -356,7 +423,7 @@ import { serviceConfig } from "@/config";
 			await fetchCounts();
 			updateSortButton();
 			clearGallery();
-			await loadMore(24);
+			await loadFirstScreen(24);
 			const sentinelEl = document.getElementById("sentinel");
 			if (sentinelEl && !loading) {
 				const rect = sentinelEl.getBoundingClientRect();

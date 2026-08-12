@@ -205,8 +205,15 @@ $: currentView = pathStack[pathStack.length - 1] || { path: "/", items: [] };
 
     <div class="file-list min-h-[200px] relative">
         {#if loading && items.length === 0}
-            <div class="absolute inset-0 flex items-center justify-center text-white/20">
-                <Icon icon="svg-spinners:ring-resize" class="text-4xl" />
+            <div class="skeleton-rows absolute inset-0">
+                {#each Array(6) as _, i}
+                    <div class="skeleton-row flex items-center gap-2 py-2 px-3">
+                        <div class="skeleton-block h-6 w-6 rounded-lg"></div>
+                        <div class="skeleton-line flex-1"></div>
+                        <div class="skeleton-line w-16"></div>
+                        <div class="skeleton-line w-8"></div>
+                    </div>
+                {/each}
             </div>
         {/if}
 
@@ -288,5 +295,27 @@ $: currentView = pathStack[pathStack.length - 1] || { path: "/", items: [] };
     .breadcrumb-bar::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.1);
         border-radius: 10px;
+    }
+
+    .skeleton-block {
+        background: rgba(255, 255, 255, 0.08);
+        animation: od-skeleton-shimmer 1.4s infinite;
+    }
+    .skeleton-line {
+        height: 14px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        animation: od-skeleton-shimmer 1.4s infinite;
+    }
+    @keyframes od-skeleton-shimmer {
+        0% {
+            opacity: 0.5;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0.5;
+        }
     }
 </style>

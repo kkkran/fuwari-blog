@@ -9,7 +9,21 @@ const { page } = Astro.props;
 <div
 	id="post-list-container"
 	class="mb-6 grid border-t border-l border-[var(--border)] bg-transparent md:grid-cols-2"
+	data-ready="false"
 >
+	<style>
+		#post-list-container {
+			opacity: 0;
+			transform: translateY(4px);
+			transition:
+				opacity 0.25s ease,
+				transform 0.25s ease;
+		}
+		#post-list-container[data-ready="true"] {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	</style>
 
     {page.data.map((entry: CollectionEntry<"posts">) => (
         <article class="border-b border-r border-[var(--border)]">
@@ -22,8 +36,60 @@ const { page } = Astro.props;
                     image={entry.data.image}
                     description={entry.data.description}
                     draft={entry.data.draft}
-                    loading="lazy"
+                    loading="eager"
             ></PostCard>
         </article>
     ))}
 </div>
+
+<script is:inline>
+	// 等当前页全部封面就绪后统一显示整列表（含骨架统一隐藏）
+	const REVEAL_TIMEOUT_MS = 8000;
+
+	function revealPostList() {
+		const container = document.getElementById("post-list-container");
+		if (!container || container.dataset.inited === "true") return;
+		container.dataset.inited = "true";
+
+		const images = Array.from(container.querySelectorAll("img.image-content"));
+		if (images.length === 0) {
+			container.dataset.ready = "true";
+			return;
+		}
+
+		let pending = images.length;
+		let settled = false;
+		const finish = () => {
+			if (settled) return;
+			settled = true;
+			// 统一隐藏所有骨架占位
+			container
+				.querySelectorAll(".cover-skeleton")
+				.forEach((el) => el.classList.add("hidden"));
+			container.dataset.ready = "true";
+		};
+		const timer = setTimeout(finish, REVEAL_TIMEOUT_MS);
+
+		images.forEach((img) => {
+			const onDone = () => {
+				pending -= 1;
+				if (pending <= 0) {
+					clearTimeout(timer);
+					finish();
+				}
+			};
+			if (img.complete) {
+				onDone();
+			} else {
+				img.addEventListener("load", onDone, { once: true });
+				img.addEventListener("error", onDone, { once: true });
+			}
+		});
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", revealPostList, { once: true });
+	} else {
+		revealPostList();
+	}
+</script>
