@@ -104,3 +104,90 @@ describe("createRevealScheduler", () => {
 		expect(events).toEqual(["all-ready"]);
 	});
 });
+
+describe("createRevealScheduler 最短展示时间（minShowMs）", () => {
+	function createMinShowClock() {
+		let now = 0;
+		const timers = new Map<number, { fn: () => void; at: number }>();
+		let nextId = 1;
+		return {
+			now,
+			advance(ms: number) {
+				now += ms;
+				for (const [id, t] of [...timers]) {
+					if (t.at <= now) {
+						timers.delete(id);
+						t.fn();
+					}
+				}
+			},
+			setTimer: (fn: () => void, ms: number) => {
+				const id = nextId++;
+				timers.set(id, { fn, at: now + ms });
+				return id;
+			},
+			clearTimer: (id: unknown) => {
+				timers.delete(id as number);
+			},
+			getNow: () => now,
+		};
+	}
+
+	it("图片立即全部就绪时，延迟到 minShowMs 后才完成", () => {
+		const clock = createMinShowClock();
+		const events: string[] = [];
+		const scheduler = createRevealScheduler(2, (reason) => events.push(reason), {
+			minShowMs: 400,
+			setTimer: clock.setTimer,
+			clearTimer: clock.clearTimer,
+			getNow: clock.getNow,
+		});
+		scheduler.markSettled();
+		scheduler.markSettled();
+		expect(events).toEqual([]);
+		clock.advance(399);
+		expect(events).toEqual([]);
+		clock.advance(1);
+		expect(events).toEqual(["all-ready"]);
+	});
+
+	it("图片就绪耗时超过 minShowMs 时立即完成", () => {
+		const clock = createMinShowClock();
+		const events: string[] = [];
+		const scheduler = createRevealScheduler(1, (reason) => events.push(reason), {
+			minShowMs: 400,
+			setTimer: clock.setTimer,
+			clearTimer: clock.clearTimer,
+			getNow: clock.getNow,
+		});
+		clock.advance(500);
+		scheduler.markSettled();
+		expect(events).toEqual(["all-ready"]);
+	});
+
+	it("minShowMs 不改变超时行为：图片一直未就绪仍按 timeoutMs 完成", () => {
+		const clock = createMinShowClock();
+		const events: string[] = [];
+		const scheduler = createRevealScheduler(1, (reason) => events.push(reason), {
+			timeoutMs: 8000,
+			minShowMs: 400,
+			setTimer: clock.setTimer,
+			clearTimer: clock.clearTimer,
+			getNow: clock.getNow,
+		});
+		clock.advance(8000);
+		expect(events).toEqual(["timeout"]);
+	});
+
+	it("minShowMs 缺省时行为不变：立即就绪立即完成", () => {
+		const clock = createMinShowClock();
+		const events: string[] = [];
+		const scheduler = createRevealScheduler(1, (reason) => events.push(reason), {
+			setTimer: clock.setTimer,
+			clearTimer: clock.clearTimer,
+			getNow: clock.getNow,
+		});
+		scheduler.markSettled();
+		expect(events).toEqual(["all-ready"]);
+	});
+});
