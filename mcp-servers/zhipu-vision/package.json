@@ -1,0 +1,23 @@
+{
+	"name": "zhipu-vision-mcp",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"description": "智谱 GLM-4.6V-Flash 视觉模型 MCP 服务器",
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"dev": "tsx src/index.ts",
+		"test:client": "tsx test/client.ts"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.14.0",
+		"dotenv": "^17.3.1",
+		"zod": "^3.25.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.0.0",
+		"tsx": "^4.19.0",
+		"typescript": "^5.8.3"
+	}
+}
