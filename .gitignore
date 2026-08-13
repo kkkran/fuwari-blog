@@ -68,3 +68,6 @@ src/data/timetable/source/
 
 #  Git Diff
 src/json/git-history.json
+
+# oneimg 图床（嵌套仓库 + 图片数据，不入库）
+oneimg/

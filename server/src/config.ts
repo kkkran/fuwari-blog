@@ -29,6 +29,13 @@ export const config = {
 		process.env.CORS_ORIGIN ?? "http://127.0.0.1:4321,http://localhost:4321",
 	),
 	databasePath: process.env.DATABASE_PATH ?? "./data/fuwari.db",
+	// oneimg 图床：启用后新上传的图片转发图床，失败回退本地存储
+	imageHosting: {
+		enabled: process.env.IMAGE_HOSTING_ENABLED === "true",
+		baseUrl: (process.env.IMAGE_HOSTING_BASE_URL ?? "").replace(/\/+$/, ""),
+		username: process.env.IMAGE_HOSTING_USERNAME ?? "",
+		password: process.env.IMAGE_HOSTING_PASSWORD ?? "",
+	},
 };
 
 export function githubOAuthEnabled(): boolean {
