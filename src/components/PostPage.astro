@@ -7,6 +7,24 @@ const { page } = Astro.props;
 ---
 
 <div
+	id="post-list-skeleton"
+	class="mb-6 grid border-t border-l border-[var(--border)] bg-transparent transition-opacity duration-300 md:grid-cols-2"
+	aria-hidden="true"
+>
+	{Array.from({ length: page.data.length }).map(() => (
+		<div class="flex items-center gap-3 border-b border-r border-[var(--border)] p-3 sm:gap-4 sm:p-5">
+			<div class="skeleton-stripe h-16 w-24 shrink-0 sm:h-24 sm:w-36"></div>
+			<div class="min-w-0 flex-1 space-y-2.5 py-1">
+				<div class="skeleton-stripe h-3 w-32 rounded-sm"></div>
+				<div class="skeleton-stripe mt-2 h-4 w-3/4 rounded-sm"></div>
+				<div class="skeleton-stripe h-3 w-full rounded-sm"></div>
+				<div class="skeleton-stripe h-3 w-2/3 rounded-sm"></div>
+			</div>
+		</div>
+	))}
+</div>
+
+<div
 	id="post-list-container"
 	class="mb-6 grid border-t border-l border-[var(--border)] bg-transparent md:grid-cols-2"
 	data-ready="false"
@@ -22,6 +40,20 @@ const { page } = Astro.props;
 		#post-list-container[data-ready="true"] {
 			opacity: 1;
 			transform: translateY(0);
+		}
+		.skeleton-stripe {
+			background-color: #262626;
+			background-image: repeating-linear-gradient(
+				45deg,
+				transparent 0,
+				transparent 10px,
+				rgba(255, 255, 255, 0.07) 10px,
+				rgba(255, 255, 255, 0.07) 20px
+			);
+		}
+		#post-list-skeleton.hidden-skeleton {
+			opacity: 0;
+			visibility: hidden;
 		}
 	</style>
 
@@ -42,8 +74,10 @@ const { page } = Astro.props;
     ))}
 </div>
 
-<script is:inline>
-	// 等当前页全部封面就绪后统一显示整列表（含骨架统一隐藏）
+<script>
+	import { createRevealScheduler } from "../utils/reveal-scheduler";
+
+	// 先展示整卡骨架，等当前页全部封面就绪（或超时）后骨架淡出、真实列表统一淡入
 	const REVEAL_TIMEOUT_MS = 8000;
 
 	function revealPostList() {
@@ -51,38 +85,24 @@ const { page } = Astro.props;
 		if (!container || container.dataset.inited === "true") return;
 		container.dataset.inited = "true";
 
+		const skeleton = document.getElementById("post-list-skeleton");
 		const images = Array.from(container.querySelectorAll("img.image-content"));
-		if (images.length === 0) {
-			container.dataset.ready = "true";
-			return;
-		}
 
-		let pending = images.length;
-		let settled = false;
-		const finish = () => {
-			if (settled) return;
-			settled = true;
-			// 统一隐藏所有骨架占位
-			container
-				.querySelectorAll(".cover-skeleton")
-				.forEach((el) => el.classList.add("hidden"));
-			container.dataset.ready = "true";
-		};
-		const timer = setTimeout(finish, REVEAL_TIMEOUT_MS);
+		const scheduler = createRevealScheduler(
+			images.length,
+			() => {
+				skeleton?.classList.add("hidden-skeleton");
+				container.dataset.ready = "true";
+			},
+			{ timeoutMs: REVEAL_TIMEOUT_MS },
+		);
 
 		images.forEach((img) => {
-			const onDone = () => {
-				pending -= 1;
-				if (pending <= 0) {
-					clearTimeout(timer);
-					finish();
-				}
-			};
 			if (img.complete) {
-				onDone();
+				scheduler.markSettled();
 			} else {
-				img.addEventListener("load", onDone, { once: true });
-				img.addEventListener("error", onDone, { once: true });
+				img.addEventListener("load", () => scheduler.markSettled(), { once: true });
+				img.addEventListener("error", () => scheduler.markSettled(), { once: true });
 			}
 		});
 	}
