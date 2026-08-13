@@ -20,6 +20,7 @@
 		"update-diff": "node scripts/update-diff.js",
 		"watermark": "node scripts/add-watermark.js",
 		"ai-summary": "node scripts/generate-ai-summary.js",
+		"upimg": "node scripts/upimg.js",
 		"format": "biome format --write ./src",
 		"lint": "biome check --write ./src",
 		"postinstall": "patch-package"
