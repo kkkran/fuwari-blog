@@ -6,72 +6,101 @@ import PostCard from "./PostCard.astro";
 const { page } = Astro.props;
 ---
 
-<div
-	id="post-list-skeleton"
-	class="mb-6 grid border-t border-l border-[var(--border)] bg-transparent transition-opacity duration-300 md:grid-cols-2"
-	aria-hidden="true"
->
-	{Array.from({ length: page.data.length }).map(() => (
-		<div class="flex items-center gap-3 border-b border-r border-[var(--border)] p-3 sm:gap-4 sm:p-5">
-			<div class="skeleton-stripe h-16 w-24 shrink-0 sm:h-24 sm:w-36"></div>
-			<div class="min-w-0 flex-1 space-y-2.5 py-1">
-				<div class="skeleton-stripe h-3 w-32 rounded-sm"></div>
-				<div class="skeleton-stripe mt-2 h-4 w-3/4 rounded-sm"></div>
-				<div class="skeleton-stripe h-3 w-full rounded-sm"></div>
-				<div class="skeleton-stripe h-3 w-2/3 rounded-sm"></div>
+<div class="relative mb-6 border-t border-l border-[var(--border)]">
+	<div
+		id="post-list-container"
+		class="grid bg-transparent md:grid-cols-2"
+		data-ready="false"
+	>
+		<style>
+			#post-list-container {
+				opacity: 0;
+				transform: translateY(4px);
+				transition:
+					opacity 0.25s ease,
+					transform 0.25s ease;
+			}
+			#post-list-container[data-ready="true"] {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		</style>
+
+        {page.data.map((entry: CollectionEntry<"posts">) => (
+            <article class="border-b border-r border-[var(--border)]">
+                <PostCard
+                        entry={entry}
+                        title={entry.data.title}
+                        published={entry.data.published}
+                        updated={entry.data.updated}
+                        url={getPostUrlBySlug(entry.id)}
+                        image={entry.data.image}
+                        description={entry.data.description}
+                        draft={entry.data.draft}
+                        loading="eager"
+                ></PostCard>
+            </article>
+        ))}
+	</div>
+
+	<div
+		id="post-list-skeleton"
+		class="absolute inset-0 z-10 grid bg-[var(--bg)] transition-opacity duration-300 md:grid-cols-2"
+		aria-hidden="true"
+	>
+		<style>
+			.skeleton-stripe {
+				background-color: #262626;
+				background-image:
+					repeating-linear-gradient(
+						45deg,
+						transparent 0,
+						transparent 10px,
+						rgba(255, 255, 255, 0.07) 10px,
+						rgba(255, 255, 255, 0.07) 20px
+					),
+					linear-gradient(
+						100deg,
+						rgba(255, 255, 255, 0.05) 40%,
+						rgba(255, 255, 255, 0.14) 50%,
+						rgba(255, 255, 255, 0.05) 60%
+					);
+				background-size:
+					auto,
+					200% 100%;
+				animation: skeleton-shimmer 1.4s infinite;
+			}
+			@keyframes skeleton-shimmer {
+				0% {
+					background-position:
+						0 0,
+						120% 0;
+				}
+				100% {
+					background-position:
+						0 0,
+						-80% 0;
+				}
+			}
+			#post-list-skeleton.hidden-skeleton {
+				opacity: 0;
+				visibility: hidden;
+				pointer-events: none;
+			}
+		</style>
+
+		{Array.from({ length: page.data.length }).map(() => (
+			<div class="flex items-center gap-3 border-b border-r border-[var(--border)] p-3 sm:gap-4 sm:p-5">
+				<div class="skeleton-stripe h-16 w-24 shrink-0 sm:h-24 sm:w-36"></div>
+				<div class="min-w-0 flex-1 space-y-2.5 py-1">
+					<div class="skeleton-stripe h-3 w-32 rounded-sm"></div>
+					<div class="skeleton-stripe mt-2 h-4 w-3/4 rounded-sm"></div>
+					<div class="skeleton-stripe h-3 w-full rounded-sm"></div>
+					<div class="skeleton-stripe h-3 w-2/3 rounded-sm"></div>
+				</div>
 			</div>
-		</div>
-	))}
-</div>
-
-<div
-	id="post-list-container"
-	class="mb-6 grid border-t border-l border-[var(--border)] bg-transparent md:grid-cols-2"
-	data-ready="false"
->
-	<style>
-		#post-list-container {
-			opacity: 0;
-			transform: translateY(4px);
-			transition:
-				opacity 0.25s ease,
-				transform 0.25s ease;
-		}
-		#post-list-container[data-ready="true"] {
-			opacity: 1;
-			transform: translateY(0);
-		}
-		.skeleton-stripe {
-			background-color: #262626;
-			background-image: repeating-linear-gradient(
-				45deg,
-				transparent 0,
-				transparent 10px,
-				rgba(255, 255, 255, 0.07) 10px,
-				rgba(255, 255, 255, 0.07) 20px
-			);
-		}
-		#post-list-skeleton.hidden-skeleton {
-			opacity: 0;
-			visibility: hidden;
-		}
-	</style>
-
-    {page.data.map((entry: CollectionEntry<"posts">) => (
-        <article class="border-b border-r border-[var(--border)]">
-            <PostCard
-                    entry={entry}
-                    title={entry.data.title}
-                    published={entry.data.published}
-                    updated={entry.data.updated}
-                    url={getPostUrlBySlug(entry.id)}
-                    image={entry.data.image}
-                    description={entry.data.description}
-                    draft={entry.data.draft}
-                    loading="eager"
-            ></PostCard>
-        </article>
-    ))}
+		))}
+	</div>
 </div>
 
 <script>
@@ -79,6 +108,7 @@ const { page } = Astro.props;
 
 	// 先展示整卡骨架，等当前页全部封面就绪（或超时）后骨架淡出、真实列表统一淡入
 	const REVEAL_TIMEOUT_MS = 8000;
+	const REVEAL_MIN_SHOW_MS = 400;
 
 	function revealPostList() {
 		const container = document.getElementById("post-list-container");
@@ -94,7 +124,7 @@ const { page } = Astro.props;
 				skeleton?.classList.add("hidden-skeleton");
 				container.dataset.ready = "true";
 			},
-			{ timeoutMs: REVEAL_TIMEOUT_MS },
+			{ timeoutMs: REVEAL_TIMEOUT_MS, minShowMs: REVEAL_MIN_SHOW_MS },
 		);
 
 		images.forEach((img) => {
