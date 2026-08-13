@@ -46,6 +46,8 @@
 - 文章页集成 Giscus（`src/pages/posts/[...slug].astro`）。
 - 全局布局引入外部脚本（如 GTM/广告/同意管理），入口在 `src/layouts/Layout.astro`。
 - 内容维护脚本会直接读写 `src/content/posts` 与 `src/content/assets`（见 `scripts/*.js`）。
+- 图片走 oneimg 图床：发图用 `pnpm upimg <图片路径>`（一键上传并复制 Markdown 引用，配置见 `ONEIMG_*` 环境变量）；图床源码在 `oneimg/`（已 gitignore，不入库），本机地址 `http://127.0.0.1:8080`。
+- 博客后端 `server/` 上传接口（`POST /api/upload`）已接入图床：新上传转发 oneimg，失败自动回退本地 `data/uploads`；配置见 `server/.env` 的 `IMAGE_HOSTING_*`。
 
 ## Security
 
