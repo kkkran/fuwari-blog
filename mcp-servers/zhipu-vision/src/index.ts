@@ -1,6 +1,10 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import { readFile } from "node:fs/promises";
-import { extname, resolve } from "node:path";
+import { dirname, extname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+loadEnv({ path: resolve(PACKAGE_ROOT, ".env"), quiet: true });
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
