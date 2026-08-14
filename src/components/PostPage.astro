@@ -106,9 +106,9 @@ const { page } = Astro.props;
 <script>
 	import { createRevealScheduler } from "../utils/reveal-scheduler";
 
-	// 先展示整卡骨架，等当前页全部封面就绪（或超时）后骨架淡出、真实列表统一淡入
+	// 先展示整卡骨架，等当前页全部封面就绪（或超时）后骨架淡出、真实列表统一淡入；
+	// 展示时长完全跟随实际加载速度，不设固定下限
 	const REVEAL_TIMEOUT_MS = 8000;
-	const REVEAL_MIN_SHOW_MS = 400;
 
 	function revealPostList() {
 		const container = document.getElementById("post-list-container");
@@ -124,7 +124,7 @@ const { page } = Astro.props;
 				skeleton?.classList.add("hidden-skeleton");
 				container.dataset.ready = "true";
 			},
-			{ timeoutMs: REVEAL_TIMEOUT_MS, minShowMs: REVEAL_MIN_SHOW_MS },
+			{ timeoutMs: REVEAL_TIMEOUT_MS },
 		);
 
 		images.forEach((img) => {

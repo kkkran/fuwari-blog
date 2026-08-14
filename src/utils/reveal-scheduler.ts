@@ -5,18 +5,16 @@
  * - 图片总数为 0 时立即完成；
  * - 每张图片就绪调用 markSettled()，全部就绪即完成；
  * - 未全部就绪时由 timeoutMs 兜底完成；
- * - 完成只触发一次，完成后清理超时定时器。
+ * - 完成只触发一次，完成后清理超时定时器；
+ * - 展示时长完全跟随实际加载速度，不设固定下限。
  */
 
 export type RevealReason = "all-ready" | "timeout";
 
 export interface RevealSchedulerOptions {
 	timeoutMs?: number;
-	/** 内容就绪后骨架至少展示的时长（ms），避免加载过快时骨架一闪而过 */
-	minShowMs?: number;
 	setTimer?: (fn: () => void, ms: number) => unknown;
 	clearTimer?: (timer: unknown) => void;
-	getNow?: () => number;
 }
 
 export interface RevealScheduler {
@@ -29,37 +27,17 @@ export function createRevealScheduler(
 	onComplete: (reason: RevealReason) => void,
 	options: RevealSchedulerOptions = {},
 ): RevealScheduler {
-	const {
-		timeoutMs = 8000,
-		minShowMs = 0,
-		setTimer = setTimeout,
-		getNow = Date.now,
-	} = options;
+	const { timeoutMs = 8000, setTimer = setTimeout } = options;
 	// 默认 clearTimeout 参数类型与注入的 unknown 签名不兼容，这里统一包装
 	const clearTimer: (timer: unknown) => void =
 		options.clearTimer ?? ((t) => clearTimeout(t as ReturnType<typeof setTimeout>));
 
-	const started = getNow();
 	let pending = total;
 	let settled = false;
-	let delayed = false;
 	let timer: unknown = null;
 
 	const finish = (reason: RevealReason) => {
 		if (settled) return;
-		// 全部就绪但未满最短展示时间时，延迟到 minShowMs 再完成
-		if (reason === "all-ready" && minShowMs > 0) {
-			const elapsed = getNow() - started;
-			if (elapsed < minShowMs) {
-				if (delayed) return;
-				delayed = true;
-				if (timer !== null) {
-					clearTimer(timer);
-				}
-				timer = setTimer(() => finish("all-ready"), minShowMs - elapsed);
-				return;
-			}
-		}
 		settled = true;
 		if (timer !== null) {
 			clearTimer(timer);
