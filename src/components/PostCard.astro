@@ -55,11 +55,21 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 	href={url}
 	aria-label={title}
 	class:list={[
-		"group flex w-full items-center gap-3 p-3 transition-colors duration-75 hover:bg-[var(--card)] sm:gap-4 sm:p-5",
+		"group relative flex w-full items-center gap-3 p-3 transition-colors duration-75 hover:bg-[var(--card)] sm:gap-4 sm:p-5",
 		className,
 	]}
 	style={style}
 >
+	{hasCover && (
+		<div class="card-skeleton absolute inset-0 z-10 flex items-center gap-3 p-3 sm:gap-4 sm:p-5" aria-hidden="true">
+			<div class="skeleton-stripe h-16 w-24 shrink-0 sm:h-24 sm:w-36"></div>
+			<div class="min-w-0 flex-1 space-y-2.5 py-1">
+				<div class="skeleton-stripe h-3 w-32 rounded-sm"></div>
+				<div class="skeleton-stripe mt-2 h-4 w-3/4 rounded-sm"></div>
+				<div class="skeleton-stripe h-3 w-full rounded-sm"></div>
+			</div>
+		</div>
+	)}
 	<div class="cover-skeleton-wrapper relative h-16 w-24 shrink-0 overflow-hidden bg-[var(--card)] sm:h-24 sm:w-36">
 		{hasCover ? (
 			<Fragment>
@@ -68,7 +78,7 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 					<img
 						src={image}
 						alt={`Cover Image of ${title}`}
-						class="h-full w-full object-cover"
+						class="image-content h-full w-full object-cover"
 						loading={loading}
 					/>
 				) : (
@@ -124,30 +134,71 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 			rgba(255, 255, 255, 0.07) 20px
 		);
 	}
+	/* 整卡骨架：斜纹 + 流光动画，随本卡图片加载完成按各自顺序隐藏 */
+	.skeleton-stripe {
+		background-color: #262626;
+		background-image:
+			repeating-linear-gradient(
+				45deg,
+				transparent 0,
+				transparent 10px,
+				rgba(255, 255, 255, 0.07) 10px,
+				rgba(255, 255, 255, 0.07) 20px
+			),
+			linear-gradient(
+				100deg,
+				rgba(255, 255, 255, 0.05) 40%,
+				rgba(255, 255, 255, 0.14) 50%,
+				rgba(255, 255, 255, 0.05) 60%
+			);
+		background-size:
+			auto,
+			200% 100%;
+		animation: skeleton-shimmer 1.4s infinite;
+	}
+	@keyframes skeleton-shimmer {
+		0% {
+			background-position:
+				0 0,
+				120% 0;
+		}
+		100% {
+			background-position:
+				0 0,
+				-80% 0;
+		}
+	}
+	.card-skeleton {
+		pointer-events: none;
+	}
 </style>
 
 <script>
-	// 封面图加载完成后隐藏骨架占位；加载失败也隐藏，避免占位残留
-	function hideCoverSkeleton(img) {
-		const skeleton = img.closest(".cover-skeleton-wrapper")?.querySelector(".cover-skeleton");
-		if (skeleton) skeleton.classList.add("hidden");
+	// 本卡封面图加载完成后隐藏整卡骨架（含封面骨架）；加载失败也隐藏，避免占位残留。
+	// 每张卡片独立等待自己的图片，按实际加载顺序逐个显现。
+	function hideCardSkeleton(img) {
+		const card = img.closest("a");
+		if (!card) return;
+		card
+			.querySelectorAll(".card-skeleton, .cover-skeleton")
+			.forEach((el) => el.classList.add("hidden"));
 	}
 
-	function initCoverSkeletons() {
+	function initCardSkeletons() {
 		document.querySelectorAll("img.image-content").forEach((img) => {
-			if (img.closest(".cover-skeleton-wrapper") === null) return;
+			if (img.closest("a") === null) return;
 			if (img.complete) {
-				hideCoverSkeleton(img);
+				hideCardSkeleton(img);
 				return;
 			}
-			img.addEventListener("load", () => hideCoverSkeleton(img), { once: true });
-			img.addEventListener("error", () => hideCoverSkeleton(img), { once: true });
+			img.addEventListener("load", () => hideCardSkeleton(img), { once: true });
+			img.addEventListener("error", () => hideCardSkeleton(img), { once: true });
 		});
 	}
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", initCoverSkeletons, { once: true });
+		document.addEventListener("DOMContentLoaded", initCardSkeletons, { once: true });
 	} else {
-		initCoverSkeletons();
+		initCardSkeletons();
 	}
 </script>
