@@ -39,6 +39,10 @@ const submitLimiter = createRateLimiter({
 export function createApp() {
 	const app = express();
 
+	// 信任最近两跳代理（公网 Traefik + 家里 Traefik，中间经 frp 隧道）：
+	// 限流/日志按真实客户端 IP 计数（trust proxy: 1 会取到 frpc 回环地址）
+	app.set("trust proxy", 2);
+
 	app.use(
 		cors({
 			origin(origin, callback) {
