@@ -1,4 +1,8 @@
 ---
+// server 输出模式下保持 on-demand：posts/[...slug] 等动态路由会 Astro.rewrite("/404")，
+// 若 404 是预渲染静态页会报 "rewrite the on-demand route with the static route" 500
+export const prerender = false;
+
 import SiteShellLayout from "@/layouts/SiteShellLayout.astro";
 import Icon from "@components/Icon.astro";
 ---
