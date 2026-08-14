@@ -61,7 +61,7 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 	style={style}
 >
 	{hasCover && (
-		<div class="card-skeleton absolute inset-0 z-10 flex items-center gap-3 p-3 sm:gap-4 sm:p-5" aria-hidden="true">
+		<div class="card-skeleton absolute inset-0 z-[-1] flex items-center gap-3 p-3 sm:gap-4 sm:p-5" aria-hidden="true">
 			<div class="skeleton-stripe h-16 w-24 shrink-0 sm:h-24 sm:w-36"></div>
 			<div class="min-w-0 flex-1 space-y-2.5 py-1">
 				<div class="skeleton-stripe h-3 w-32 rounded-sm"></div>
@@ -73,7 +73,6 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 	<div class="cover-skeleton-wrapper relative h-16 w-24 shrink-0 overflow-hidden bg-[var(--card)] sm:h-24 sm:w-36">
 		{hasCover ? (
 			<Fragment>
-				<div class="cover-skeleton absolute inset-0" aria-hidden="true"></div>
 				{isDb ? (
 					<img
 						src={image}
@@ -123,18 +122,8 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 </a>
 
 <style>
-	/* 封面图懒加载骨架占位：深底 + 浅灰斜线纹理，图片加载完成后隐藏 */
-	.cover-skeleton {
-		background-color: #262626;
-		background-image: repeating-linear-gradient(
-			45deg,
-			transparent 0,
-			transparent 10px,
-			rgba(255, 255, 255, 0.07) 10px,
-			rgba(255, 255, 255, 0.07) 20px
-		);
-	}
-	/* 整卡骨架：斜纹 + 流光动画，随本卡图片加载完成按各自顺序隐藏 */
+	/* 整卡骨架作为卡片背景层（z-index:-1）：内容层天然在其上方，
+	   封面图加载完成后自然盖住骨架区域，无需 JS 隐藏，结构上不会与内容重叠 */
 	.skeleton-stripe {
 		background-color: #262626;
 		background-image:
@@ -172,33 +161,3 @@ const summary = description || remarkPluginFrontmatter.excerpt;
 		pointer-events: none;
 	}
 </style>
-
-<script>
-	// 本卡封面图加载完成后隐藏整卡骨架（含封面骨架）；加载失败也隐藏，避免占位残留。
-	// 每张卡片独立等待自己的图片，按实际加载顺序逐个显现。
-	function hideCardSkeleton(img) {
-		const card = img.closest("a");
-		if (!card) return;
-		card
-			.querySelectorAll(".card-skeleton, .cover-skeleton")
-			.forEach((el) => el.classList.add("hidden"));
-	}
-
-	function initCardSkeletons() {
-		document.querySelectorAll("img.image-content").forEach((img) => {
-			if (img.closest("a") === null) return;
-			if (img.complete) {
-				hideCardSkeleton(img);
-				return;
-			}
-			img.addEventListener("load", () => hideCardSkeleton(img), { once: true });
-			img.addEventListener("error", () => hideCardSkeleton(img), { once: true });
-		});
-	}
-
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", initCardSkeletons, { once: true });
-	} else {
-		initCardSkeletons();
-	}
-</script>
