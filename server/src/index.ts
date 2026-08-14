@@ -1,4 +1,5 @@
 import express from "express";
+import type { Request as ExpressRequest } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import multer from "multer";
@@ -9,7 +10,30 @@ import { blogRouter } from "./blog.js";
 import { notificationsRouter } from "./notifications.js";
 import { publicRouter } from "./public.js";
 import { uploadRouter } from "./upload.js";
+import { createRateLimiter } from "./rate-limit.js";
 import { resolve } from "node:path";
+
+// 速率限制：登录/注册每 IP 15 分钟 30 次；投稿每用户 5 分钟 20 次；
+// 上传每用户 10 分钟 60 次
+const authLimiter = createRateLimiter({
+	windowMs: 15 * 60 * 1000,
+	max: 30,
+	keyPrefix: "auth",
+});
+const uploadLimiter = createRateLimiter({
+	windowMs: 10 * 60 * 1000,
+	max: 60,
+	keyPrefix: "upload",
+	getKey: (req) =>
+		String((req as ExpressRequest & { user?: { id: number } }).user?.id ?? req.ip),
+});
+const submitLimiter = createRateLimiter({
+	windowMs: 5 * 60 * 1000,
+	max: 20,
+	keyPrefix: "blog-submit",
+	getKey: (req) =>
+		String((req as ExpressRequest & { user?: { id: number } }).user?.id ?? req.ip),
+});
 
 /** 构建应用（不监听端口），供入口与集成测试复用 */
 export function createApp() {
@@ -38,11 +62,11 @@ export function createApp() {
 		res.json({ ok: true, name: "fuwari-blog-server" });
 	});
 
-	app.use("/api/auth", authRouter);
-	app.use("/api/blog", blogRouter);
+	app.use("/api/auth", authLimiter, authRouter);
+	app.use("/api/blog", submitLimiter, blogRouter);
 	app.use("/api/notifications", notificationsRouter);
 	app.use("/api/public", publicRouter);
-	app.use("/api/upload", uploadRouter);
+	app.use("/api/upload", uploadLimiter, uploadRouter);
 
 	// 404
 	app.use((_req, res) => {
