@@ -75,3 +75,14 @@ CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sponsors_status ON sponsors(status);
 CREATE INDEX IF NOT EXISTS idx_sponsors_user ON sponsors(user_id);
 `);
+
+// 幂等 schema 升级：早期版本创建的 sponsors 表缺少 avatar_url 列
+const sponsorsTable = db
+	.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sponsors'")
+	.get();
+if (sponsorsTable) {
+	const cols = db.prepare("PRAGMA table_info(sponsors)").all() as { name: string }[];
+	if (!cols.some((c) => c.name === "avatar_url")) {
+		db.exec("ALTER TABLE sponsors ADD COLUMN avatar_url TEXT NOT NULL DEFAULT ''");
+	}
+}

@@ -73,6 +73,7 @@
 		"@types/markdown-it": "^14.1.2",
 		"@types/mdast": "^4.0.4",
 		"@types/sanitize-html": "^2.15.0",
+		"better-sqlite3": "11.10.0",
 		"glob": "^11.0.3",
 		"hastscript": "^9.0.1",
 		"markdown-it": "^14.1.0",
