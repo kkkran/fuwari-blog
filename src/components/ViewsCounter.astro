@@ -1,4 +1,4 @@
-﻿---
+---
 import Icon from "@components/Icon.astro";
 import { serviceConfig } from "../config";
 
@@ -13,12 +13,55 @@ const id =
 	Astro.props.id ?? `page-views-${pathname.replace(/[^a-zA-Z0-9]+/g, "-")}`;
 ---
 
-<div class="flex items-center" id={`${id}-wrapper`} style="display: none;">
+<div class="flex items-center" id={`${id}-wrapper`}>
 	<div class="meta-icon">
 		<Icon name="material-symbols:visibility-outline-rounded" class="text-xl" />
 	</div>
 	<span class="text-50 text-sm font-medium" id={id}></span>
 </div>
+
+<style>
+	/* 加载中：数字为空时显示 shimmer 骨架条 */
+	span:empty::after {
+		content: "";
+		display: inline-block;
+		width: 2.5rem;
+		height: 0.875rem;
+		margin-left: 0.25rem;
+		border-radius: 0.25rem;
+		background-color: #262626;
+		background-image:
+			repeating-linear-gradient(
+				45deg,
+				transparent 0,
+				transparent 10px,
+				rgba(255, 255, 255, 0.07) 10px,
+				rgba(255, 255, 255, 0.07) 20px
+			),
+			linear-gradient(
+				100deg,
+				rgba(255, 255, 255, 0.05) 40%,
+				rgba(255, 255, 255, 0.14) 50%,
+				rgba(255, 255, 255, 0.05) 60%
+			);
+		background-size:
+			auto,
+			200% 100%;
+		animation: views-skeleton-shimmer 1.4s infinite;
+	}
+	@keyframes views-skeleton-shimmer {
+		0% {
+			background-position:
+				0 0,
+				120% 0;
+		}
+		100% {
+			background-position:
+				0 0,
+				-80% 0;
+		}
+	}
+</style>
 
 <script define:vars={{ pathname, id, suffix, trackerBaseUrl: serviceConfig.trackerBaseUrl }}>
 	async function loadViews() {
@@ -30,15 +73,18 @@ const id =
 			const res = await fetch(
 				`${trackerBaseUrl}/share?pathname=${encodeURIComponent(pathname)}`,
 			);
-			if (!res.ok) return;
+			if (!res.ok) {
+				wrapper.style.display = 'none';
+				return;
+			}
 			
 			const data = await res.json();
 			const views = data?.views || 0;
 			
 			el.textContent = `${views} ${suffix}`;
-			wrapper.style.display = 'flex';
 		} catch {
-			// 请求失败，保持隐藏
+			// 请求失败，隐藏整个区块
+			wrapper.style.display = 'none';
 		}
 	}
 

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { BlogApiError, uploadApi } from "@/blog/api";
+	import { createDraftStore, type DraftStorage } from "@/utils/blog-draft";
+	import { countMarkdownWords } from "@/utils/markdown-stats";
 	import {
 		POST_IMAGE_MAX_BYTES,
 		compressPostImage,
@@ -23,9 +25,11 @@
 	export let disabled = false;
 	export let submitting = false;
 	export let submitHint = "Ctrl/Cmd + Enter 提交";
-	export let minHeight = 360;
+	export let minHeight = 560;
 	export let shellClass = "";
 	export let autoFocus = false;
+	/** 草稿存储 key；null 表示不启用草稿（编辑已有文章时不自动保存/恢复） */
+	export let draftKey: string | null = null;
 
 	const dispatch = createEventDispatcher<{
 		submit: void;
@@ -39,6 +43,35 @@
 	let keydownCleanup: (() => void) | null = null;
 	let uploadStatus = "";
 	let uploading = false;
+	let draftStatus = "";
+	let saveTimer: ReturnType<typeof setTimeout> | null = null;
+	const draftStore = createDraftStore(
+		typeof window !== "undefined" ? window.localStorage : ({} as DraftStorage),
+	);
+
+	$: charCount = countMarkdownWords(internalValue);
+
+	function formatTime(ts: number): string {
+		return new Date(ts).toLocaleTimeString("zh-CN", {
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+	}
+
+	function persistDraft(): void {
+		if (!draftKey) return;
+		draftStore.save(draftKey, editor?.getMarkdown() ?? internalValue);
+		draftStatus = `已保存 ${formatTime(Date.now())}`;
+	}
+
+	function scheduleDraftSave(): void {
+		if (!draftKey) return;
+		if (saveTimer) clearTimeout(saveTimer);
+		saveTimer = setTimeout(() => {
+			saveTimer = null;
+			persistDraft();
+		}, 1500);
+	}
 
 	function syncValue(nextValue: string) {
 		internalValue = nextValue;
@@ -170,6 +203,8 @@
 
 			editor.on("change", () => {
 				syncValue(editor?.getMarkdown() || "");
+				draftStatus = "";
+				scheduleDraftSave();
 				void updatePreviewClasses();
 			});
 
@@ -177,6 +212,13 @@
 				if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
 					event.preventDefault();
 					dispatch("submit");
+					return;
+				}
+
+				// Ctrl/Cmd+S：立即保存草稿（不提交）
+				if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+					event.preventDefault();
+					persistDraft();
 					return;
 				}
 
@@ -201,6 +243,12 @@
 	onDestroy(() => {
 		keydownCleanup?.();
 		keydownCleanup = null;
+		if (saveTimer) {
+			clearTimeout(saveTimer);
+			saveTimer = null;
+			// 组件卸载前落盘最后一次内容，避免丢失最后几秒输入
+			if (draftKey) draftStore.save(draftKey, internalValue);
+		}
 		editor?.destroy();
 		editor = null;
 	});
@@ -222,6 +270,12 @@
 
 <div class={`blog-editor-shell ${shellClass}`.trim()}>
 	<div bind:this={containerEl} />
+	<div class="editor-statusbar">
+		<span class="text-xs text-white/40">正文约 {charCount} 字</span>
+		{#if draftKey && draftStatus}
+			<span class="text-xs text-white/40">{draftStatus}</span>
+		{/if}
+	</div>
 	{#if uploadStatus}
 		<p
 			class:list={[
@@ -242,11 +296,19 @@
 
 <style>
 	:global(.blog-editor-shell .toastui-editor-defaultUI) {
-		zoom: 0.8;
 		border-radius: 1rem;
 		overflow: hidden;
 		border: 1px solid rgb(255 255 255 / 0.1);
 		background: rgb(255 255 255 / 0.04);
+	}
+
+	.editor-statusbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.5rem 0.25rem 0;
+		min-height: 1.5rem;
 	}
 
 	:global(.blog-editor-shell .toastui-editor-toolbar) {

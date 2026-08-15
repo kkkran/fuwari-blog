@@ -3,6 +3,7 @@
 	import { blogApi, type BlogPost, type PostStatus } from "@/blog/api";
 	import { blogAuth } from "@/blog/stores/auth";
 	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
+	import Skeleton from "@/components/misc/Skeleton.svelte";
 	import Icon from "@components/IconSvelte.svelte";
 	import SponsorAdminPanel from "./SponsorAdminPanel.svelte";
 
@@ -152,7 +153,7 @@
 		</div>
 
 		{#if loading}
-			<div class="flex justify-center py-16 text-white/40">加载中...</div>
+			<Skeleton rows={4} widths={["100%", "85%", "72%", "92%"]} gap="1rem" />
 		{:else if items.length === 0}
 			<div class="flex flex-col items-center gap-3 py-16 text-center">
 				<Icon icon="material-symbols:task-alt-rounded" class="size-10 text-white/30" />

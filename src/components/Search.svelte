@@ -1,5 +1,6 @@
-﻿<script lang="ts">
+<script lang="ts">
 import Icon from "@components/IconSvelte.svelte";
+import Skeleton from "@components/misc/Skeleton.svelte";
 import { url } from "@utils/url-utils.ts";
 
 export let variant: "nav" | "wide" = "nav";
@@ -312,6 +313,11 @@ top-20 left-4 md:left-[unset] right-4 shadow-none rounded-2xl p-2">
     </div>
 
     {#if keyword}
+        {#if isSearching}
+            <div class="px-3 py-2">
+                <Skeleton rows={3} widths={["90%", "60%", "80%"]} gap="0.9rem" />
+            </div>
+        {:else}
         <!-- search results header -->
         {#if result.length > 0}
             <div class="flex items-center justify-between text-xs text-white/40 px-3 py-2 border-b border-white/5">
@@ -349,6 +355,7 @@ top-20 left-4 md:left-[unset] right-4 shadow-none rounded-2xl p-2">
             <div class="text-sm text-white/50 px-3 py-4">
                 无搜索结果
             </div>
+        {/if}
         {/if}
     {/if}
 </div>

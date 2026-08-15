@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { sponsorsApi, sponsorsAdminApi, type SponsorEntry, type SponsorPendingItem } from "@/blog/api";
 	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
+	import Skeleton from "@/components/misc/Skeleton.svelte";
 	import Icon from "@components/IconSvelte.svelte";
 
 	type PanelTab = "pending" | "approved";
@@ -160,7 +161,7 @@
 	</div>
 
 	{#if loading}
-		<div class="flex justify-center py-16 text-white/40">加载中...</div>
+		<Skeleton rows={4} widths={["100%", "85%", "72%", "92%"]} gap="1rem" />
 	{:else if activeTab === "pending"}
 		{#if pendingItems.length === 0}
 			<div class="flex flex-col items-center gap-3 py-16 text-center">
