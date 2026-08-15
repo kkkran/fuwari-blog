@@ -18,6 +18,17 @@ describe("isNoSidebarRoute", () => {
 		expect(isNoSidebarRoute("/bangumi/")).toBe(true);
 	});
 
+	it("博客后台路由去侧栏（写文章/管理/审核）", () => {
+		expect(isNoSidebarRoute("/blog/new/")).toBe(true);
+		expect(isNoSidebarRoute("/blog/manage/")).toBe(true);
+		expect(isNoSidebarRoute("/blog/admin/")).toBe(true);
+	});
+
+	it("博客前台列表页仍保留侧栏", () => {
+		expect(isNoSidebarRoute("/blog/")).toBe(false);
+		expect(isNoSidebarRoute("/blog/2/")).toBe(false);
+	});
+
 	it("不命中普通页面", () => {
 		expect(isNoSidebarRoute("/")).toBe(false);
 		expect(isNoSidebarRoute("/blog/")).toBe(false);

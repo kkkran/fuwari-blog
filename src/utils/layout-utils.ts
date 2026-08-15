@@ -2,6 +2,10 @@ export const NO_SIDEBAR_ROUTE_PREFIXES: readonly string[] = [
 	"/forum",
 	"/tools",
 	"/bangumi",
+	// 博客后台：写文章/管理/审核均为专注操作场景，去掉左侧栏
+	"/blog/new",
+	"/blog/manage",
+	"/blog/admin",
 ] as const;
 
 export function isNoSidebarRoute(pathname: string): boolean {
