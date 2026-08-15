@@ -82,11 +82,41 @@ async function fetchGithubUser(accessToken: string): Promise<GithubUser> {
 		email: string | null;
 		avatar_url: string;
 	};
+
+	// GitHub 已默认不返回私有邮箱（/user 的 email 为 null）。
+	// 回退调用 /user/emails（需 user:email scope）取 primary+verified 邮箱，
+	// 否则同邮箱自动绑定失效、GitHub 登录会创建独立账号。
+	let email = data.email ?? null;
+	if (!email) {
+		try {
+			const emailsResponse = await fetch("https://api.github.com/user/emails", {
+				headers: {
+					Accept: "application/vnd.github+json",
+					Authorization: `Bearer ${accessToken}`,
+					"User-Agent": "fuwari-blog-server",
+				},
+			});
+			if (emailsResponse.ok) {
+				const emails = (await emailsResponse.json()) as Array<{
+					email: string;
+					primary: boolean;
+					verified: boolean;
+				}>;
+				email =
+					emails.find((e) => e.primary && e.verified)?.email ??
+					emails.find((e) => e.verified)?.email ??
+					null;
+			}
+		} catch {
+			// 邮箱列表获取失败时保持 email=null（新用户走独立账号路径）
+		}
+	}
+
 	return {
 		id: String(data.id),
 		login: data.login,
 		name: data.name,
-		email: data.email,
+		email,
 		avatar_url: data.avatar_url,
 	};
 }
