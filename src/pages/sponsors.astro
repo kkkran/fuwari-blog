@@ -1,16 +1,35 @@
 ---
-import { siteConfig } from "@/config";
-import type { Sponsor } from "@/types/data";
-import LinkSubmitInfo from "@components/misc/LinkSubmitInfo.astro";
+import { serviceConfig } from "@/config";
+import type { SponsorEntry, SponsorStats } from "@/blog/api";
+import SponsorForm from "@components/SponsorForm.svelte";
 import SiteShellLayout from "@layouts/SiteShellLayout.astro";
 import Icon from "@components/Icon.astro";
 
-const sponsors = Object.values(
-	import.meta.glob<Sponsor>("@/data/sponsors/*.json", {
-		eager: true,
-		import: "default",
-	}),
-);
+const apiBase = serviceConfig.blogApiBaseUrl;
+
+// SSR 拉取已通过名单与统计；服务不可用时兜底为空列表
+let sponsors: SponsorEntry[] = [];
+let stats: SponsorStats = { count: 0, amount: 0 };
+try {
+	const [listRes, statsRes] = await Promise.all([
+		fetch(`${apiBase}/api/sponsors`),
+		fetch(`${apiBase}/api/sponsors/stats`),
+	]);
+	if (listRes.ok) {
+		sponsors = ((await listRes.json()) as { sponsors: SponsorEntry[] }).sponsors ?? [];
+	}
+	if (statsRes.ok) {
+		stats = (await statsRes.json()) as SponsorStats;
+	}
+} catch {
+	// 后端不可用时页面照常渲染，名单区域显示空态
+}
+
+function formatAmount(value: number): string {
+	return Number.isInteger(value) ? String(value) : value.toFixed(2);
+}
+
+const medals = ["🥇", "🥈", "🥉"];
 
 const breadcrumbSchema = {
 	"@context": "https://schema.org",
@@ -111,30 +130,55 @@ const breadcrumbSchema = {
 			<p class="mb-4 text-sm text-[var(--muted-foreground)]">
 				感谢每一位支持者，让这个站点可以继续运转。
 			</p>
-			<LinkSubmitInfo dataType="sponsors"></LinkSubmitInfo>
-			<div class="mt-4 grid grid-cols-1 border-t border-l border-[var(--border)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-				{sponsors.map((sponsor) => (
-					<div class="flex items-center gap-3 border-b border-r border-[var(--border)] bg-[var(--background)] p-3">
-						{sponsor.avatar ? (
-							<img
-								src={sponsor.avatar}
-								alt={`${sponsor.name}的头像`}
-								loading="lazy"
-								class="h-10 w-10 shrink-0 rounded-full object-cover"
-							/>
-						) : (
-							<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--card)] text-[var(--muted-foreground)]">
-								<Icon name="material-symbols:person" class="text-[1.2rem]" />
-							</div>
-						)}
-						<div class="min-w-0 flex-1">
-							<h4 class="truncate text-sm font-semibold">{sponsor.name}</h4>
-							<p class="text-xs text-[var(--muted-foreground)]">{sponsor.date}</p>
-						</div>
-						<div class="text-xs font-medium text-[var(--primary)]">{sponsor.amount}</div>
-					</div>
-				))}
+
+			<SponsorForm client:load />
+
+			<div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm">
+				<span class="font-semibold text-[var(--primary)]">
+					共 {stats.count} 位赞助者
+				</span>
+				<span class="text-[var(--muted-foreground)]">
+					累计赞助 ¥{formatAmount(stats.amount)}
+				</span>
+				<span class="text-xs text-[var(--muted-foreground)]">
+					（仅统计人民币金额，历史特殊币种不计入累计）
+				</span>
 			</div>
+
+			{#if sponsors.length > 0}
+				<div class="mt-4 grid grid-cols-1 border-t border-l border-[var(--border)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+					{sponsors.map((sponsor, index) => (
+						<div class="flex items-center gap-3 border-b border-r border-[var(--border)] bg-[var(--background)] p-3">
+							{sponsor.avatarUrl ? (
+								<img
+									src={sponsor.avatarUrl}
+									alt={`${sponsor.displayName}的头像`}
+									loading="lazy"
+									class="h-10 w-10 shrink-0 rounded-full object-cover"
+								/>
+							) : (
+								<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--card)] text-sm font-bold text-[var(--primary)]">
+									{sponsor.displayName.slice(0, 1)}
+								</div>
+							)}
+							<div class="min-w-0 flex-1">
+								<h4 class="flex items-center gap-1 truncate text-sm font-semibold">
+									{index < 3 && <span class="text-base leading-none" aria-label={`第 ${index + 1} 名`}>{medals[index]}</span>}
+									<span class="truncate">{sponsor.displayName}</span>
+								</h4>
+								<p class="text-xs text-[var(--muted-foreground)]">{sponsor.date}</p>
+							</div>
+							<div class="text-xs font-medium text-[var(--primary)]">
+								{sponsor.amountText}
+							</div>
+						</div>
+					))}
+				</div>
+			{:else}
+				<p class="mt-4 rounded-xl border border-dashed border-[var(--border)] p-6 text-center text-sm text-[var(--muted-foreground)]">
+					还没有赞助记录，成为第一个支持者吧！
+				</p>
+			{/if}
 		</div>
 	</section>
 </SiteShellLayout>

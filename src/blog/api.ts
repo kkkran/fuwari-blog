@@ -171,6 +171,43 @@ export const blogApi = {
 	},
 };
 
+// ---------- 赞助 ----------
+
+export interface SponsorEntry {
+	id: number;
+	displayName: string;
+	avatarUrl: string | null;
+	amount: number;
+	amountText: string;
+	anonymous: boolean;
+	date: string;
+}
+
+export interface SponsorStats {
+	count: number;
+	amount: number;
+}
+
+export const sponsorsApi = {
+	list(): Promise<{ sponsors: SponsorEntry[] }> {
+		return request<{ sponsors: SponsorEntry[] }>("/api/sponsors");
+	},
+	stats(): Promise<SponsorStats> {
+		return request<SponsorStats>("/api/sponsors/stats");
+	},
+	submit(input: {
+		displayName: string;
+		amount: number;
+		anonymous: boolean;
+		remark: string;
+	}): Promise<{ sponsor: { status: string } }> {
+		return request<{ sponsor: { status: string } }>("/api/sponsors", {
+			method: "POST",
+			body: JSON.stringify(input),
+		});
+	},
+};
+
 // ---------- 公开查询 ----------
 
 export const publicApi = {
