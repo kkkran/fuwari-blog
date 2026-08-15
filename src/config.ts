@@ -94,14 +94,8 @@ export const siteConfig: SiteConfig = {
 		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
 	},
 	favicon: [
-		// 站点图标：优先使用 SEO 分享图（webp，现代浏览器支持），svg 兜底
+		// 品牌图标：SEO 分享图（webp，现代浏览器支持）
 		{ src: "/seo-cover.webp", sizes: "any" },
-		// Leave this array empty to use the default favicon
-		{
-			src: "/favicon/shijies-nook.svg", // Path of the favicon, relative to the /public directory
-			sizes: "any",
-			//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
-		},
 	],
 	officialSites: [
 		{ url: `https://${customDomain}`, alias: "Main" },
@@ -155,7 +149,7 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "/favicon/shijies-nook.svg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+	avatar: "/seo-cover.webp", // 品牌头像（与站点图标同一张 SEO 图）
 	name: "世界树栈",
 	bio: "Shijie’s Nook · 写作、实验与工具存放处。",
 	links: [

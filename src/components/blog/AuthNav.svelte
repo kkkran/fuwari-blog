@@ -108,7 +108,7 @@
 				class="relative block h-8 w-8 cursor-pointer rounded-full outline-none transition-opacity hover:opacity-80"
 			>
 				<img
-					src={user.avatarUrl || "/favicon/shijies-nook.svg"}
+					src={user.avatarUrl || "/seo-cover.webp"}
 					alt={user.displayName}
 					width="32"
 					height="32"
@@ -130,7 +130,7 @@
 						class="flex items-center gap-2 border-b border-[var(--foreground)]/10 px-2 py-2"
 					>
 						<img
-							src={user.avatarUrl || "/favicon/shijies-nook.svg"}
+							src={user.avatarUrl || "/seo-cover.webp"}
 							alt=""
 							width="28"
 							height="28"

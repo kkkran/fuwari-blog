@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
-	<title id="title">Shijie's Nook</title>
-	<desc id="desc">A quiet monogram mark for Shijie's Nook.</desc>
-	<rect width="128" height="128" fill="#101613"/>
-	<path d="M31 35h66v11H31z" fill="#d9e7dd"/>
-	<path d="M31 82h66v11H31z" fill="#d9e7dd"/>
-	<path d="M38 46h11v36H38zM79 46h11v36H79z" fill="#d9e7dd"/>
-	<path d="M55 52h18v9H55zM55 67h18v9H55z" fill="#8ec5a4"/>
-</svg>
