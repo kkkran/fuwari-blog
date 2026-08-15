@@ -11,6 +11,7 @@ import { visit } from "unist-util-visit";
 import { BLOG_API_BASE, type BlogPost } from "@/blog/api";
 import { parseDirectiveNode } from "@/plugins/remark-directive-rehype";
 import { remarkGithubAdmonitions } from "@/plugins/remark-github-admonitions";
+import rehypeImagePlaceholder from "@/plugins/rehype-image-placeholder";
 
 /**
  * 混合数据源工具：现有 md 文章（content collection）+ 数据库文章（博客后端）合并。
@@ -193,6 +194,7 @@ async function getMarkdownProcessor(): Promise<Awaited<ReturnType<typeof createM
 						},
 					},
 				],
+				rehypeImagePlaceholder,
 			],
 		});
 	}
