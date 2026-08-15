@@ -37,6 +37,9 @@ interface Props {
 
 let { title, banner, description, lang, setOGTypeArticle, ogImage } = Astro.props;
 
+// 站点默认 SEO 分享图：页面未传 ogImage 时使用全局默认图（public/seo-cover.webp）
+const effectiveOgImage = ogImage || "/seo-cover.webp";
+
 // apply a class to the body element to decide the height of the banner, only used for initial page load
 const isHomePage = pathsEqual(Astro.url.pathname, url("/"));
 const isForumRoute = Astro.url.pathname.startsWith(url("/forum/"));
@@ -116,14 +119,18 @@ const bannerOffset =
         ) : (
         <meta property="og:type" content="website" />
         )}
-		{ogImage && <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />}
-		{ogImage && <meta property="og:image:alt" content={pageTitle} />}
+		{effectiveOgImage && (
+			<meta property="og:image" content={new URL(effectiveOgImage, Astro.site).toString()} />
+		)}
+		{effectiveOgImage && <meta property="og:image:alt" content={pageTitle} />}
 
 		<meta name="twitter:card" content="summary_large_image">
 		<meta property="twitter:url" content={Astro.url}>
 		<meta name="twitter:title" content={pageTitle}>
 		<meta name="twitter:description" content={description}>
-		{ogImage && <meta name="twitter:image" content={new URL(ogImage, Astro.site).toString()} />}
+		{effectiveOgImage && (
+			<meta name="twitter:image" content={new URL(effectiveOgImage, Astro.site).toString()} />
+		)}
 
 		<meta name="generator" content={Astro.generator} />
         <link rel="preconnect" href={serviceConfig.trackerBaseUrl} />
