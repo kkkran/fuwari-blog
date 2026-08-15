@@ -17,6 +17,11 @@ if (!API_KEY) {
 
 const BASE_URL = process.env.ZHIPU_BASE_URL ?? "https://open.bigmodel.cn/api/paas/v4";
 const MODEL = process.env.ZHIPU_MODEL ?? "glm-4.6v-flash";
+// 主模型不可用（限流 429 / 服务端 5xx / 模型不存在 1214）时依次回退的模型
+const FALLBACK_MODELS = (process.env.ZHIPU_FALLBACK_MODELS ?? "glm-4v-flash")
+	.split(",")
+	.map((name) => name.trim())
+	.filter(Boolean);
 const REQUEST_TIMEOUT_MS = 120_000;
 
 const MIME_TYPES: Record<string, string> = {
@@ -76,6 +81,24 @@ interface ChatMessage {
 	content: unknown[];
 }
 
+interface ApiError extends Error {
+	status?: number;
+	code?: string;
+}
+
+function isRetriable(error: unknown): boolean {
+	if (!(error instanceof Error)) {
+		return false;
+	}
+	if (error.name === "AbortError") {
+		return false;
+	}
+	const apiError = error as ApiError;
+	const status = apiError.status ?? 0;
+	// 429 限流、5xx 服务端错误、1214 模型不存在：可回退到备用模型重试
+	return status === 429 || status >= 500 || apiError.code === "1214";
+}
+
 async function chatCompletion(
 	contentParts: unknown[],
 	prompt: string,
@@ -83,56 +106,76 @@ async function chatCompletion(
 ): Promise<string> {
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+	const models = [MODEL, ...FALLBACK_MODELS];
+	let lastError: unknown;
 	try {
-		const body: {
-			model: string;
-			messages: ChatMessage[];
-			thinking?: { type: string };
-		} = {
-			model: MODEL,
-			messages: [
-				{
-					role: "user",
-					content: [...contentParts, { type: "text", text: prompt }],
-				},
-			],
-		};
-		if (thinking !== "auto") {
-			body.thinking = { type: thinking };
+		for (const model of models) {
+			try {
+				const body: {
+					model: string;
+					messages: ChatMessage[];
+					thinking?: { type: string };
+				} = {
+					model,
+					messages: [
+						{
+							role: "user",
+							content: [...contentParts, { type: "text", text: prompt }],
+						},
+					],
+				};
+				if (thinking !== "auto") {
+					body.thinking = { type: thinking };
+				}
+
+				const response = await fetch(`${BASE_URL}/chat/completions`, {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${API_KEY}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(body),
+					signal: controller.signal,
+				});
+
+				const data = (await response.json()) as {
+					choices?: Array<{
+						message?: { content?: string; reasoning_content?: string };
+					}>;
+					error?: { message?: string; code?: string };
+				};
+
+				if (!response.ok) {
+					const error = new Error(
+						`智谱 API 错误（HTTP ${response.status}）：${data.error?.message ?? JSON.stringify(data)}`,
+					) as ApiError;
+					error.status = response.status;
+					error.code = data.error?.code;
+					throw error;
+				}
+
+				const message = data.choices?.[0]?.message;
+				const reasoning = message?.reasoning_content
+					? `【思考过程】\n${message.reasoning_content}\n\n`
+					: "";
+				const content = message?.content ?? "";
+				if (!content && !reasoning) {
+					throw new Error("智谱 API 返回了空结果");
+				}
+				return `${reasoning}${content}`;
+			} catch (error) {
+				lastError = error;
+				if (isRetriable(error) && model !== models[models.length - 1]) {
+					const apiError = error as ApiError;
+					console.error(
+						`模型 ${model} 不可用（HTTP ${apiError.status ?? "?"} ${apiError.code ?? ""}），回退到 ${models[models.length - 1]}`,
+					);
+					continue;
+				}
+				throw error;
+			}
 		}
-
-		const response = await fetch(`${BASE_URL}/chat/completions`, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${API_KEY}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(body),
-			signal: controller.signal,
-		});
-
-		const data = (await response.json()) as {
-			choices?: Array<{
-				message?: { content?: string; reasoning_content?: string };
-			}>;
-			error?: { message?: string };
-		};
-
-		if (!response.ok) {
-			throw new Error(
-				`智谱 API 错误（HTTP ${response.status}）：${data.error?.message ?? JSON.stringify(data)}`,
-			);
-		}
-
-		const message = data.choices?.[0]?.message;
-		const reasoning = message?.reasoning_content
-			? `【思考过程】\n${message.reasoning_content}\n\n`
-			: "";
-		const content = message?.content ?? "";
-		if (!content && !reasoning) {
-			throw new Error("智谱 API 返回了空结果");
-		}
-		return `${reasoning}${content}`;
+		throw lastError;
 	} catch (error) {
 		if (error instanceof Error && error.name === "AbortError") {
 			throw new Error(`请求超时（${REQUEST_TIMEOUT_MS / 1000}s）`);

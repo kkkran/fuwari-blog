@@ -31,8 +31,11 @@ pnpm build
 | 变量 | 必填 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `ZHIPU_API_KEY` | 是 | - | 智谱 API Key |
-| `ZHIPU_MODEL` | 否 | `glm-4.6v-flash` | 模型名称 |
+| `ZHIPU_MODEL` | 否 | `glm-4.6v-flash` | 主模型名称 |
+| `ZHIPU_FALLBACK_MODELS` | 否 | `glm-4v-flash` | 回退模型（逗号分隔），主模型限流 429 / 5xx / 不存在时自动切换 |
 | `ZHIPU_BASE_URL` | 否 | `https://open.bigmodel.cn/api/paas/v4` | API 地址 |
+
+> 关于模型：`glm-4.7-flash` 为纯文本模型，API 不接受图片输入，无法识图；目前智谱视觉 Flash 系列为 `glm-4.6v-flash`（默认）与 `glm-4v-flash`（回退，免费）。两者均免费可用。
 
 ## 本地验证
 
@@ -42,6 +45,20 @@ pnpm test:client
 # 或指定图片与问题：
 pnpm test:client "https://example.com/image.png" "图中有几只猫？"
 ```
+
+## 命令行调用（skill 封装）
+
+`dist/cli.js` 以 MCP 客户端方式拉起本服务器，供命令行/Agent skill 直接调用：
+
+```bash
+pnpm build
+node dist/cli.js "D:/photos/a.png"
+node dist/cli.js "https://example.com/a.png" "图中有几只猫？"
+node dist/cli.js "D:/a.png" "D:/b.png" --tool analyze_images --prompt "对比这两张图"
+node dist/cli.js "D:/a.png" --thinking disabled
+```
+
+完整用法见 `node dist/cli.js --help`；`pnpm analyze -- <同上参数>` 等价。
 
 ## MCP 客户端配置
 
