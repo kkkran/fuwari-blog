@@ -1,7 +1,0 @@
----
-// 课程表已迁移至工具页：/tools/timetable/[week]/
-export const prerender = false;
-
-const week = Astro.params.week;
-return Astro.redirect(week ? `/tools/timetable/${week}/` : "/tools/timetable/");
----

@@ -1,31 +1,12 @@
 ---
 import type { MarkdownHeading } from "astro";
 
-import {
-	buildTimetableViewModel,
-	resolveCurrentWeek,
-} from "@/utils/timetable-normalizer";
-import { parseTimetableFile } from "@/utils/timetable-parser-server";
 import Icon from "@components/Icon.astro";
-import LiveTimetableStatus from "@components/timetable/LiveTimetableStatus.astro";
 import Profile from "./Profile.astro";
 
 interface Props {
 	headings?: MarkdownHeading[];
 }
-
-const timetableData = parseTimetableFile("src/data/timetable/大一下2.json");
-const timetableWeek = resolveCurrentWeek(
-	timetableData.meta.startDate,
-	timetableData.meta.maxWeek,
-);
-const timetableViewModel = buildTimetableViewModel(
-	timetableData,
-	timetableWeek,
-);
-const sidebarLiveStatusPayload = {
-	coursesByDay: timetableViewModel.coursesByDay,
-};
 
 const nookLinks = [
 	{
@@ -46,12 +27,6 @@ const nookLinks = [
 		<Profile />
 	</div>
 	<div id="sidebar-sticky" class="sticky flex w-full flex-col gap-3" style="top: calc(var(--navbar-offset, 0px) + var(--header-height) + 0.75rem);">
-		<div id="sidebar-timetable">
-			<a href="/tools/timetable/" class="block" aria-label="前往课程表">
-				<LiveTimetableStatus payload={sidebarLiveStatusPayload} class="live-status-card" />
-			</a>
-		</div>
-
 		<section class="card-base p-3">
 			<div class="mb-3 flex items-center justify-between">
 				<div>

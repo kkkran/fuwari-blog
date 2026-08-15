@@ -48,7 +48,6 @@ function syncSidebarProfileMode() {
 	const sidebar = document.getElementById("sidebar");
 	const blogProfile = document.getElementById("sidebar-profile-blog");
 	const forumProfile = document.getElementById("sidebar-profile-forum");
-	const timetable = document.getElementById("sidebar-timetable");
 	const deepwiki = document.getElementById("sidebar-deepwiki");
 	const mainGrid = document.getElementById("main-grid");
 	const mainContent = document.getElementById("main-content");
@@ -110,7 +109,6 @@ function syncSidebarProfileMode() {
 		blogProfile.classList.toggle("hidden", isForumRoute);
 		forumProfile.classList.toggle("hidden", !isForumRoute);
 	}
-	timetable?.classList.toggle("hidden", isForumRoute);
 	deepwiki?.classList.toggle("hidden", isForumRoute);
 }
 
