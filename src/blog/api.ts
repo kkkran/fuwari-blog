@@ -222,7 +222,9 @@ export const uploadApi = {
 			throw new BlogApiError(message, response.status);
 		}
 		const data = (await response.json()) as { url: string };
-		return `${BLOG_API_BASE}${data.url}`;
+		// 后端返回的 URL 可能是绝对公网地址（图床 https://img.miscoke.top/...）
+		// 也可能是相对路径（本地回退 /uploads/...）——相对路径才需要拼 API 域名
+		return data.url.startsWith("http") ? data.url : `${BLOG_API_BASE}${data.url}`;
 	},
 };
 
