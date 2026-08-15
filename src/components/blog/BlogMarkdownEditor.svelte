@@ -225,10 +225,16 @@
 	{#if uploadStatus}
 		<p
 			class:list={[
-				"mt-2 text-xs",
+				"mt-2 flex items-center gap-1.5 text-xs",
 				uploading ? "text-white/45" : "text-white/55",
 			]}
 		>
+			{#if uploading}
+				<span
+					class="inline-block size-3 shrink-0 animate-spin rounded-full border-2 border-white/20 border-t-white/60"
+					aria-hidden="true"
+				/>
+			{/if}
 			{uploadStatus}
 		</p>
 	{/if}

@@ -11,6 +11,7 @@
 	let expandedSlug: string | null = null;
 	let rejectReason: Record<string, string> = {};
 	let rejectingSlug: string | null = null;
+	let approvingSlug: string | null = null;
 
 	$: user = $blogAuth.user;
 	$: isAdmin = user?.role === "admin";
@@ -49,6 +50,7 @@
 
 	async function approve(slug: string, title: string): Promise<void> {
 		if (!window.confirm(`确定通过《${title}》并公开吗？`)) return;
+		approvingSlug = slug;
 		try {
 			await blogApi.approve(slug);
 			emitSuccessToast("已通过", "《" + title + "》已公开");
@@ -58,6 +60,8 @@
 				"操作失败",
 				error instanceof Error ? error.message : "审核操作失败",
 			);
+		} finally {
+			approvingSlug = null;
 		}
 	}
 
@@ -154,10 +158,15 @@
 								</button>
 								{#if activeStatus === "pending"}
 									<button
-										class="cursor-pointer rounded-lg bg-green-500/90 px-2.5 py-1 text-xs font-bold text-black transition-opacity hover:opacity-85"
+										class="cursor-pointer rounded-lg bg-green-500/90 px-2.5 py-1 text-xs font-bold text-black transition-opacity hover:opacity-85 disabled:opacity-50"
+										disabled={approvingSlug === post.slug}
 										on:click={() => approve(post.slug, post.title)}
-										>通过</button
 									>
+										{#if approvingSlug === post.slug}
+											<Icon icon="svg-spinners:ring-resize" class="mr-1 size-3 align-[-2px]" />
+										{/if}
+										通过
+									</button>
 								{/if}
 							</div>
 						</div>
@@ -192,8 +201,12 @@
 											class="cursor-pointer rounded-lg border border-red-500/40 px-3 py-2 text-xs font-semibold text-red-400 transition-colors hover:bg-red-500/10 disabled:opacity-50"
 											disabled={rejectingSlug === post.slug}
 											on:click={() => reject(post.slug, post.title)}
-											>拒绝</button
 										>
+											{#if rejectingSlug === post.slug}
+												<Icon icon="svg-spinners:ring-resize" class="mr-1 size-3 align-[-2px]" />
+											{/if}
+											拒绝
+										</button>
 									</div>
 								{/if}
 							</div>
