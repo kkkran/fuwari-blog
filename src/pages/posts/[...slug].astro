@@ -341,7 +341,7 @@ const pageDescription = entry
 
 			<!-- Giscus 评论区 -->
 			<div id="giscus-container" class="giscus mt-10"></div>
-			<script is:inline define:vars={{ siteDomain: siteConfig.customDomain }}>
+			<script is:inline>
 				function loadGiscus() {
 					const container = document.getElementById('giscus-container');
 					if (!container) return;
@@ -352,16 +352,16 @@ const pageDescription = entry
 					// 创建新的 script 标签
 					const script = document.createElement('script');
 					script.src = 'https://giscus.app/client.js';
-					script.setAttribute('data-repo', 'miscoke/shijies-nook');
-					script.setAttribute('data-repo-id', 'R_kgDOOi8quw');
+					script.setAttribute('data-repo', 'kkkran/fuwari-blog');
+					script.setAttribute('data-repo-id', 'R_kgDOTzqaAw');
 					script.setAttribute('data-category', 'Announcements');
-					script.setAttribute('data-category-id', 'DIC_kwDOOi8qu84CprDV');
+					script.setAttribute('data-category-id', 'PENDING_CATEGORY_ID'); // TODO: 从 giscus.app 生成后替换
 					script.setAttribute('data-mapping', 'pathname');
 					script.setAttribute('data-strict', '1');
 					script.setAttribute('data-reactions-enabled', '1');
 					script.setAttribute('data-emit-metadata', '0');
 					script.setAttribute('data-input-position', 'top');
-					script.setAttribute('data-theme', `https://${siteDomain}/css/giscus.css`);
+					script.setAttribute('data-theme', 'dark');
 					script.setAttribute('data-lang', 'zh-CN');
 					script.setAttribute('data-loading', 'lazy');
 					script.setAttribute('crossorigin', 'anonymous');
