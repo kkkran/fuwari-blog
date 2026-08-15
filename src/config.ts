@@ -94,9 +94,12 @@ export const siteConfig: SiteConfig = {
 		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
 	},
 	favicon: [
+		// 站点图标：优先使用 SEO 分享图（webp，现代浏览器支持），svg 兜底
+		{ src: "/seo-cover.webp", sizes: "any" },
 		// Leave this array empty to use the default favicon
 		{
 			src: "/favicon/shijies-nook.svg", // Path of the favicon, relative to the /public directory
+			sizes: "any",
 			//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
 		},
 	],
