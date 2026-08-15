@@ -5,6 +5,9 @@ import SponsorForm from "@components/SponsorForm.svelte";
 import SiteShellLayout from "@layouts/SiteShellLayout.astro";
 import Icon from "@components/Icon.astro";
 
+// 名单数据来自后端 API（审核通过即时生效），页面必须动态渲染而非构建时预渲染
+export const prerender = false;
+
 const apiBase = serviceConfig.blogApiBaseUrl;
 
 // SSR 拉取已通过名单与统计；服务不可用时兜底为空列表
@@ -21,8 +24,9 @@ try {
 	if (statsRes.ok) {
 		stats = (await statsRes.json()) as SponsorStats;
 	}
-} catch {
+} catch (error) {
 	// 后端不可用时页面照常渲染，名单区域显示空态
+	console.error("[sponsors] 后端不可用，名单显示为空:", error);
 }
 
 function formatAmount(value: number): string {
