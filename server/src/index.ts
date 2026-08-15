@@ -10,6 +10,7 @@ import { blogRouter } from "./blog.js";
 import { notificationsRouter } from "./notifications.js";
 import { publicRouter } from "./public.js";
 import { uploadRouter } from "./upload.js";
+import { sponsorsRouter } from "./sponsors.js";
 import { createRateLimiter } from "./rate-limit.js";
 import { resolve } from "node:path";
 
@@ -33,6 +34,11 @@ const submitLimiter = createRateLimiter({
 	keyPrefix: "blog-submit",
 	getKey: (req) =>
 		String((req as ExpressRequest & { user?: { id: number } }).user?.id ?? req.ip),
+});
+const sponsorLimiter = createRateLimiter({
+	windowMs: 5 * 60 * 1000,
+	max: 120,
+	keyPrefix: "sponsor-read",
 });
 
 /** 构建应用（不监听端口），供入口与集成测试复用 */
@@ -70,6 +76,7 @@ export function createApp() {
 	app.use("/api/blog", submitLimiter, blogRouter);
 	app.use("/api/notifications", notificationsRouter);
 	app.use("/api/public", publicRouter);
+	app.use("/api/sponsors", sponsorLimiter, sponsorsRouter);
 	app.use("/api/upload", uploadLimiter, uploadRouter);
 
 	// 404
