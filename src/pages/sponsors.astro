@@ -145,7 +145,7 @@ const breadcrumbSchema = {
 				</span>
 			</div>
 
-			{#if sponsors.length > 0}
+			{sponsors.length > 0 ? (
 				<div class="mt-4 grid grid-cols-1 border-t border-l border-[var(--border)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 					{sponsors.map((sponsor, index) => (
 						<div class="flex items-center gap-3 border-b border-r border-[var(--border)] bg-[var(--background)] p-3">
@@ -162,9 +162,8 @@ const breadcrumbSchema = {
 								</div>
 							)}
 							<div class="min-w-0 flex-1">
-								<h4 class="flex items-center gap-1 truncate text-sm font-semibold">
-									{index < 3 && <span class="text-base leading-none" aria-label={`第 ${index + 1} 名`}>{medals[index]}</span>}
-									<span class="truncate">{sponsor.displayName}</span>
+								<h4 class="truncate text-sm font-semibold">
+									{index < 3 ? `${medals[index]} ${sponsor.displayName}` : sponsor.displayName}
 								</h4>
 								<p class="text-xs text-[var(--muted-foreground)]">{sponsor.date}</p>
 							</div>
@@ -174,11 +173,11 @@ const breadcrumbSchema = {
 						</div>
 					))}
 				</div>
-			{:else}
+			) : (
 				<p class="mt-4 rounded-xl border border-dashed border-[var(--border)] p-6 text-center text-sm text-[var(--muted-foreground)]">
 					还没有赞助记录，成为第一个支持者吧！
 				</p>
-			{/if}
+			)}
 		</div>
 	</section>
 </SiteShellLayout>

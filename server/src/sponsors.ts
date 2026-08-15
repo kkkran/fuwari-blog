@@ -24,6 +24,7 @@ interface SponsorRow {
 	id: number;
 	user_id: number | null;
 	display_name: string;
+	avatar_url: string;
 	amount: number;
 	amount_text: string;
 	anonymous: number;
@@ -43,6 +44,7 @@ function toPublic(row: SponsorRow) {
 	return {
 		id: row.id,
 		displayName: row.anonymous ? "匿名用户" : row.display_name,
+		avatarUrl: row.anonymous ? null : row.avatar_url || null,
 		amount: round2(row.amount),
 		amountText: row.amount_text,
 		anonymous: Boolean(row.anonymous),

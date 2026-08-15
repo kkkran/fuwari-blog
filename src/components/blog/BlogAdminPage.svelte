@@ -4,6 +4,9 @@
 	import { blogAuth } from "@/blog/stores/auth";
 	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 	import Icon from "@components/IconSvelte.svelte";
+	import SponsorAdminPanel from "./SponsorAdminPanel.svelte";
+
+	let adminMode: "posts" | "sponsors" = "posts";
 
 	let activeStatus: PostStatus = "pending";
 	let items: BlogPost[] = [];
@@ -101,6 +104,27 @@
 		<p class="mt-1 text-sm text-white/55">审核通过的文章会立即公开，拒绝需填写原因</p>
 	</div>
 
+	<div class="mb-4 flex gap-2">
+		<button
+			class="cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors {adminMode ===
+			'posts'
+				? 'bg-[var(--primary)] text-black/80'
+				: 'border border-white/15 text-white/60 hover:bg-white/10'}"
+			on:click={() => (adminMode = "posts")}
+		>
+			文章审核
+		</button>
+		<button
+			class="cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors {adminMode ===
+			'sponsors'
+				? 'bg-[var(--primary)] text-black/80'
+				: 'border border-white/15 text-white/60 hover:bg-white/10'}"
+			on:click={() => (adminMode = "sponsors")}
+		>
+			赞助审核
+		</button>
+	</div>
+
 	{#if !isAdmin}
 		<div class="flex flex-col items-center gap-4 py-16 text-center">
 			<Icon icon="material-symbols:lock-rounded" class="size-10 text-white/30" />
@@ -113,7 +137,7 @@
 				>
 			{/if}
 		</div>
-	{:else}
+	{:else if adminMode === "posts"}
 		<div class="mb-4 flex gap-2">
 			{#each tabs as tab (tab.key)}
 				<button
@@ -215,5 +239,7 @@
 				{/each}
 			</div>
 		{/if}
+	{:else}
+		<SponsorAdminPanel />
 	{/if}
 </div>

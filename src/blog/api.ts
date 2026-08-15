@@ -208,6 +208,49 @@ export const sponsorsApi = {
 	},
 };
 
+export interface SponsorPendingItem {
+	id: number;
+	displayName: string;
+	amount: number;
+	amountText: string;
+	anonymous: boolean;
+	remark: string;
+	sourceIp: string;
+	email: string | null;
+	createdAt: string;
+}
+
+export const sponsorsAdminApi = {
+	pending(): Promise<{ items: SponsorPendingItem[] }> {
+		return request<{ items: SponsorPendingItem[] }>("/api/sponsors/pending");
+	},
+	approve(id: number): Promise<{ sponsor: SponsorEntry }> {
+		return request<{ sponsor: SponsorEntry }>(
+			`/api/sponsors/${id}/approve`,
+			{ method: "POST" },
+		);
+	},
+	reject(id: number): Promise<{ ok: boolean }> {
+		return request<{ ok: boolean }>(`/api/sponsors/${id}/reject`, {
+			method: "POST",
+		});
+	},
+	remove(id: number): Promise<{ ok: boolean }> {
+		return request<{ ok: boolean }>(`/api/sponsors/${id}`, {
+			method: "DELETE",
+		});
+	},
+	update(
+		id: number,
+		input: { displayName?: string; amount?: number; anonymous?: boolean },
+	): Promise<{ sponsor: SponsorEntry }> {
+		return request<{ sponsor: SponsorEntry }>(`/api/sponsors/${id}`, {
+			method: "PUT",
+			body: JSON.stringify(input),
+		});
+	},
+};
+
 // ---------- 公开查询 ----------
 
 export const publicApi = {
