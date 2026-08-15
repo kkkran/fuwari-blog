@@ -21,6 +21,8 @@ process.env.IMAGE_HOSTING_ENABLED = "true";
 process.env.IMAGE_HOSTING_BASE_URL = "http://fake-oneimg:8080";
 process.env.IMAGE_HOSTING_USERNAME = "test-user";
 process.env.IMAGE_HOSTING_PASSWORD = "test-pass";
+// 图床公网域名：上传接口返回的 URL 必须基于它（而非内网 base）
+process.env.IMAGE_PUBLIC_BASE_URL = "https://img.miscoke.top";
 
 const { createApp } = await import("../src/index.js");
 const { config } = await import("../src/config.js");
@@ -43,10 +45,13 @@ const PNG_BYTES = Buffer.from(
 interface FakeOptions {
 	loginOk?: boolean;
 	uploadOk?: boolean;
+	/** 图床返回的图片 URL（默认内网绝对 URL，用于验证公网重写） */
+	uploadUrl?: string;
 }
 
 function fakeFetchFor(options: FakeOptions): typeof fetch {
-	const { loginOk = true, uploadOk = true } = options;
+	const { loginOk = true, uploadOk = true, uploadUrl = "http://fake-oneimg:8080/uploads/2026/08/fake.webp" } =
+		options;
 	return ((input: string | URL, init?: RequestInit) => {
 		const url = String(input);
 		if (url.startsWith("http://fake-oneimg:8080")) {
@@ -78,7 +83,7 @@ function fakeFetchFor(options: FakeOptions): typeof fetch {
 										message: "上传成功",
 										data: {
 											count: 1,
-											files: [{ id: 9, url: "/uploads/2026/08/fake.webp" }],
+											files: [{ id: 9, url: uploadUrl }],
 										},
 									}
 								: { code: 400, message: "文件解析失败" },
@@ -167,14 +172,35 @@ describe("POST /api/upload", () => {
 		assert.equal(newFiles.length, 1, "本地应新增一个文件");
 	});
 
-	it("图床成功时返回图床绝对 URL，本地无新增文件", async () => {
+	it("图床成功时返回公网图床 URL（内网绝对 URL 重写为公网域名），本地无新增文件", async () => {
 		mock.method(globalThis, "fetch", fakeFetchFor({}));
 		const res = await uploadImage(authCookie);
 		assert.equal(res.status, 201);
 		const body = (await res.json()) as { url: string };
-		assert.equal(body.url, "http://fake-oneimg:8080/uploads/2026/08/fake.webp");
+		// 图床 base 是内网地址，返回给前端前必须重写为公网图床域名
+		assert.equal(body.url, "https://img.miscoke.top/uploads/2026/08/fake.webp");
 		const newFiles = listUploads().filter((f) => !uploadsBefore.includes(f));
 		assert.equal(newFiles.length, 0, "图床成功时本地不应落盘");
+	});
+
+	it("图床返回相对 URL 时拼接公网图床域名", async () => {
+		mock.method(globalThis, "fetch", fakeFetchFor({ uploadUrl: "/uploads/2026/08/fake.webp" }));
+		const res = await uploadImage(authCookie);
+		assert.equal(res.status, 201);
+		const body = (await res.json()) as { url: string };
+		assert.equal(body.url, "https://img.miscoke.top/uploads/2026/08/fake.webp");
+	});
+
+	it("已是公网图床域名的 URL 保持原样", async () => {
+		mock.method(
+			globalThis,
+			"fetch",
+			fakeFetchFor({ uploadUrl: "https://img.miscoke.top/uploads/2026/08/fake.webp" }),
+		);
+		const res = await uploadImage(authCookie);
+		assert.equal(res.status, 201);
+		const body = (await res.json()) as { url: string };
+		assert.equal(body.url, "https://img.miscoke.top/uploads/2026/08/fake.webp");
 	});
 
 	it("图床业务失败时回退本地存储", async () => {

@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync, writeFile } from "node:fs";
 import { extname, resolve } from "node:path";
 import { config } from "./config.js";
-import { uploadToImageHosting } from "./image-hosting.js";
+import { toPublicImageUrl, uploadToImageHosting } from "./image-hosting.js";
 import { requireAuth } from "./middleware.js";
 
 const UPLOAD_DIR = resolve("./data/uploads");
@@ -56,6 +56,7 @@ uploadRouter.post("/", requireAuth, upload.single("file"), async (req, res) => {
 		mimetype: req.file.mimetype,
 		buffer: req.file.buffer,
 	});
-	const url = hosted?.url ?? saveToLocal(req.file);
+	// 图床 URL 规范化成公网域名（内网 base 不泄露）；图床失败时回退本地相对路径
+	const url = hosted ? toPublicImageUrl(hosted.url) : saveToLocal(req.file);
 	res.status(201).json({ url });
 });

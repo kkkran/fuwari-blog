@@ -29,6 +29,9 @@ export const config = {
 		process.env.CORS_ORIGIN ?? "http://127.0.0.1:4321,http://localhost:4321",
 	),
 	databasePath: process.env.DATABASE_PATH ?? "./data/fuwari.db",
+	// 图床公网域名：上传接口返回给前端的 URL 统一基于它；
+	// IMAGE_HOSTING_BASE_URL（内网地址）仅用于服务端转发，不会泄露给前端
+	imagePublicBaseUrl: process.env.IMAGE_PUBLIC_BASE_URL ?? "https://img.miscoke.top",
 	// oneimg 图床：启用后新上传的图片转发图床，失败回退本地存储
 	imageHosting: {
 		enabled: process.env.IMAGE_HOSTING_ENABLED === "true",

@@ -72,6 +72,29 @@ async function login(fetchImpl: typeof fetch): Promise<boolean> {
 }
 
 /**
+ * 把图床返回的图片 URL 规范化为公网可访问地址。
+ *
+ * 图床（oneimg）的 base 是内网地址（如 http://127.0.0.1:8080 或
+ * http://host.docker.internal:8080），直接返回会给前端 127.0.0.1 之类的
+ * 不可访问链接。统一重写为 IMAGE_PUBLIC_BASE_URL（公网图床域名）：
+ * - 相对路径（/uploads/...）→ 拼接公网域名
+ * - 其他域名的绝对 URL → 取路径拼接公网域名
+ * - 已是公网域名的 URL → 原样返回
+ */
+export function toPublicImageUrl(url: string): string {
+	const base = config.imagePublicBaseUrl.replace(/\/+$/, "");
+	if (!base || !url) return url;
+	if (url.startsWith("/")) return `${base}${url}`;
+	try {
+		const parsed = new URL(url);
+		if (parsed.origin === new URL(base).origin) return url;
+		return `${base}${parsed.pathname}${parsed.search}`;
+	} catch {
+		return url;
+	}
+}
+
+/**
  * 将单个图片上传到 oneimg 图床。
  * 返回图床绝对 URL；任何失败均返回 null（由调用方回退本地存储）。
  */
