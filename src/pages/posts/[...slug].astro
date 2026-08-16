@@ -139,7 +139,7 @@ const pageDescription = entry
 	? entry.data.description
 	: (dbPost?.description ?? "");
 
-// 相关阅读：tags 重合优先（SSR 端计算，复用已拉取的合并列表，零额外请求）
+// 相关阅读：tags 重合优先（SSR 端计算，复用已拉取的数据，零额外请求）
 const relatedPosts = computeRelatedPosts(
 	{
 		slug,
@@ -151,12 +151,20 @@ const relatedPosts = computeRelatedPosts(
 				? new Date(dbPost.publishedAt)
 				: new Date(),
 	},
-	mergedPosts.map((p) => ({
-		slug: p.id,
-		title: p.data.title,
-		tags: p.data.tags ?? [],
-		published: p.data.published,
-	})),
+	[
+		...allPosts.map((p) => ({
+			slug: p.id,
+			title: p.data.title,
+			tags: p.data.tags ?? [],
+			published: p.data.published,
+		})),
+		...dbAllPosts.map((p) => ({
+			slug: p.slug,
+			title: p.title,
+			tags: Array.isArray(p.tags) ? p.tags : [],
+			published: p.publishedAt ? new Date(p.publishedAt) : new Date(0),
+		})),
+	],
 	3,
 );
 
