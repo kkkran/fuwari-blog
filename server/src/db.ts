@@ -68,12 +68,28 @@ CREATE TABLE IF NOT EXISTS sponsors (
   approved_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS friends (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  site_name TEXT NOT NULL,
+  url TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  avatar TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  source_ip TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  approved_at TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
 CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sponsors_status ON sponsors(status);
 CREATE INDEX IF NOT EXISTS idx_sponsors_user ON sponsors(user_id);
+CREATE INDEX IF NOT EXISTS idx_friends_status ON friends(status);
+CREATE INDEX IF NOT EXISTS idx_friends_user ON friends(user_id);
 `);
 
 // 幂等 schema 升级：早期版本创建的 sponsors 表缺少 avatar_url 列

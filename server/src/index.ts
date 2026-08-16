@@ -10,6 +10,7 @@ import { blogRouter } from "./blog.js";
 import { notificationsRouter } from "./notifications.js";
 import { publicRouter } from "./public.js";
 import { uploadRouter } from "./upload.js";
+import { friendsRouter } from "./friends.js";
 import { sponsorsRouter } from "./sponsors.js";
 import { createRateLimiter } from "./rate-limit.js";
 import { resolve } from "node:path";
@@ -109,6 +110,7 @@ export function createApp() {
 	app.use("/api/notifications", notificationsRouter);
 	app.use("/api/public", publicRouter);
 	app.use("/api/sponsors", sponsorLimiter, sponsorsRouter);
+	app.use("/api/friends", friendsRouter);
 	app.use("/api/upload", uploadLimiter, uploadRouter);
 
 	// 404
