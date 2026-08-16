@@ -94,7 +94,11 @@ export const siteConfig: SiteConfig = {
 		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
 	},
 	favicon: [
-		// 品牌图标：SEO 分享图（webp，现代浏览器支持）
+		// 品牌图标：Google 搜索要求 PNG/ICO 格式（WebP 不被识别，会导致搜索结果显示默认图标）
+		{ src: "/favicon/favicon-32.png", sizes: "32x32" },
+		{ src: "/favicon/favicon-48.png", sizes: "48x48" },
+		{ src: "/favicon/favicon-192.png", sizes: "192x192" },
+		// 现代浏览器回退（WebP 支持更广的色域）
 		{ src: "/seo-cover.webp", sizes: "any" },
 	],
 	officialSites: [
