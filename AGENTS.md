@@ -41,6 +41,9 @@
 - 看到 Astro `UnhandledRejection` 时，先定位其下方第一条构建错误；该提示通常是上游解析失败后的包装错误。
 - 新增交互组件时，优先参考 vue-bits（https://www.vuebits.org/）的组件 API/模式选型。注意：vue-bits 为 Vue 3 实现，本工程为 Svelte——当前**未引入 Vue 依赖**；需要时二选一：① 评估加 `@astrojs/vue` 集成直接使用，② 参照其模式用 Svelte 实现等价组件。未经用户确认不要擅自加 Vue 依赖。
 - 正文图片骨架（`.img-skeleton`）的收尾逻辑（加载完成停止 shimmer）在 `Layout.astro` 中以 `is:inline` 内联实现——不要改回外部 `.ts` 脚本引用（曾出现打包遗漏问题）。
+- `.astro` 页面模板**不要使用 Svelte 的 `{#if}`/`{:else}` 语法**——Astro 只支持 `{cond ? A : B}` 三元表达式；混用会导致 Astro 编译器原样输出、esbuild 报 `Expected "in"` 类错误。Svelte 语法仅用于 `.svelte` 组件。
+- 页面从静态（prerender）改为动态（`prerender = false`）后，`dist/client` 下的旧静态 HTML 不会自动清理且优先于 SSR 路由——需删除整个 `dist` 全量重建。
+- PowerShell 读写 UTF-8 源文件务必 `-Encoding UTF8` 成对使用（`Get-Content` 默认 ANSI 会损坏中文）；优先用 read/write 工具。
 
 ## Integration Points
 
