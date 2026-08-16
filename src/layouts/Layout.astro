@@ -7,10 +7,11 @@ import "../styles/main.css";
 import "../styles/markdown.css";
 import "../styles/markdown-extend.styl";
 
-import { profileConfig, serviceConfig, siteConfig } from "@/config";
+import { announcementConfig, profileConfig, serviceConfig, siteConfig } from "@/config";
 import StaticBackground from "@components/StaticBackground.astro";
 import BodyThirdPartyScripts from "@components/layout/BodyThirdPartyScripts.astro";
 import DashLoaderScript from "@components/layout/DashLoaderScript.astro";
+import NotificationCenter from "@components/blog/NotificationCenter.svelte";
 import LiquidGlassFilter from "@components/layout/LiquidGlassFilter.astro";
 
 import {
@@ -290,6 +291,16 @@ const bannerOffset =
 		<StaticBackground />
 
 		<slot />
+
+		<!-- 公告 toast + 登录用户通知（首屏弹窗 / 右下角消息 / 轮询） -->
+		<NotificationCenter
+			client:only="svelte"
+			announcement={{
+				enable: announcementConfig.enable,
+				text: announcementConfig.text,
+				version: announcementConfig.version,
+			}}
+		/>
 
 		<DashLoaderScript />
 	</body>

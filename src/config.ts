@@ -170,6 +170,20 @@ export const profileConfig: ProfileConfig = {
 	],
 };
 
+/**
+ * 站点公告（右下角 toast，访客可见）。
+ * 修改 text 时递增 version，已看过的访客（localStorage 记录）不会重复弹出。
+ */
+export const announcementConfig: {
+	enable: boolean;
+	text: string;
+	version: number;
+} = {
+	enable: true,
+	text: "欢迎来到世界树栈 🌳 这里记录技术实验、AI 工作流与长期写作。",
+	version: 1,
+};
+
 export const licenseConfig: LicenseConfig = {
 	enable: true,
 	name: "CC BY-NC-SA 4.0",
