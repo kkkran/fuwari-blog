@@ -22,5 +22,9 @@ export function getDir(path: string): string {
 }
 
 export function url(path: string): string {
+	// 外链/特殊协议原样返回，避免被拼接进站内路径（https:// 会被 joinUrl 压成 https:/）
+	if (/^(https?:|data:|mailto:|tel:)/i.test(path)) {
+		return path;
+	}
 	return joinUrl("", import.meta.env.BASE_URL, path);
 }

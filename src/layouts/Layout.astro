@@ -12,6 +12,7 @@ import StaticBackground from "@components/StaticBackground.astro";
 import BodyThirdPartyScripts from "@components/layout/BodyThirdPartyScripts.astro";
 import DashLoaderScript from "@components/layout/DashLoaderScript.astro";
 import NotificationCenter from "@components/blog/NotificationCenter.svelte";
+import ExternalLinkWarning from "@components/layout/ExternalLinkWarning.svelte";
 import LiquidGlassFilter from "@components/layout/LiquidGlassFilter.astro";
 
 import {
@@ -301,6 +302,9 @@ const bannerOffset =
 				version: announcementConfig.version,
 			}}
 		/>
+
+		<!-- 外站跳转警告（确认后新标签页打开） -->
+		<ExternalLinkWarning client:only="svelte" />
 
 		<DashLoaderScript />
 	</body>
