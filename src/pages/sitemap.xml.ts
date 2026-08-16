@@ -34,7 +34,7 @@ export const GET: APIRoute = async () => {
 	// 标签页（聚合所有 md + db 文章的标签，每个标签独立 URL）
 	const allTags = new Set<string>();
 	for (const post of posts) for (const tag of post.data.tags ?? []) allTags.add(tag);
-	for (const post of dbPosts) for (const tag of post.tags) allTags.add(tag);
+	for (const post of dbPosts) for (const tag of post.tags ?? []) allTags.add(tag);
 	const tagPages: SitemapPage[] = [...allTags].map((tag) => ({
 		url: `/tags/${encodeURIComponent(tag)}/`,
 		priority: 0.4,

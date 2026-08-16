@@ -102,7 +102,8 @@ export function toCollectionEntry(
 			draft: false,
 			description: post.description,
 			image: post.image,
-			tags: post.tags,
+			// 防御：后端 tags 可能为 null/undefined，统一规范为数组
+			tags: Array.isArray(post.tags) ? post.tags : [],
 			lang: "",
 			pinned: false,
 			prevTitle: "",
