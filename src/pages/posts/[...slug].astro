@@ -21,6 +21,7 @@ import {
 	computePrevNext,
 	mergeSortedPosts,
 } from "../../utils/post-sorting";
+import { computeRelatedPosts } from "../../utils/related-posts";
 
 // 混合数据源详情：先查 md 文章（content collection），未命中再查数据库文章；均未命中 404
 export const prerender = false;
@@ -136,6 +137,27 @@ const pageTitle = entry ? entry.data.title : (dbPost?.title ?? "");
 const pageDescription = entry
 	? entry.data.description
 	: (dbPost?.description ?? "");
+
+// 相关阅读：tags 重合优先（SSR 端计算，复用已拉取的合并列表，零额外请求）
+const relatedPosts = computeRelatedPosts(
+	{
+		slug,
+		title: pageTitle,
+		tags,
+		published: entry
+			? entry.data.published
+			: dbPost?.publishedAt
+				? new Date(dbPost.publishedAt)
+				: new Date(),
+	},
+	mergedPosts.map((p) => ({
+		slug: p.id,
+		title: p.data.title,
+		tags: p.data.tags ?? [],
+		published: p.data.published,
+	})),
+	3,
+);
 ---
 
 <SiteShellLayout
@@ -337,6 +359,23 @@ const pageDescription = entry
 						)}
 					</div>
 				</Fragment>
+			)}
+
+			<!-- 相关阅读（md 与 db 文章共用） -->
+			{relatedPosts.length > 0 && (
+				<div class="mt-8">
+					<h2 class="mb-4 text-base font-bold text-[var(--foreground)]">相关阅读</h2>
+					<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+						{relatedPosts.map((p) => (
+							<a
+								href={getPostUrlBySlug(p.slug)}
+								class="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-colors hover:bg-[var(--accent)]"
+							>
+								<div class="line-clamp-2 text-sm font-semibold">{p.title}</div>
+							</a>
+						))}
+					</div>
+				</div>
 			)}
 
 			<!-- Giscus 评论区 -->
