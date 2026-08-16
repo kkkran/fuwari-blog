@@ -1,30 +1,17 @@
 import { getCollection } from "astro:content";
 import { fetchDbPostsAll } from "@/utils/blog-db";
+import { getStaticSitemapPages, type SitemapPage } from "@/utils/sitemap-utils";
 import type { APIRoute } from "astro";
 
 // 动态生成（混合数据源，含数据库文章 slug）
 export const prerender = false;
-
-interface SitemapPage {
-	url: string;
-	priority: number;
-	changefreq: string;
-	lastmod?: Date;
-}
 
 export const GET: APIRoute = async () => {
 	const posts = await getCollection("posts", ({ data }) => {
 		return !data.draft;
 	});
 
-	const staticPages: SitemapPage[] = [
-		{ url: "/", priority: 1.0, changefreq: "daily" },
-		{ url: "/archive/", priority: 0.8, changefreq: "weekly" },
-		{ url: "/friends/", priority: 0.6, changefreq: "monthly" },
-		{ url: "/gallery/", priority: 0.6, changefreq: "monthly" },
-		{ url: "/sponsors/", priority: 0.5, changefreq: "monthly" },
-		{ url: "/changes/", priority: 0.5, changefreq: "daily" },
-	];
+	const staticPages: SitemapPage[] = getStaticSitemapPages();
 
 	const postPages: SitemapPage[] = posts.map((post) => ({
 		url: `/posts/${post.id}/`,

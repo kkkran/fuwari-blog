@@ -1,22 +1,8 @@
 import type { APIRoute } from "astro";
-
-const robotsTxt = `
-User-agent: *
-Disallow: /_astro/
-Disallow: /*/
-Allow: /posts/
-Allow: /archive/
-Allow: /friends/
-Allow: /gallery/
-Allow: /sponsors/
-Allow: /cover/
-Allow: /changes/
-
-Sitemap: ${new URL("sitemap.xml", import.meta.env.SITE).href}
-`.trim();
+import { buildRobotsTxt } from "@/utils/robots-utils";
 
 export const GET: APIRoute = () => {
-	return new Response(robotsTxt, {
+	return new Response(buildRobotsTxt(import.meta.env.SITE), {
 		headers: {
 			"Content-Type": "text/plain; charset=utf-8",
 		},
