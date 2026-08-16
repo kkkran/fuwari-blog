@@ -22,6 +22,7 @@ import {
 	mergeSortedPosts,
 } from "../../utils/post-sorting";
 import { computeRelatedPosts } from "../../utils/related-posts";
+import { buildReprintMarkdown } from "../../utils/reprint";
 
 // 混合数据源详情：先查 md 文章（content collection），未命中再查数据库文章；均未命中 404
 export const prerender = false;
@@ -158,6 +159,21 @@ const relatedPosts = computeRelatedPosts(
 	})),
 	3,
 );
+
+// 一键转载：生成带原文链接与版权声明的 Markdown（md 用源文件 body，db 用接口 content）
+const reprintText = entry
+	? buildReprintMarkdown({
+			title: entry.data.title,
+			url: new URL(`/posts/${entry.id}/`, Astro.site).toString(),
+			content: entry.body,
+		})
+	: dbPost
+		? buildReprintMarkdown({
+				title: dbPost.title,
+				url: new URL(`/posts/${dbPost.slug}/`, Astro.site).toString(),
+				content: dbPost.content,
+			})
+		: "";
 ---
 
 <SiteShellLayout
@@ -176,14 +192,25 @@ const relatedPosts = computeRelatedPosts(
 
 	<div class="grid grid-cols-1 gap-8 py-8 xl:grid-cols-[minmax(0,1fr)_320px]">
 		<article class="min-w-0 max-w-3xl">
-			<!-- 返回列表 -->
-			<a
-				href="/blog/"
-				class="mb-4 inline-flex items-center gap-1 border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
-			>
-				<Icon name="material-symbols:arrow-back-rounded" class="size-4" />
-				返回列表
-			</a>
+			<!-- 返回列表 + 一键转载 -->
+			<div class="mb-4 flex items-center justify-between gap-3">
+				<a
+					href="/blog/"
+					class="inline-flex items-center gap-1 border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+				>
+					<Icon name="material-symbols:arrow-back-rounded" class="size-4" />
+					返回列表
+				</a>
+				{reprintText && (
+					<button
+						id="reprint-copy-btn"
+						class="inline-flex cursor-pointer items-center gap-1 border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+					>
+						<Icon name="material-symbols:content-copy-rounded" class="size-4" />
+						复制转载 Markdown
+					</button>
+				)}
+			</div>
 
 			{entry && (
 				<Fragment>
@@ -429,7 +456,7 @@ const relatedPosts = computeRelatedPosts(
 	</div>
 </SiteShellLayout>
 
-<script define:vars={{ assetsBaseUrl: serviceConfig.assetsBaseUrl }}>
+<script define:vars={{ assetsBaseUrl: serviceConfig.assetsBaseUrl, reprintText }}>
 	// 随机封面图替换
 	function setupRandomCovers() {
 		const covers = document.querySelectorAll('.post-cover-random');
@@ -441,10 +468,32 @@ const relatedPosts = computeRelatedPosts(
 		}
 	}
 
+	// 一键转载：复制带版权声明的 Markdown
+	function setupReprintCopy() {
+		const btn = document.getElementById('reprint-copy-btn');
+		if (!btn || !reprintText) return;
+		btn.addEventListener('click', async () => {
+			try {
+				await navigator.clipboard.writeText(reprintText);
+				const original = btn.textContent;
+				btn.textContent = '已复制 ✓';
+				setTimeout(() => {
+					btn.textContent = original;
+				}, 1500);
+			} catch {
+				btn.textContent = '复制失败';
+			}
+		});
+	}
+
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', setupRandomCovers);
+		document.addEventListener('DOMContentLoaded', () => {
+			setupRandomCovers();
+			setupReprintCopy();
+		});
 	} else {
 		setupRandomCovers();
+		setupReprintCopy();
 	}
 </script>
 
