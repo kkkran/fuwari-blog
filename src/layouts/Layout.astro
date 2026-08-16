@@ -269,9 +269,9 @@ const bannerOffset =
 		</style>
 
 
-		<!-- KaTeX CSS: async load to avoid blocking render -->
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" media="print" onload="this.media='all'" />
-		<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" /></noscript>
+		<!-- KaTeX CSS: async load to avoid blocking render（SRI 校验防 CDN 篡改） -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous" media="print" onload="this.media='all'" />
+		<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous" /></noscript>
 
 		<slot name="head"></slot>
 

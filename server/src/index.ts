@@ -49,6 +49,21 @@ export function createApp() {
 	// 限流/日志按真实客户端 IP 计数（trust proxy: 1 会取到 frpc 回环地址）
 	app.set("trust proxy", 2);
 
+	// 不暴露技术栈
+	app.disable("x-powered-by");
+
+	// 安全响应头（防点击劫持 / 内容嗅探 / 引荐泄露；HSTS 强制 HTTPS）
+	app.use((_req, res, next) => {
+		res.setHeader("X-Content-Type-Options", "nosniff");
+		res.setHeader("X-Frame-Options", "DENY");
+		res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+		res.setHeader(
+			"Strict-Transport-Security",
+			"max-age=31536000; includeSubDomains",
+		);
+		next();
+	});
+
 	app.use(
 		cors({
 			origin(origin, callback) {
@@ -70,6 +85,23 @@ export function createApp() {
 
 	app.get("/api/health", (_req, res) => {
 		res.json({ ok: true, name: "fuwari-blog-server" });
+	});
+
+	// CSP report-only 违规收集端点：仅记录日志，用于上线前观察误伤
+	app.post("/api/csp-report", (req, res) => {
+		const body = req.body as {
+			"csp-report"?: Record<string, unknown>;
+			"violated-directive"?: string;
+			"blocked-uri"?: string;
+			"document-uri"?: string;
+		};
+		const report = body?.["csp-report"] ?? body;
+		const directive = report?.["violated-directive"] ?? "unknown";
+		const blocked = report?.["blocked-uri"] ?? "unknown";
+		console.warn(
+			`[csp-report] directive=${directive} blocked=${blocked} doc=${report?.["document-uri"] ?? ""}`,
+		);
+		res.status(204).end();
 	});
 
 	app.use("/api/auth", authLimiter, authRouter);
