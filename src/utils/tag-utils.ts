@@ -4,7 +4,9 @@
 
 export interface TaggedSource {
 	slug: string;
+	title: string;
 	tags: string[];
+	published: Date;
 }
 
 export interface TagCount {

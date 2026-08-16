@@ -18,7 +18,15 @@ const allPosts = [...dbPosts, ...mdPosts].sort(
 	(a, b) => b.data.published.getTime() - a.data.published.getTime(),
 );
 
-const tagged = postsForTag(allPosts, tag);
+// 适配 tag-utils 接口（CollectionEntry → TaggedSource）
+const taggedSources = allPosts.map((p) => ({
+	slug: p.id,
+	title: p.data.title,
+	tags: p.data.tags ?? [],
+	published: p.data.published,
+}));
+
+const tagged = postsForTag(taggedSources, tag);
 ---
 
 <SiteShellLayout title={`标签：${tag}`} description={`浏览标签「${tag}」下的文章`}>
@@ -38,14 +46,14 @@ const tagged = postsForTag(allPosts, tag);
 				{tagged.map((post) => (
 					<li>
 						<a
-							href={getPostUrlBySlug(post.id)}
+							href={getPostUrlBySlug(post.slug)}
 							class="group flex items-baseline justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-3 transition-colors hover:bg-[var(--accent)]"
 						>
 							<span class="text-sm font-medium group-hover:text-[var(--primary)]">
-								{post.data.title}
+								{post.title}
 							</span>
 							<span class="shrink-0 font-mono text-xs text-[var(--muted-foreground)]">
-								{formatDateToYYYYMMDD(post.data.published)}
+								{formatDateToYYYYMMDD(post.published)}
 							</span>
 						</a>
 					</li>

@@ -14,7 +14,15 @@ const allPosts = [...dbPosts, ...mdPosts].sort(
 	(a, b) => b.data.published.getTime() - a.data.published.getTime(),
 );
 
-const tagCounts = collectTagCounts(allPosts);
+// 适配 tag-utils 接口（CollectionEntry → TaggedSource）
+const taggedSources = allPosts.map((p) => ({
+	slug: p.id,
+	title: p.data.title,
+	tags: p.data.tags ?? [],
+	published: p.data.published,
+}));
+
+const tagCounts = collectTagCounts(taggedSources);
 ---
 
 <SiteShellLayout title="标签" description="按标签浏览博客文章">
@@ -44,7 +52,7 @@ const tagCounts = collectTagCounts(allPosts);
 		<!-- 每标签文章列表 -->
 		<div class="mt-10 flex flex-col gap-10">
 			{tagCounts.map(({ tag }) => {
-				const tagged = postsForTag(allPosts, tag);
+				const tagged = postsForTag(taggedSources, tag);
 				return (
 					<section id={tag}>
 						<h2 class="mb-4 border-b border-[var(--border)] pb-2 text-lg font-bold">{tag}</h2>
@@ -52,14 +60,14 @@ const tagCounts = collectTagCounts(allPosts);
 							{tagged.map((post) => (
 								<li>
 									<a
-										href={getPostUrlBySlug(post.id)}
+										href={getPostUrlBySlug(post.slug)}
 										class="group flex items-baseline justify-between gap-3"
 									>
 										<span class="text-sm font-medium group-hover:text-[var(--primary)]">
-											{post.data.title}
+											{post.title}
 										</span>
 										<span class="shrink-0 font-mono text-xs text-[var(--muted-foreground)]">
-											{formatDateToYYYYMMDD(post.data.published)}
+											{formatDateToYYYYMMDD(post.published)}
 										</span>
 									</a>
 								</li>

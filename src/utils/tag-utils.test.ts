@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { collectTagCounts, postsForTag } from "./tag-utils";
 
 const posts = [
-	{ slug: "a", tags: ["astro", "部署"] },
-	{ slug: "b", tags: ["astro"] },
-	{ slug: "c", tags: ["部署", "docker"] },
-	{ slug: "d", tags: [] },
-] as { slug: string; tags: string[] }[];
+	{ slug: "a", title: "A", tags: ["astro", "部署"], published: new Date("2026-01-01") },
+	{ slug: "b", title: "B", tags: ["astro"], published: new Date("2026-02-01") },
+	{ slug: "c", title: "C", tags: ["部署", "docker"], published: new Date("2026-03-01") },
+	{ slug: "d", title: "D", tags: [], published: new Date("2026-04-01") },
+] as { slug: string; title: string; tags: string[]; published: Date }[];
 
 describe("collectTagCounts", () => {
 	it("统计每个标签的文章数并按数量降序", () => {
@@ -25,7 +25,11 @@ describe("collectTagCounts", () => {
 	});
 
 	it("无标签时返回空数组", () => {
-		expect(collectTagCounts([{ slug: "x", tags: [] }])).toEqual([]);
+		expect(
+			collectTagCounts([
+				{ slug: "x", title: "X", tags: [], published: new Date() },
+			]),
+		).toEqual([]);
 	});
 });
 
