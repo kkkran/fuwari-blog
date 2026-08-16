@@ -31,7 +31,17 @@ export const GET: APIRoute = async () => {
 		});
 	}
 
-	const allPages: SitemapPage[] = [...staticPages, ...postPages];
+	// 标签页（聚合所有 md + db 文章的标签，每个标签独立 URL）
+	const allTags = new Set<string>();
+	for (const post of posts) for (const tag of post.data.tags ?? []) allTags.add(tag);
+	for (const post of dbPosts) for (const tag of post.tags) allTags.add(tag);
+	const tagPages: SitemapPage[] = [...allTags].map((tag) => ({
+		url: `/tags/${encodeURIComponent(tag)}/`,
+		priority: 0.4,
+		changefreq: "monthly",
+	}));
+
+	const allPages: SitemapPage[] = [...staticPages, ...postPages, ...tagPages];
 
 	const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

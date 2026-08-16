@@ -238,11 +238,12 @@ const relatedPosts = computeRelatedPosts(
 					{tags.length > 0 && (
 						<div class="mt-8 flex flex-wrap gap-2">
 							{tags.map((tag) => (
-								<span
-									class="rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]"
+								<a
+									href={`/tags/${encodeURIComponent(tag)}/`}
+									class="rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)]"
 								>
 									{tag}
-								</span>
+								</a>
 							))}
 						</div>
 					)}
@@ -324,11 +325,12 @@ const relatedPosts = computeRelatedPosts(
 					{tags.length > 0 && (
 						<div class="mt-8 flex flex-wrap gap-2">
 							{tags.map((tag) => (
-								<span
-									class="rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]"
+								<a
+									href={`/tags/${encodeURIComponent(tag)}/`}
+									class="rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)]"
 								>
 									{tag}
-								</span>
+								</a>
 							))}
 						</div>
 					)}

@@ -1,0 +1,73 @@
+---
+import SiteShellLayout from "@layouts/SiteShellLayout.astro";
+import { getSortedPosts } from "../../utils/content-utils";
+import { fetchDbPostsAll, toCollectionEntry } from "../../utils/blog-db";
+import { collectTagCounts, postsForTag } from "../../utils/tag-utils";
+import { getPostUrlBySlug } from "../../utils/url-utils";
+import { formatDateToYYYYMMDD } from "../../utils/date-utils";
+
+export const prerender = false;
+
+const mdPosts = await getSortedPosts();
+const dbPosts = (await fetchDbPostsAll()).map(toCollectionEntry);
+const allPosts = [...dbPosts, ...mdPosts].sort(
+	(a, b) => b.data.published.getTime() - a.data.published.getTime(),
+);
+
+const tagCounts = collectTagCounts(allPosts);
+---
+
+<SiteShellLayout title="标签" description="按标签浏览博客文章">
+	<section class="py-6 sm:py-8">
+		<h1 class="text-2xl font-bold tracking-tight">标签</h1>
+		<p class="mt-3 text-sm text-[var(--muted-foreground)]">
+			共 {tagCounts.length} 个标签，按文章数排序
+		</p>
+
+		<!-- 标签导航 -->
+		<div class="mt-6 flex flex-wrap gap-2">
+			{tagCounts.map(({ tag, count }) => (
+				<a
+					href={`/tags/${encodeURIComponent(tag)}/`}
+					class="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-sm text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)] hover:text-[var(--foreground)]"
+				>
+					{tag}
+					<span class="ml-1 text-xs text-[var(--muted-foreground)]/70">{count}</span>
+				</a>
+			))}
+		</div>
+
+		{tagCounts.length === 0 && (
+			<p class="mt-10 text-center text-sm text-[var(--muted-foreground)]">暂无标签</p>
+		)}
+
+		<!-- 每标签文章列表 -->
+		<div class="mt-10 flex flex-col gap-10">
+			{tagCounts.map(({ tag }) => {
+				const tagged = postsForTag(allPosts, tag);
+				return (
+					<section id={tag}>
+						<h2 class="mb-4 border-b border-[var(--border)] pb-2 text-lg font-bold">{tag}</h2>
+						<ul class="flex flex-col gap-3">
+							{tagged.map((post) => (
+								<li>
+									<a
+										href={getPostUrlBySlug(post.id)}
+										class="group flex items-baseline justify-between gap-3"
+									>
+										<span class="text-sm font-medium group-hover:text-[var(--primary)]">
+											{post.data.title}
+										</span>
+										<span class="shrink-0 font-mono text-xs text-[var(--muted-foreground)]">
+											{formatDateToYYYYMMDD(post.data.published)}
+										</span>
+									</a>
+								</li>
+							))}
+						</ul>
+					</section>
+				);
+			})}
+		</div>
+	</section>
+</SiteShellLayout>

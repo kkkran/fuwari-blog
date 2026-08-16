@@ -1,0 +1,56 @@
+---
+import SiteShellLayout from "@layouts/SiteShellLayout.astro";
+import { getSortedPosts } from "../../utils/content-utils";
+import { fetchDbPostsAll, toCollectionEntry } from "../../utils/blog-db";
+import { postsForTag } from "../../utils/tag-utils";
+import { getPostUrlBySlug } from "../../utils/url-utils";
+import { formatDateToYYYYMMDD } from "../../utils/date-utils";
+
+// 标签聚合页为动态渲染（数据库文章运行时合并）
+export const prerender = false;
+
+const rawTag = Astro.params.tag ?? "";
+const tag = decodeURIComponent(rawTag);
+
+const mdPosts = await getSortedPosts();
+const dbPosts = (await fetchDbPostsAll()).map(toCollectionEntry);
+const allPosts = [...dbPosts, ...mdPosts].sort(
+	(a, b) => b.data.published.getTime() - a.data.published.getTime(),
+);
+
+const tagged = postsForTag(allPosts, tag);
+---
+
+<SiteShellLayout title={`标签：${tag}`} description={`浏览标签「${tag}」下的文章`}>
+	<section class="py-6 sm:py-8">
+		<a href="/tags/" class="mb-4 inline-flex items-center gap-1 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+			← 全部标签
+		</a>
+		<h1 class="text-2xl font-bold tracking-tight">标签：{tag}</h1>
+		<p class="mt-3 text-sm text-[var(--muted-foreground)]">共 {tagged.length} 篇文章</p>
+
+		{tagged.length === 0 ? (
+			<p class="mt-10 text-center text-sm text-[var(--muted-foreground)]">
+				该标签下暂无文章
+			</p>
+		) : (
+			<ul class="mt-6 flex flex-col gap-3">
+				{tagged.map((post) => (
+					<li>
+						<a
+							href={getPostUrlBySlug(post.id)}
+							class="group flex items-baseline justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-3 transition-colors hover:bg-[var(--accent)]"
+						>
+							<span class="text-sm font-medium group-hover:text-[var(--primary)]">
+								{post.data.title}
+							</span>
+							<span class="shrink-0 font-mono text-xs text-[var(--muted-foreground)]">
+								{formatDateToYYYYMMDD(post.data.published)}
+							</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		)}
+	</section>
+</SiteShellLayout>
