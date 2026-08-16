@@ -39,6 +39,8 @@
 - Svelte 模板表达式中避免写 TypeScript 断言（`as ...`）；事件值提取应放在 `<script lang="ts">` 的函数里处理。
 - `@iconify/svelte` 建议统一按包名导入，并通过 `astro.config.mjs` 的 Vite `resolve.alias` 精确映射到 `dist/Icon.svelte`，避免 `exports` 条件解析报错。
 - 看到 Astro `UnhandledRejection` 时，先定位其下方第一条构建错误；该提示通常是上游解析失败后的包装错误。
+- 新增交互组件时，优先参考 vue-bits（https://www.vuebits.org/）的组件 API/模式选型。注意：vue-bits 为 Vue 3 实现，本工程为 Svelte——当前**未引入 Vue 依赖**；需要时二选一：① 评估加 `@astrojs/vue` 集成直接使用，② 参照其模式用 Svelte 实现等价组件。未经用户确认不要擅自加 Vue 依赖。
+- 正文图片骨架（`.img-skeleton`）的收尾逻辑（加载完成停止 shimmer）在 `Layout.astro` 中以 `is:inline` 内联实现——不要改回外部 `.ts` 脚本引用（曾出现打包遗漏问题）。
 
 ## Integration Points
 
