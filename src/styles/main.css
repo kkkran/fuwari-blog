@@ -262,6 +262,10 @@ body {
     max-width: 100%;
     height: auto;
 }
+/* 图片加载完成（或失败）后停止 shimmer 动画，避免后台空转 */
+.img-skeleton.img-skeleton-loaded::before {
+    display: none;
+}
 @keyframes skeleton-shimmer {
     0% {
         background-position: 0 0, 120% 0;

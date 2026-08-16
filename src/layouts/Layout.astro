@@ -344,4 +344,28 @@ const bannerOffset =
 
 <script src="../scripts/code-highlight-runtime.ts"></script>
 
+<!-- 正文图片骨架占位收尾：图片加载完成/失败后停止 shimmer（is:inline 避免打包遗漏） -->
+<script is:inline>
+	function setupImgSkeleton() {
+		document.querySelectorAll('.img-skeleton img').forEach(function (img) {
+			var wrapper = img.closest('.img-skeleton');
+			if (!wrapper) return;
+			var finish = function () {
+				wrapper.classList.add('img-skeleton-loaded');
+			};
+			if (img.complete && img.naturalWidth > 0) {
+				finish();
+			} else {
+				img.addEventListener('load', finish, { once: true });
+				img.addEventListener('error', finish, { once: true });
+			}
+		});
+	}
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', setupImgSkeleton);
+	} else {
+		setupImgSkeleton();
+	}
+</script>
+
 <LiquidGlassFilter />

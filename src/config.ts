@@ -160,7 +160,12 @@ export const profileConfig: ProfileConfig = {
 		{
 			name: "GitHub",
 			icon: "simple-icons:github",
-			url: "https://github.com/miscoke",
+			url: "https://github.com/kkkran",
+		},
+		{
+			name: "Bilibili",
+			icon: "simple-icons:bilibili",
+			url: "https://space.bilibili.com/500929752",
 		},
 		{
 			name: "RSS",
@@ -205,5 +210,5 @@ export const umamiConfig: UmamiConfig = {
 
 export const gitHubEditConfig: GitHubEditConfig = {
 	enable: true,
-	baseUrl: "https://github.com/miscoke/shijies-nook/blob/main/src/content/posts",
+	baseUrl: "https://github.com/kkkran/fuwari-blog/blob/main/src/content/posts",
 };
