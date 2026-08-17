@@ -311,6 +311,108 @@ export const friendsAdminApi = {
 	},
 };
 
+// ---------- AI（互动小说 / 图片生成） ----------
+
+export interface AiStoryListItem {
+	id: number;
+	title: string;
+	genre: string;
+	entries: number;
+	updatedAt: string;
+}
+
+export interface AiStoryEntry {
+	id: number;
+	seq: number;
+	content: string;
+	choices: string[];
+	chosen: string;
+	createdAt: string;
+}
+
+export interface AiImageItem {
+	id: number;
+	prompt: string;
+	ratio: string;
+	style: string;
+	url: string;
+	createdAt: string;
+}
+
+export interface AiQuota {
+	storyCreate: number;
+	storyContinue: number;
+	imageGenerate: number;
+}
+
+export const aiStoryApi = {
+	create(genre: string): Promise<{
+		story: { id: number; title: string; genre: string; content: string; choices: string[] };
+	}> {
+		return request<{
+			story: { id: number; title: string; genre: string; content: string; choices: string[] };
+		}>("/api/ai/stories", {
+			method: "POST",
+			body: JSON.stringify({ genre }),
+		});
+	},
+	list(): Promise<{ stories: AiStoryListItem[] }> {
+		return request<{ stories: AiStoryListItem[] }>("/api/ai/stories");
+	},
+	detail(id: number): Promise<{
+		story: { id: number; title: string; genre: string };
+		entries: AiStoryEntry[];
+	}> {
+		return request<{
+			story: { id: number; title: string; genre: string };
+			entries: AiStoryEntry[];
+		}>(`/api/ai/stories/${id}`);
+	},
+	continue(id: number, choice: string): Promise<{
+		entry: { seq: number; content: string; choices: string[]; chosen: string };
+	}> {
+		return request<{
+			entry: { seq: number; content: string; choices: string[]; chosen: string };
+		}>(`/api/ai/stories/${id}/continue`, {
+			method: "POST",
+			body: JSON.stringify({ choice }),
+		});
+	},
+	remove(id: number): Promise<{ ok: boolean }> {
+		return request<{ ok: boolean }>(`/api/ai/stories/${id}`, {
+			method: "DELETE",
+		});
+	},
+};
+
+export const aiImageApi = {
+	generate(input: {
+		prompt: string;
+		ratio: string;
+		style: string;
+	}): Promise<{
+		image: { id: number; prompt: string; ratio: string; style: string; url: string };
+	}> {
+		return request<{
+			image: { id: number; prompt: string; ratio: string; style: string; url: string };
+		}>("/api/ai/images", {
+			method: "POST",
+			body: JSON.stringify(input),
+		});
+	},
+	list(): Promise<{ images: AiImageItem[] }> {
+		return request<{ images: AiImageItem[] }>("/api/ai/images");
+	},
+	remove(id: number): Promise<{ ok: boolean }> {
+		return request<{ ok: boolean }>(`/api/ai/images/${id}`, {
+			method: "DELETE",
+		});
+	},
+	quota(): Promise<{ quota: AiQuota }> {
+		return request<{ quota: AiQuota }>("/api/ai/quota");
+	},
+};
+
 // ---------- 公开查询 ----------
 
 export const publicApi = {

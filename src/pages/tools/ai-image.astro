@@ -1,0 +1,10 @@
+---
+import AIImageTool from "@/components/blog/AIImageTool.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="AI 图片生成" description="用文字描述你的画面，AI 绘制并保存到本地图库">
+	<div class="p-4 md:p-6">
+		<AIImageTool client:only="svelte" />
+	</div>
+</MainGridLayout>

@@ -7,8 +7,29 @@ import { url } from "../utils/url-utils";
 
 const className = Astro.props.class;
 const links = navBarConfig.links as NavBarLink[];
-const primaryLinks = links.filter((link) => link.name !== "工具");
+const primaryLinks = links.filter(
+	(link) => link.name !== "工具" && link.name !== "AI 生图",
+);
 const toolsLink = links.find((link) => link.name === "工具");
+// AI 生图导航：下拉展示画廊 / 图片生成 / 互动小说
+const aiLink = links.find((link) => link.name === "AI 生图");
+const aiSubLinks: NavBarLink[] = [
+	{
+		name: "AI 生图（画廊）",
+		url: "/tools/gallery/",
+		icon: "material-symbols:palette-outline-rounded",
+	},
+	{
+		name: "AI 图片生成",
+		url: "/tools/ai-image/",
+		icon: "material-symbols:auto-awesome-outline-rounded",
+	},
+	{
+		name: "AI 小说互动",
+		url: "/tools/ai-story/",
+		icon: "material-symbols:auto-stories-outline-rounded",
+	},
+];
 const toolLinks: NavBarLink[] = [
 	{
 		name: "画廊",
@@ -77,6 +98,34 @@ const avatarSrc = profileConfig.avatar || "/seo-cover.webp";
 				</a>
 			))}
 
+			{aiLink && (
+				<details class="group relative">
+					<summary class="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]">
+						{aiLink.icon && (
+							<Icon name={aiLink.icon} class="size-4 text-[var(--muted-foreground)]" />
+						)}
+						<span>{aiLink.name}</span>
+						<Icon
+							name="material-symbols:keyboard-arrow-down-rounded"
+							class="size-4 text-[var(--muted-foreground)] transition group-open:rotate-180"
+						/>
+					</summary>
+					<div class="absolute left-0 top-full z-50 mt-2 w-max min-w-36 border border-[var(--foreground)]/80 bg-[var(--popover)] p-1 font-mono text-[var(--popover-foreground)]">
+						{aiSubLinks.map((link) => (
+							<a
+								href={url(link.url)}
+								class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)] focus:bg-[var(--foreground)] focus:text-[var(--background)]"
+							>
+								{link.icon && (
+									<Icon name={link.icon} class="size-4 text-[var(--muted-foreground)]" />
+								)}
+								<span>{link.name}</span>
+							</a>
+						))}
+					</div>
+				</details>
+			)}
+
 			{toolsLink && (
 				<details class="group relative">
 					<summary class="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]">
@@ -140,6 +189,24 @@ const avatarSrc = profileConfig.avatar || "/seo-cover.webp";
 							<span>{link.name}</span>
 						</a>
 					))}
+					{aiSubLinks.length > 0 && (
+						<>
+							<div class="mb-1 mt-3 px-3">
+								<p class="text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]/80">
+									AI
+								</p>
+							</div>
+							{aiSubLinks.map((link) => (
+								<a
+									href={url(link.url)}
+									class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
+								>
+									<Icon name={link.icon} class="size-4 shrink-0 text-[var(--muted-foreground)]" />
+									<span>{link.name}</span>
+								</a>
+							))}
+						</>
+					)}
 					{toolLinks.length > 0 && (
 						<>
 							<div class="mb-1 mt-3 px-3">

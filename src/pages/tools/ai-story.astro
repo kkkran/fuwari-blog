@@ -1,0 +1,10 @@
+---
+import AIStoryTool from "@/components/blog/AIStoryTool.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="AI 小说互动" description="AI 生成的互动小说，你的选择决定剧情走向">
+	<div class="p-4 md:p-6">
+		<AIStoryTool client:only="svelte" />
+	</div>
+</MainGridLayout>
