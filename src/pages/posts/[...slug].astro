@@ -39,6 +39,8 @@ const { prev, next } = computePrevNext(mergedPosts, slug);
 let dbPost: DbPostFull | null = null;
 let dbContentHtml = "";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+let dbHeadings: any[] = [];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let Content: any = null;
 let mdHeadings: unknown[] = [];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,7 +49,9 @@ let mdRemark: Record<string, any> = {};
 if (!entry) {
 	dbPost = await fetchDbPost(slug);
 	if (dbPost) {
-		dbContentHtml = await renderDbMarkdown(dbPost.content);
+		const rendered = await renderDbMarkdown(dbPost.content);
+		dbContentHtml = rendered.html;
+		dbHeadings = rendered.headings;
 	}
 } else {
 	const rendered = await render(entry);
@@ -451,12 +455,12 @@ const reprintText = entry
 			</script>
 		</article>
 
-		<!-- 右侧 TOC（仅 md 文章） -->
-		{entry && siteConfig.toc.enable && (
+		<!-- 右侧 TOC（md 与 db 文章共用） -->
+		{(entry || dbPost) && siteConfig.toc.enable && (
 			<aside class="hidden xl:block">
 				<div class="sticky top-20">
 					<div id="toc-inner-wrapper" class="max-h-[calc(100vh-6rem)] overflow-y-auto">
-						<TOC headings={mdHeadings} />
+						<TOC headings={entry ? mdHeadings : dbHeadings} />
 					</div>
 				</div>
 			</aside>

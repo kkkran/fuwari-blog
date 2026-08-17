@@ -63,8 +63,9 @@ function buildToc(headings: MarkdownHeading[]): TocItem[] {
 
 const toc = buildToc(headings);
 ---
-{isPostsRoute &&
+{isPostsRoute && toc.length > 0 &&
 <table-of-contents class:list={[className, "block border border-[var(--border)] bg-[var(--card)] p-4"]}>
+    <div id="active-indicator" aria-hidden="true"></div>
     <TOCList items={toc} />
 </table-of-contents>}
 
@@ -138,7 +139,7 @@ class TableOfContents extends HTMLElement {
 
         if (this.anchorNavTarget || !this.tocEl) return;
         const activeHeading =
-            document.querySelectorAll<HTMLDivElement>(`#toc .${this.visibleClass}`);
+            this.querySelectorAll<HTMLDivElement>(`.${this.visibleClass}`);
         if (!activeHeading.length) return;
 
         const topmost = activeHeading[0];
@@ -219,10 +220,10 @@ class TableOfContents extends HTMLElement {
             capture: true,
         });
 
-        this.activeIndicator = document.getElementById("active-indicator");
+        this.activeIndicator = this.querySelector("#active-indicator");
 
         this.tocEntries = Array.from(
-            document.querySelectorAll<HTMLAnchorElement>("#toc a[href^='#']")
+            this.querySelectorAll<HTMLAnchorElement>("a[href^='#']")
         );
 
         if (this.tocEntries.length === 0) return;
@@ -264,7 +265,19 @@ if (!customElements.get("table-of-contents")) {
 </script>
 
 <style>
-    #toc a.visible {
+    table-of-contents {
+        position: relative;
+    }
+    table-of-contents a.visible {
         color: var(--foreground);
+    }
+    #active-indicator {
+        position: absolute;
+        left: 0;
+        width: 2px;
+        border-radius: 1px;
+        background: var(--primary);
+        transition: top 0.2s ease, height 0.2s ease;
+        display: none;
     }
 </style>

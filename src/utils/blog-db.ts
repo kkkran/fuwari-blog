@@ -1,4 +1,5 @@
 import type { CollectionEntry } from "astro:content";
+import type { MarkdownHeading } from "astro";
 import { createMarkdownProcessor } from "@astrojs/markdown-remark";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeExternalLinks from "rehype-external-links";
@@ -202,8 +203,13 @@ async function getMarkdownProcessor(): Promise<Awaited<ReturnType<typeof createM
 	return processorPromise;
 }
 
-export async function renderDbMarkdown(content: string): Promise<string> {
+export async function renderDbMarkdown(
+	content: string,
+): Promise<{ html: string; headings: MarkdownHeading[] }> {
 	const processor = await getMarkdownProcessor();
-	const { code } = await processor.render(content);
-	return code;
+	const { code, metadata } = await processor.render(content);
+	return {
+		html: code,
+		headings: (metadata.headings ?? []) as MarkdownHeading[],
+	};
 }
