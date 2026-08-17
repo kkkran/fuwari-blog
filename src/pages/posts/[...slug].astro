@@ -358,7 +358,10 @@ const reprintText = entry
 					)}
 
 					<div class="mt-8">
-						<div class="markdown-content" set:html={dbContentHtml} />
+						<div
+							class="prose prose-zinc dark:prose-invert prose-base !max-w-none custom-md markdown-content break-words prose-pre:bg-[#1e1e2e] prose-code:before:content-none prose-code:after:content-none prose-img:rounded-xl prose-headings:scroll-mt-20"
+							set:html={dbContentHtml}
+						/>
 					</div>
 
 					{tags.length > 0 && (
