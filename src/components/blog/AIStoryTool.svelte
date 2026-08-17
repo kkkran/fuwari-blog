@@ -14,6 +14,7 @@
 	let loading = true;
 	let creating = false;
 	let continuing = false;
+	let customReply = "";
 	let viewStoryId: number | null = null;
 	let storyTitle = "";
 	let storyGenre = "";
@@ -80,6 +81,11 @@
 				chosen: e.chosen,
 			}));
 			history.replaceState(null, "", `/tools/ai-story/?id=${id}`);
+			// 打开故事后自动滚动到最下方，露出下一步选项
+			await tick();
+			document
+				.getElementById("story-actions")
+				?.scrollIntoView({ behavior: "smooth", block: "end" });
 		} catch (error) {
 			emitErrorToast(
 				"加载失败",
@@ -120,12 +126,27 @@
 			continuing = false;
 		}
 		if (newSeq !== null) {
-			// 等新段落与选项都渲染完成后，平滑滚动到刚生成的最新段落
+			// 等新段落与选项都渲染完成后，平滑滚动到最新段落旁的选项位置
 			await tick();
 			document
-				.getElementById(`story-entry-${newSeq}`)
+				.getElementById("story-actions")
 				?.scrollIntoView({ behavior: "smooth", block: "end" });
 		}
+	}
+
+	function submitCustomReply(): void {
+		const text = customReply.trim();
+		if (!text || continuing) return;
+		if (text.length > 100) {
+			emitErrorToast("输入过长", "自定义行动最多 100 字");
+			return;
+		}
+		customReply = "";
+		void choose(text);
+	}
+
+	function onReplyKeydown(event: KeyboardEvent): void {
+		if (event.key === "Enter" && !event.isComposing) submitCustomReply();
 	}
 
 	async function removeStory(id: number, title: string): Promise<void> {
@@ -197,7 +218,7 @@
 		</div>
 
 		{#if entries.length > 0 && !continuing}
-			<div class="mt-5">
+			<div id="story-actions" class="mt-5">
 				<p class="mb-2 text-sm text-white/60">下一步：</p>
 				<div class="flex flex-col gap-2">
 					{#each entries[entries.length - 1].choices as choice (choice)}
@@ -207,6 +228,21 @@
 							>{choice}</button
 						>
 					{/each}
+				</div>
+				<div class="mt-3 flex items-center gap-2">
+					<input
+						bind:value={customReply}
+						maxlength={100}
+						placeholder="或输入你的自定义行动..."
+						class="min-w-0 flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white/80 outline-none transition-colors placeholder:text-white/30 focus:border-[var(--primary)]"
+						on:keydown={onReplyKeydown}
+					/>
+					<button
+						class="shrink-0 cursor-pointer rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-bold text-black/80 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+						disabled={!customReply.trim()}
+						on:click={submitCustomReply}
+						>提交</button
+					>
 				</div>
 			</div>
 		{:else if continuing}
