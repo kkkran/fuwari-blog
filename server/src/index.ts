@@ -145,6 +145,15 @@ export function createApp() {
 				res.status(400).json({ error: err.message });
 				return;
 			}
+			// 畸形 JSON：应返回 400 而非 500
+			if (
+				err instanceof SyntaxError &&
+				"type" in err &&
+				(err as { type?: string }).type === "entity.parse.failed"
+			) {
+				res.status(400).json({ error: "请求体不是合法的 JSON" });
+				return;
+			}
 			console.error("[server error]", err);
 			res.status(500).json({ error: "服务器内部错误" });
 		},
