@@ -252,6 +252,15 @@ const avatarSrc = profileConfig.avatar || "/seo-cover.webp";
 	}
 
 	window.addEventListener("scroll", updateScrollProgress, { passive: true });
+
+	// 点击下拉菜单（AI 生图/工具/移动端菜单）外部时自动关闭
+	document.addEventListener("click", function (e) {
+		document.querySelectorAll("header details[open]").forEach(function (details) {
+			if (!details.contains(e.target as Node)) {
+				details.removeAttribute("open");
+			}
+		});
+	});
 	window.addEventListener("resize", updateScrollProgress);
 
 	function initScrollProgress() {
