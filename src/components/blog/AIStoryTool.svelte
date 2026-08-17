@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onMount, tick } from "svelte";
 	import { aiImageApi, aiStoryApi, type AiStoryListItem } from "@/blog/api";
 	import { blogAuth } from "@/blog/stores/auth";
 	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
@@ -18,6 +18,7 @@
 	let storyTitle = "";
 	let storyGenre = "";
 	let entries: { seq: number; content: string; choices: string[]; chosen: string }[] = [];
+	let newestSeq: number | null = null;
 	let quota: { storyCreate: number; storyContinue: number } = { storyCreate: 0, storyContinue: 0 };
 
 	$: isLoggedIn = !!user;
@@ -71,6 +72,7 @@
 			viewStoryId = id;
 			storyTitle = data.story.title;
 			storyGenre = data.story.genre;
+			newestSeq = null;
 			entries = data.entries.map((e) => ({
 				seq: e.seq,
 				content: e.content,
@@ -102,9 +104,12 @@
 	async function choose(choice: string): Promise<void> {
 		if (!viewStoryId || continuing) return;
 		continuing = true;
+		let newSeq: number | null = null;
 		try {
 			const { entry } = await aiStoryApi.continue(viewStoryId, choice);
 			entries = [...entries, entry];
+			newestSeq = entry.seq;
+			newSeq = entry.seq;
 			void loadQuota();
 		} catch (error) {
 			emitErrorToast(
@@ -113,6 +118,13 @@
 			);
 		} finally {
 			continuing = false;
+		}
+		if (newSeq !== null) {
+			// 等新段落与选项都渲染完成后，平滑滚动到刚生成的最新段落
+			await tick();
+			document
+				.getElementById(`story-entry-${newSeq}`)
+				?.scrollIntoView({ behavior: "smooth", block: "end" });
 		}
 	}
 
@@ -166,7 +178,12 @@
 
 		<div class="mt-6 flex flex-col gap-4">
 			{#each entries as entry, i (entry.seq)}
-				<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+				<div
+					id={`story-entry-${entry.seq}`}
+					class="rounded-xl border p-4 transition-colors {entry.seq === newestSeq
+						? "entry-newest"
+						: "border-white/10 bg-white/5"}"
+				>
 					{#if i > 0 && entry.chosen}
 						<p class="mb-2 text-xs font-semibold text-[var(--primary)]">
 							→ 选择了「{entry.chosen}」
@@ -193,7 +210,10 @@
 				</div>
 			</div>
 		{:else if continuing}
-			<div class="mt-5 py-4 text-center text-sm text-white/50">
+			<div class="mt-5 flex items-center justify-center gap-2 py-4 text-sm">
+				<span
+					class="inline-block size-4 animate-spin rounded-full border-2 border-white/20 border-t-[var(--primary)]"
+				></span>
 				<span class="text-[var(--primary)]">AI 正在生成中，请稍候...</span>
 			</div>
 		{/if}
@@ -261,3 +281,22 @@
 		{/if}
 	{/if}
 </div>
+
+<style>
+	/* 刚生成的最新段落：背景强调 + 入场闪光动效 */
+	.entry-newest {
+		border-color: color-mix(in srgb, var(--primary) 60%, transparent);
+		background: color-mix(in srgb, var(--primary) 14%, transparent);
+		animation: entry-newest-in 1.1s ease-out;
+	}
+	@keyframes entry-newest-in {
+		0% {
+			background: color-mix(in srgb, var(--primary) 32%, transparent);
+			box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 35%, transparent);
+		}
+		100% {
+			background: color-mix(in srgb, var(--primary) 14%, transparent);
+			box-shadow: none;
+		}
+	}
+</style>
