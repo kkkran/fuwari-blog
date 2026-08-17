@@ -6,8 +6,9 @@
 	import Skeleton from "@/components/misc/Skeleton.svelte";
 	import Icon from "@components/IconSvelte.svelte";
 	import SponsorAdminPanel from "./SponsorAdminPanel.svelte";
+	import FriendsAdminPanel from "./FriendsAdminPanel.svelte";
 
-	let adminMode: "posts" | "sponsors" = "posts";
+	let adminMode: "posts" | "sponsors" | "friends" = "posts";
 
 	let activeStatus: PostStatus = "pending";
 	let items: BlogPost[] = [];
@@ -123,6 +124,15 @@
 			on:click={() => (adminMode = "sponsors")}
 		>
 			赞助审核
+		</button>
+		<button
+			class="cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors {adminMode ===
+			'friends'
+				? 'bg-[var(--primary)] text-black/80'
+				: 'border border-white/15 text-white/60 hover:bg-white/10'}"
+			on:click={() => (adminMode = "friends")}
+		>
+			友链审核
 		</button>
 	</div>
 
@@ -240,7 +250,9 @@
 				{/each}
 			</div>
 		{/if}
-	{:else}
+	{:else if adminMode === "sponsors"}
 		<SponsorAdminPanel />
+	{:else}
+		<FriendsAdminPanel />
 	{/if}
 </div>

@@ -251,6 +251,66 @@ export const sponsorsAdminApi = {
 	},
 };
 
+// ---------- 友链 ----------
+
+export interface FriendEntry {
+	id: number;
+	siteName: string;
+	url: string;
+	description: string;
+	avatar: string;
+	date: string;
+}
+
+export interface FriendPendingItem {
+	id: number;
+	siteName: string;
+	url: string;
+	description: string;
+	avatar: string;
+	email: string | null;
+	sourceIp: string;
+	createdAt: string;
+}
+
+export const friendsApi = {
+	list(): Promise<{ friends: FriendEntry[] }> {
+		return request<{ friends: FriendEntry[] }>("/api/friends");
+	},
+	apply(input: {
+		siteName: string;
+		url: string;
+		description: string;
+		avatar: string;
+	}): Promise<{ friend: { status: string } }> {
+		return request<{ friend: { status: string } }>("/api/friends", {
+			method: "POST",
+			body: JSON.stringify(input),
+		});
+	},
+};
+
+export const friendsAdminApi = {
+	pending(): Promise<{ items: FriendPendingItem[] }> {
+		return request<{ items: FriendPendingItem[] }>("/api/friends/pending");
+	},
+	approve(id: number): Promise<{ friend: FriendEntry }> {
+		return request<{ friend: FriendEntry }>(`/api/friends/${id}/approve`, {
+			method: "POST",
+		});
+	},
+	reject(id: number): Promise<{ ok: boolean }> {
+		return request<{ ok: boolean }>(`/api/friends/${id}/reject`, {
+			method: "POST",
+		});
+	},
+	remove(id: number): Promise<{ ok: boolean }> {
+		return request<{ ok: boolean }>(`/api/friends/${id}`, {
+			method: "DELETE",
+		});
+	},
+};
+
 // ---------- 公开查询 ----------
 
 export const publicApi = {

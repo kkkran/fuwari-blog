@@ -1,16 +1,30 @@
 ---
-import { siteConfig } from "@/config";
-import type { Friend } from "@/types/data";
-import LinkSubmitInfo from "@components/misc/LinkSubmitInfo.astro";
+import { BLOG_API_BASE } from "@/blog/api";
+import type { FriendEntry } from "@/blog/api";
+import FriendApplyForm from "@components/blog/FriendApplyForm.svelte";
 import SiteShellLayout from "@layouts/SiteShellLayout.astro";
 import Icon from "@components/Icon.astro";
 
-const friends = Object.values(
-	import.meta.glob<Friend>("@/data/friends/*.json", {
-		eager: true,
-		import: "default",
-	}),
-);
+// 友链数据来自后端审核通过的名单（动态渲染）
+export const prerender = false;
+
+let friends: FriendEntry[] = [];
+try {
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), 4000);
+	try {
+		const res = await fetch(`${BLOG_API_BASE}/api/friends`, {
+			signal: controller.signal,
+		});
+		if (res.ok) {
+			friends = ((await res.json()) as { friends: FriendEntry[] }).friends ?? [];
+		}
+	} finally {
+		clearTimeout(timer);
+	}
+} catch {
+	// 后端不可用：名单显示为空
+}
 
 const breadcrumbSchema = {
 	"@context": "https://schema.org",
@@ -45,34 +59,104 @@ const breadcrumbSchema = {
 			与志同道合的创作者互换友链；如果这里的内容帮到了你，欢迎考虑赞助支持。
 		</p>
 
-		<div class="mt-6">
-			<LinkSubmitInfo dataType="friends"></LinkSubmitInfo>
-		</div>
-
-		<div class="mt-8 grid grid-cols-1 border-t border-l border-[var(--border)] md:grid-cols-2 lg:grid-cols-3">
-			{friends.map((friend) => (
-				<a
-					href={friend.url}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="flex items-center gap-4 border-b border-r border-[var(--border)] bg-[var(--background)] p-4 transition-colors hover:bg-[var(--card)]"
-				>
-					<img
-						src={friend.avatar}
-						alt={`${friend.name}的头像`}
-						loading="lazy"
-						class="h-16 w-16 shrink-0 rounded-full object-cover"
-					/>
-					<div class="min-w-0">
-						<div class="flex items-center gap-2">
-							<span class="truncate font-semibold">{friend.name}</span>
+		<!-- 友链名单（审核通过后动态展示） -->
+		{friends.length === 0 ? (
+			<div class="mt-8 rounded-xl border border-dashed border-[var(--border)] px-6 py-12 text-center text-sm text-[var(--muted-foreground)]">
+				暂无友链，欢迎提交申请成为第一位！
+			</div>
+		) : (
+			<div class="mt-6 grid grid-cols-1 border-t border-l border-[var(--border)] md:grid-cols-2 lg:grid-cols-3">
+				{friends.map((friend) => (
+					<a
+						href={friend.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-center gap-4 border-b border-r border-[var(--border)] bg-[var(--background)] p-4 transition-colors hover:bg-[var(--card)]"
+					>
+						{friend.avatar ? (
+							<img
+								src={friend.avatar}
+								alt={friend.siteName}
+								loading="lazy"
+								class="h-16 w-16 shrink-0 rounded-full object-cover"
+							/>
+						) : (
+							<div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[var(--muted)] text-xl font-bold text-[var(--muted-foreground)]">
+								{friend.siteName.slice(0, 1)}
+							</div>
+						)}
+						<div class="min-w-0">
+							<div class="flex items-center gap-2">
+								<span class="truncate font-semibold">{friend.siteName}</span>
+								<Icon
+									name="material-symbols:open-in-new-rounded"
+									class="size-3.5 shrink-0 text-[var(--muted-foreground)]"
+								/>
+							</div>
+							<p class="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">
+								{friend.description}
+							</p>
 						</div>
-						<p class="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">
-							{friend.description}
+					</a>
+				))}
+			</div>
+		)}
+
+		<!-- 申请友链 -->
+		<div class="mt-14">
+			<h2 class="text-xl font-bold tracking-tight">申请友链</h2>
+
+			<details class="mt-4 rounded-xl border border-[var(--border)] bg-[var(--card)] px-5 py-4">
+				<summary class="cursor-pointer text-sm font-semibold text-[var(--muted-foreground)]">
+					申请要求（提交前请仔细阅读）
+				</summary>
+				<div class="mt-4 space-y-3 text-sm leading-relaxed text-[var(--muted-foreground)]">
+					<p class="font-medium text-[var(--foreground)]">您的网站应满足下述所有要求：</p>
+					<div>
+						<p class="font-medium text-[var(--foreground)]">原则要求</p>
+						<p>您愿意为开放的网络做出贡献，例如乐于分享知识经验。</p>
+					</div>
+					<div>
+						<p class="font-medium text-[var(--foreground)]">网站建站时长</p>
+						<p>您的网站应已创办两个月以上（根据网站内第一篇文章的发布日期计算）。</p>
+					</div>
+					<div>
+						<p class="font-medium text-[var(--foreground)]">网站更新、内容和质量</p>
+						<p>您的网站应有 20 篇文章或 10 篇原创文章，并且文章不包含以下内容：</p>
+						<ul class="mt-1 list-disc space-y-1 pl-5">
+							<li>违法违规的内容，如：涉政敏感、色情、暴力、血腥；</li>
+							<li>影响访问体验的内容，如：侵入式广告和弹窗；</li>
+							<li>可在搜索引擎中搜到很多相同的内容（即「内容农场」）；</li>
+							<li>对多站点聚合、源站不提供的数据进行统计和规范转载的文章不在此列；</li>
+							<li>如果短时间内发布的文章大部分为使用 AI 生成的低创内容，维护组可将其视同内容农场驳回；</li>
+							<li>其它维护组认为的不适宜的内容。</li>
+						</ul>
+						<p class="mt-1">
+							同时，半年及以上未更新的网站的申请可能会被驳回，推荐您不定期或定期更新博文。
+						</p>
+						<p class="mt-1">
+							本站不反对使用 AI 辅助博客创作。主要依靠 AI 创作的内容必须标注 AIGC，且不计入原创文章；使用 AI
+							辅助写作（润色、查找资料等）建议注明使用了 AIGC 技术辅助写作。
 						</p>
 					</div>
-				</a>
-			))}
+					<div>
+						<p class="font-medium text-[var(--foreground)]">引导页、个人主页和导航站</p>
+						<p>
+							若您的网站类型是引导页、个人主页或导航站，也可以申请加入。单页面的个人主页网站有很大可能会因内容不丰富被驳回，建议用多个页面详细介绍；导航网站视具体情况而定。若它们链接了博客子站，则您的博客子站需要符合上述要求。
+						</p>
+					</div>
+					<div>
+						<p class="font-medium text-[var(--foreground)]">网站访问情况</p>
+						<p>
+							您的网站须可正常访问（以巡查机器人是否可访问和人工巡查时域名未过期、未脱离原先主体为准），同时强制要求启用 HTTPS。
+						</p>
+					</div>
+				</div>
+			</details>
+
+			<div class="mt-5 max-w-xl">
+				<FriendApplyForm client:only="svelte" />
+			</div>
 		</div>
 	</section>
 </SiteShellLayout>
