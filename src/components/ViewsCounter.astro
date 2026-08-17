@@ -68,12 +68,17 @@ const id =
 		const wrapper = document.getElementById(`${id}-wrapper`);
 		const el = document.getElementById(id);
 		if (!el || !wrapper) return;
-		
+
+		// 3 秒超时兜底：统计服务不可达时隐藏整个区块（避免眼睛+骨架永久显示）
+		const controller = new AbortController();
+		const timer = setTimeout(() => controller.abort(), 3000);
 		try {
 			const res = await fetch(
 				`${trackerBaseUrl}/share?pathname=${encodeURIComponent(pathname)}`,
+				{ signal: controller.signal },
 			);
 			if (!res.ok) {
+				clearTimeout(timer);
 				wrapper.style.display = 'none';
 				return;
 			}
@@ -81,9 +86,11 @@ const id =
 			const data = await res.json();
 			const views = data?.views || 0;
 			
+			clearTimeout(timer);
 			el.textContent = `${views} ${suffix}`;
 		} catch {
-			// 请求失败，隐藏整个区块
+			// 请求失败或超时，隐藏整个区块（避免眼睛+骨架永久显示）
+			clearTimeout(timer);
 			wrapper.style.display = 'none';
 		}
 	}
