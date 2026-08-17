@@ -48,7 +48,7 @@
 	});
 </script>
 
-<div class="card-base mx-auto mt-10 w-full max-w-md p-6 md:p-8">
+<div class="card-base mx-auto mt-10 w-full max-w-lg p-6 md:p-8">
 	<div class="mb-6 text-center">
 		<h1 class="text-xl font-bold">登录</h1>
 		<p class="mt-1 text-sm text-white/55">登录后可发布博客文章</p>

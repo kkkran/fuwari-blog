@@ -62,7 +62,7 @@
 	});
 </script>
 
-<div class="card-base mx-auto mt-10 w-full max-w-md p-6 md:p-8">
+<div class="card-base mx-auto mt-10 w-full max-w-lg p-6 md:p-8">
 	<div class="mb-6 text-center">
 		<h1 class="text-xl font-bold">注册</h1>
 		<p class="mt-1 text-sm text-white/55">创建账号，登录后即可发布博客</p>
