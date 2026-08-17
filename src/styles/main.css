@@ -3,6 +3,11 @@
 @import "@fontsource-variable/geist/index.css";
 @import "@fontsource-variable/geist-mono/index.css";
 
+/* 锚点跳转偏移：sticky 导航栏高约 56px，留 32px 呼吸空间，避免标题被遮挡 */
+[id] {
+    scroll-margin-top: 88px;
+}
+
 @tailwind components;
 
 @layer components {

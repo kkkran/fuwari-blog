@@ -65,7 +65,6 @@ const toc = buildToc(headings);
 ---
 {isPostsRoute && toc.length > 0 &&
 <table-of-contents class:list={[className, "block border border-[var(--border)] bg-[var(--card)] p-4"]}>
-    <div id="active-indicator" aria-hidden="true"></div>
     <TOCList items={toc} />
 </table-of-contents>}
 
@@ -80,7 +79,6 @@ class TableOfContents extends HTMLElement {
     sections: HTMLElement[] = [];
     tocEntries: HTMLAnchorElement[] = [];
     active: boolean[] = [];
-    activeIndicator: HTMLElement | null = null;
 
     constructor() {
         super();
@@ -101,8 +99,7 @@ class TableOfContents extends HTMLElement {
         });
 
         if (!this.active.includes(true)) {
-            // 当没有任何标题在视窗中时，隐藏 active-indicator
-            this.activeIndicator?.setAttribute("style", "display: none;");
+            // 当没有任何标题在视窗中时，清除全部高亮
             this.fallback();
             return;
         }
@@ -111,25 +108,18 @@ class TableOfContents extends HTMLElement {
 
     toggleActiveHeading = () => {
         let i = this.active.length - 1;
-        let min = this.active.length - 1, max = 0;
         while (i >= 0 && !this.active[i]) {
             this.tocEntries[i].classList.remove(this.visibleClass);
             i--;
         }
         while (i >= 0 && this.active[i]) {
             this.tocEntries[i].classList.add(this.visibleClass);
-            min = Math.min(min, i);
-            max = Math.max(max, i);
             i--;
         }
         while (i >= 0) {
             this.tocEntries[i].classList.remove(this.visibleClass);
             i--;
         }
-        
-        let top = this.tocEntries[min].offsetTop;
-        let bottom = this.tocEntries[max].offsetTop + this.tocEntries[max].offsetHeight;
-        this.activeIndicator?.setAttribute("style", `display: block; top: ${top}px; height: ${bottom - top}px`);
     };
 
     scrollToActiveHeading = () => {
@@ -220,8 +210,6 @@ class TableOfContents extends HTMLElement {
             capture: true,
         });
 
-        this.activeIndicator = this.querySelector("#active-indicator");
-
         this.tocEntries = Array.from(
             this.querySelectorAll<HTMLAnchorElement>("a[href^='#']")
         );
@@ -268,16 +256,11 @@ if (!customElements.get("table-of-contents")) {
     table-of-contents {
         position: relative;
     }
+    /* 当前阅读位置：变色 + 轻微放大加粗（不改变整体阅读体验） */
     table-of-contents a.visible {
         color: var(--foreground);
-    }
-    #active-indicator {
-        position: absolute;
-        left: 0;
-        width: 2px;
-        border-radius: 1px;
-        background: var(--primary);
-        transition: top 0.2s ease, height 0.2s ease;
-        display: none;
+        font-weight: 600;
+        font-size: 1.06em;
+        line-height: 1.5;
     }
 </style>
