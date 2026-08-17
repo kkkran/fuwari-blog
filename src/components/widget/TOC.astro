@@ -188,12 +188,17 @@ if (!customElements.get("table-of-contents")) {
     table-of-contents {
         position: relative;
     }
-    /* 当前阅读位置：变色 + 轻微放大加粗 + 底部主题色指示线（不改变整体阅读体验） */
+    /* 目录项统一预留内边距，高亮切换不引起布局跳动 */
+    table-of-contents a {
+        padding: 0.1rem 0.25rem;
+        border-radius: 0.25rem;
+    }
+    /* 当前阅读位置：浅主题色背景 + 放大加粗 + 底部主题色指示线 */
     table-of-contents a.visible {
         color: var(--foreground);
         font-weight: 600;
-        font-size: 1.06em;
-        line-height: 1.5;
-        box-shadow: inset 0 -1px 0 var(--primary);
+        font-size: 1.08em;
+        background: color-mix(in srgb, var(--primary) 14%, transparent);
+        box-shadow: inset 0 -2px 0 var(--primary);
     }
 </style>
