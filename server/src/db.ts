@@ -82,6 +82,43 @@ CREATE TABLE IF NOT EXISTS friends (
   approved_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS ai_stories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  genre TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ai_story_entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  story_id INTEGER NOT NULL REFERENCES ai_stories(id) ON DELETE CASCADE,
+  seq INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  choices TEXT NOT NULL DEFAULT '[]',
+  chosen TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ai_images (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  prompt TEXT NOT NULL,
+  ratio TEXT NOT NULL DEFAULT '1:1',
+  style TEXT NOT NULL DEFAULT '',
+  image_url TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ai_usage (
+  user_id INTEGER NOT NULL,
+  date TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, date, kind)
+);
+
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
 CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
@@ -90,6 +127,9 @@ CREATE INDEX IF NOT EXISTS idx_sponsors_status ON sponsors(status);
 CREATE INDEX IF NOT EXISTS idx_sponsors_user ON sponsors(user_id);
 CREATE INDEX IF NOT EXISTS idx_friends_status ON friends(status);
 CREATE INDEX IF NOT EXISTS idx_friends_user ON friends(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_stories_user ON ai_stories(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_entries_story ON ai_story_entries(story_id);
+CREATE INDEX IF NOT EXISTS idx_ai_images_user ON ai_images(user_id);
 `);
 
 // 幂等 schema 升级：早期版本创建的 sponsors 表缺少 avatar_url 列

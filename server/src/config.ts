@@ -39,8 +39,18 @@ export const config = {
 		username: process.env.IMAGE_HOSTING_USERNAME ?? "",
 		password: process.env.IMAGE_HOSTING_PASSWORD ?? "",
 	},
+	// 智谱 AI（互动小说/图片生成）
+	zhipu: {
+		apiKey: process.env.ZHIPU_API_KEY ?? "",
+		baseUrl:
+			process.env.ZHIPU_BASE_URL ?? "https://open.bigmodel.cn/api/paas/v4",
+	},
 };
 
 export function githubOAuthEnabled(): boolean {
 	return Boolean(config.github.clientId && config.github.clientSecret);
+}
+
+export function zhipuEnabled(): boolean {
+	return Boolean(config.zhipu.apiKey);
 }
