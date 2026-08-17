@@ -63,116 +63,60 @@ function buildToc(headings: MarkdownHeading[]): TocItem[] {
 
 const toc = buildToc(headings);
 ---
+
 {isPostsRoute && toc.length > 0 &&
 <table-of-contents class:list={[className, "block border border-[var(--border)] bg-[var(--card)] p-4"]}>
     <TOCList items={toc} />
 </table-of-contents>}
 
 <script>
+import { computeActiveIndex as computeActive } from "../../utils/toc-scroll";
+
 class TableOfContents extends HTMLElement {
     tocEl: HTMLElement | null = null;
     visibleClass = "visible";
-    observer: IntersectionObserver;
     anchorNavTarget: HTMLElement | null = null;
-    headingIdxMap = new Map<string, number>();
     headings: HTMLElement[] = [];
-    sections: HTMLElement[] = [];
     tocEntries: HTMLAnchorElement[] = [];
-    active: boolean[] = [];
+    currentActive = -1;
+    rafId = 0;
 
-    constructor() {
-        super();
-        this.observer = new IntersectionObserver(
-            this.markVisibleSection, { threshold: 0 }
-        );
-    };
-
-    markVisibleSection = (entries: IntersectionObserverEntry[]) => {
-        entries.forEach((entry) => {
-            const id = entry.target.children[0]?.getAttribute("id");
-            const idx = id ? this.headingIdxMap.get(id) : undefined;
-            if (idx != undefined)
-                this.active[idx] = entry.isIntersecting;
-
-            if (entry.isIntersecting && this.anchorNavTarget == entry.target.firstChild)
-                this.anchorNavTarget = null;
-        });
-
-        if (!this.active.includes(true)) {
-            // 当没有任何标题在视窗中时，清除全部高亮
-            this.fallback();
-            return;
-        }
-        this.update();
-    };
-
-    toggleActiveHeading = () => {
-        let i = this.active.length - 1;
-        while (i >= 0 && !this.active[i]) {
-            this.tocEntries[i].classList.remove(this.visibleClass);
-            i--;
-        }
-        while (i >= 0 && this.active[i]) {
-            this.tocEntries[i].classList.add(this.visibleClass);
-            i--;
-        }
-        while (i >= 0) {
-            this.tocEntries[i].classList.remove(this.visibleClass);
-            i--;
-        }
-    };
+    /** 滚动高亮阈值：标题顶部越过导航栏（约 100px）即视为当前阅读位置 */
+    activeThreshold = 100;
 
     scrollToActiveHeading = () => {
-        // If the TOC widget can accommodate both the topmost
-        // and bottommost items, scroll to the topmost item. 
-        // Otherwise, scroll to the bottommost one.
-
+        // 点击锚点导航后不自动滚动目录，等下一次滚动
         if (this.anchorNavTarget || !this.tocEl) return;
-        const activeHeading =
-            this.querySelectorAll<HTMLDivElement>(`.${this.visibleClass}`);
-        if (!activeHeading.length) return;
-
-        const topmost = activeHeading[0];
-        const bottommost = activeHeading[activeHeading.length - 1];
-        const tocHeight = this.tocEl.clientHeight;
-
-        let top;
-        if (bottommost.getBoundingClientRect().bottom -
-            topmost.getBoundingClientRect().top < 0.9 * tocHeight)
-            top = topmost.offsetTop - 32;
-        else
-            top = bottommost.offsetTop - tocHeight * 0.8;
-
+        if (this.currentActive < 0) return;
+        const entry = this.tocEntries[this.currentActive];
+        if (!entry) return;
         this.tocEl.scrollTo({
-            top,
+            top: entry.offsetTop - 32,
             left: 0,
             behavior: "smooth",
         });
     };
 
-    update = () => {
-        this.toggleActiveHeading();
+    updateActive = () => {
+        const tops = this.headings.map(
+            (heading) => heading.getBoundingClientRect().top,
+        );
+        const idx = computeActive(tops, this.activeThreshold);
+        if (idx !== this.currentActive) {
+            this.currentActive = idx;
+            this.tocEntries.forEach((entry, i) =>
+                entry.classList.toggle(this.visibleClass, i === idx),
+            );
+        }
         this.scrollToActiveHeading();
     };
 
-    fallback = () => {
-        if (!this.sections.length) return;
-
-        for (let i = 0; i < this.sections.length; i++) {
-            let offsetTop = this.sections[i].getBoundingClientRect().top;
-            let offsetBottom = this.sections[i].getBoundingClientRect().bottom;
-
-            if (this.isInRange(offsetTop, 0, window.innerHeight)
-                || this.isInRange(offsetBottom, 0, window.innerHeight)
-                || (offsetTop < 0 && offsetBottom > window.innerHeight)) {                    
-                this.markActiveHeading(i);
-            }
-            else if (offsetTop > window.innerHeight) break;
-        }
-    };
-
-    markActiveHeading = (idx: number)=> {
-        this.active[idx] = true;
+    onScroll = () => {
+        if (this.rafId) return;
+        this.rafId = requestAnimationFrame(() => {
+            this.rafId = 0;
+            this.updateActive();
+        });
     };
 
     handleAnchorClick = (event: Event) => {
@@ -182,22 +126,16 @@ class TableOfContents extends HTMLElement {
 
         if (anchor) {
             const id = decodeURIComponent(anchor.hash?.substring(1));
-            const idx = this.headingIdxMap.get(id);
-            if (idx !== undefined) {
-                this.anchorNavTarget = this.headings[idx];
-            } else {
-                this.anchorNavTarget = null;
-            }
+            const idx = this.headings.findIndex(
+                (heading) => heading.id === id,
+            );
+            this.anchorNavTarget = idx >= 0 ? this.headings[idx] : null;
         }
-    };
-
-    isInRange(value: number, min: number, max: number) {
-        return min < value && value < max;
     };
 
     connectedCallback() {
         this.init();
-    };
+    }
 
     init() {
         this.tocEl = document.getElementById(
@@ -216,35 +154,29 @@ class TableOfContents extends HTMLElement {
 
         if (this.tocEntries.length === 0) return;
 
-        this.sections = new Array(this.tocEntries.length);
-        this.headings = new Array(this.tocEntries.length);
-        for (let i = 0; i < this.tocEntries.length; i++) {
-            const id = decodeURIComponent(this.tocEntries[i].hash?.substring(1));
-            const heading = document.getElementById(id);
-            const section = heading?.parentElement;
-            if (heading instanceof HTMLElement && section instanceof HTMLElement) {
-                this.headings[i] = heading;
-                this.sections[i] = section;
-                this.headingIdxMap.set(id, i);
-            }
-        }
-        this.active = new Array(this.tocEntries.length).fill(false);
+        this.headings = this.tocEntries
+            .map((entry) => {
+                const id = decodeURIComponent(entry.hash?.substring(1));
+                return document.getElementById(id);
+            })
+            .filter((el): el is HTMLElement => el instanceof HTMLElement);
 
-        this.sections.forEach((section) =>
-            this.observer.observe(section)
-        );
+        // 锚点点击后的平滑滚动结束后清除抑制标记
+        this.tocEl.addEventListener("scrollend", () => {
+            this.anchorNavTarget = null;
+        });
 
-        this.fallback();
-        this.update();
-    };
+        window.addEventListener("scroll", this.onScroll, { passive: true });
+        this.updateActive();
+    }
 
     disconnectedCallback() {
-        this.sections.forEach((section) =>
-            this.observer.unobserve(section)
-        );
-        this.observer.disconnect();
+        window.removeEventListener("scroll", this.onScroll);
         this.tocEl?.removeEventListener("click", this.handleAnchorClick);
-    };
+        this.tocEl?.removeEventListener("scrollend", () => {
+            this.anchorNavTarget = null;
+        });
+    }
 }
 
 if (!customElements.get("table-of-contents")) {
