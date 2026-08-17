@@ -13,6 +13,7 @@ import BodyThirdPartyScripts from "@components/layout/BodyThirdPartyScripts.astr
 import DashLoaderScript from "@components/layout/DashLoaderScript.astro";
 import NotificationCenter from "@components/blog/NotificationCenter.svelte";
 import ExternalLinkWarning from "@components/layout/ExternalLinkWarning.svelte";
+import GlobalLoading from "@components/layout/GlobalLoading.svelte";
 import LiquidGlassFilter from "@components/layout/LiquidGlassFilter.astro";
 
 import {
@@ -305,6 +306,9 @@ const bannerOffset =
 
 		<!-- 外站跳转警告（确认后新标签页打开） -->
 		<ExternalLinkWarning client:only="svelte" />
+
+		<!-- 全局加载中弹窗（耗时操作遮罩 + 中央提示） -->
+		<GlobalLoading client:only="svelte" />
 
 		<DashLoaderScript />
 	</body>

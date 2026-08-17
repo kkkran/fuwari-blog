@@ -3,6 +3,8 @@
 	import { aiImageApi, aiStoryApi, type AiStoryListItem } from "@/blog/api";
 	import { blogAuth } from "@/blog/stores/auth";
 	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
+	import { startLoading, stopLoading } from "@/forum/utils/loading";
+	import Skeleton from "@/components/misc/Skeleton.svelte";
 	import Icon from "@components/IconSvelte.svelte";
 
 	const GENRES = ["科幻", "奇幻", "悬疑", "武侠", "都市", "惊悚"];
@@ -47,6 +49,7 @@
 
 	async function createStory(genre: string): Promise<void> {
 		creating = true;
+		startLoading("AI 正在创作故事开场，请耐心等待...");
 		try {
 			const { story } = await aiStoryApi.create(genre);
 			await openStory(story.id);
@@ -56,6 +59,7 @@
 				error instanceof Error ? error.message : "请稍后再试",
 			);
 		} finally {
+			stopLoading();
 			creating = false;
 		}
 	}
@@ -98,6 +102,7 @@
 	async function choose(choice: string): Promise<void> {
 		if (!viewStoryId || continuing) return;
 		continuing = true;
+		startLoading("AI 正在续写故事，请耐心等待...");
 		try {
 			const { entry } = await aiStoryApi.continue(viewStoryId, choice);
 			entries = [...entries, entry];
@@ -108,6 +113,7 @@
 				error instanceof Error ? error.message : "请稍后再试",
 			);
 		} finally {
+			stopLoading();
 			continuing = false;
 		}
 	}
@@ -221,7 +227,9 @@
 		<!-- 我的故事 -->
 		<h2 class="mb-3 text-sm font-semibold text-white/70">我的故事</h2>
 		{#if loading}
-			<div class="flex justify-center py-10 text-sm text-white/40">加载中...</div>
+			<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+				<Skeleton rows={3} widths={["100%", "85%", "70%"]} gap="1rem" />
+			</div>
 		{:else if stories.length === 0}
 			<div class="flex flex-col items-center gap-2 py-10 text-center">
 				<Icon icon="material-symbols:auto-stories-outline-rounded" class="size-8 text-white/25" />

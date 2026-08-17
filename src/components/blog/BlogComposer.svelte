@@ -5,6 +5,7 @@
 	import { blogAuth } from "@/blog/stores/auth";
 	import { createDraftStore, NEW_DRAFT_KEY } from "@/utils/blog-draft";
 	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
+	import Skeleton from "@/components/misc/Skeleton.svelte";
 	import Icon from "@components/IconSvelte.svelte";
 
 	let title = "";
@@ -40,6 +41,7 @@
 
 	async function loadEditPost(): Promise<void> {
 		if (!editSlug) return;
+		loading = true;
 		try {
 			const { post } = await blogApi.getMine(editSlug);
 			title = post.title;
@@ -55,6 +57,8 @@
 				error instanceof Error ? error.message : "文章加载失败",
 			);
 			window.location.href = "/blog/manage/";
+		} finally {
+			loading = false;
 		}
 	}
 
@@ -141,10 +145,19 @@
 		<div class="flex flex-col items-center gap-4 py-16 text-center">
 			<p class="text-white/60">登录后即可发布博客文章</p>
 			<a
-				href="/auth/login/?redirect=/blog/new/"
-				class="rounded-xl bg-[var(--primary)] px-5 py-2.5 font-bold text-black/80"
+				href="/auth/login/?redirect=/blog/new/"				class="rounded-xl bg-[var(--primary)] px-5 py-2.5 font-bold text-black/80"
 				>去登录</a
 			>
+		</div>
+	{:else if isEdit && loading}
+		<!-- 编辑态加载骨架 -->
+		<div class="flex flex-col gap-4">
+			<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+				<Skeleton rows={1} widths={["60%"]} rowHeight="1.75rem" gap="0" />
+			</div>
+			<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+				<Skeleton rows={4} widths={["100%", "100%", "100%", "80%"]} gap="1rem" rowHeight="2.5rem" />
+			</div>
 		</div>
 	{:else}
 		{#if restoredDraftAt}

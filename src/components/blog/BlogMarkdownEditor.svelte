@@ -2,6 +2,7 @@
 	import { BlogApiError, uploadApi } from "@/blog/api";
 	import { createDraftStore, type DraftStorage } from "@/utils/blog-draft";
 	import { countMarkdownWords } from "@/utils/markdown-stats";
+	import { startLoading, stopLoading } from "@/forum/utils/loading";
 	import {
 		POST_IMAGE_MAX_BYTES,
 		compressPostImage,
@@ -132,6 +133,7 @@
 
 		uploading = true;
 		uploadStatus = "正在压缩图片...";
+		startLoading("正在上传图片，请耐心等待...");
 
 		let uploadFileTarget = blob;
 
@@ -164,6 +166,7 @@
 		} catch (error) {
 			uploadStatus = normalizeUploadError(error);
 		} finally {
+			stopLoading();
 			uploading = false;
 		}
 	}

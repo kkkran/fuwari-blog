@@ -3,6 +3,8 @@
 	import { aiImageApi, type AiImageItem } from "@/blog/api";
 	import { blogAuth } from "@/blog/stores/auth";
 	import { emitErrorToast } from "@/forum/utils/toast";
+	import { startLoading, stopLoading } from "@/forum/utils/loading";
+	import Skeleton from "@/components/misc/Skeleton.svelte";
 	import Icon from "@components/IconSvelte.svelte";
 
 	const RATIOS = ["1:1", "16:9", "9:16"];
@@ -13,6 +15,7 @@
 	let ratio = "1:1";
 	let style = "";
 	let generating = false;
+	let historyLoading = true;
 	let images: AiImageItem[] = [];
 	let quotaLeft = 0;
 
@@ -37,11 +40,14 @@
 	}
 
 	async function loadHistory(): Promise<void> {
+		historyLoading = true;
 		try {
 			const { images: list } = await aiImageApi.list();
 			images = list;
 		} catch {
 			images = [];
+		} finally {
+			historyLoading = false;
 		}
 	}
 
@@ -52,6 +58,7 @@
 			return;
 		}
 		generating = true;
+		startLoading("AI 正在绘制图片，请耐心等待（约 10-30 秒）...");
 		try {
 			const { image } = await aiImageApi.generate({ prompt: p, ratio, style });
 			images = [image, ...images];
@@ -63,6 +70,7 @@
 				error instanceof Error ? error.message : "请稍后再试",
 			);
 		} finally {
+			stopLoading();
 			generating = false;
 		}
 	}
@@ -150,7 +158,15 @@
 
 		<!-- 历史 -->
 		<h2 class="mb-3 mt-8 text-sm font-semibold text-white/70">我的生成</h2>
-		{#if images.length === 0}
+		{#if historyLoading}
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+				{#each [1, 2, 3, 4, 5, 6] as i (i)}
+					<div class="aspect-square rounded-xl border border-white/10 bg-white/5 p-3">
+						<Skeleton rows={3} widths={["100%", "80%", "60%"]} gap="0.9rem" />
+					</div>
+				{/each}
+			</div>
+		{:else if images.length === 0}
 			<div class="flex flex-col items-center gap-2 py-10 text-center">
 				<Icon icon="material-symbols:image-outline-rounded" class="size-8 text-white/25" />
 				<p class="text-sm text-white/40">还没有生成记录</p>

@@ -1,6 +1,7 @@
 <script lang="ts">
 import { type ForumUploadType, uploadFile } from "@/forum/api/auth";
 import { ForumApiError } from "@/forum/types/api";
+import { startLoading, stopLoading } from "@/forum/utils/loading";
 import {
 	POST_IMAGE_MAX_BYTES,
 	compressPostImage,
@@ -124,6 +125,7 @@ async function handleImageUpload(
 
 	uploading = true;
 	uploadStatus = "正在压缩图片...";
+	startLoading("正在上传图片，请耐心等待...");
 
 	let uploadFileTarget = blob;
 
@@ -160,6 +162,7 @@ async function handleImageUpload(
 	} catch (error) {
 		uploadStatus = normalizeUploadError(error);
 	} finally {
+		stopLoading();
 		uploading = false;
 	}
 }
