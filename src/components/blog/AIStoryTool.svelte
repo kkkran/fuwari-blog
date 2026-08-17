@@ -102,7 +102,6 @@
 	async function choose(choice: string): Promise<void> {
 		if (!viewStoryId || continuing) return;
 		continuing = true;
-		startLoading("AI 正在续写故事，请耐心等待...");
 		try {
 			const { entry } = await aiStoryApi.continue(viewStoryId, choice);
 			entries = [...entries, entry];
@@ -113,7 +112,6 @@
 				error instanceof Error ? error.message : "请稍后再试",
 			);
 		} finally {
-			stopLoading();
 			continuing = false;
 		}
 	}
@@ -133,7 +131,10 @@
 	}
 
 	function formatTime(ts: string): string {
-		return ts.slice(0, 16).replace("T", " ");
+		const date = new Date(ts);
+		if (Number.isNaN(date.getTime())) return ts.slice(0, 16).replace("T", " ");
+		const pad = (n: number) => String(n).padStart(2, "0");
+		return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 	}
 </script>
 
@@ -192,9 +193,8 @@
 				</div>
 			</div>
 		{:else if continuing}
-			<div class="mt-5 flex items-center justify-center gap-2 py-4 text-sm text-white/50">
-				<span class="inline-block size-4 animate-spin rounded-full border-2 border-white/20 border-t-white/70"></span>
-				AI 正在续写故事...
+			<div class="mt-5 py-4 text-center text-sm text-white/50">
+				<span class="text-[var(--primary)]">AI 正在生成中，请稍候...</span>
 			</div>
 		{/if}
 	{:else}

@@ -123,8 +123,12 @@ async function chatJson(
 	}
 }
 
-function parseChoices(raw: unknown): string[] {
-	if (!Array.isArray(raw)) return [];
+/** SQLite datetime('now') 存的是 UTC（YYYY-MM-DD HH:MM:SS），转成带时区标记的 ISO 字符串 */
+function toIsoUtc(sqliteTime: string): string {
+	return new Date(`${sqliteTime.replace(" ", "T")}Z`).toISOString();
+}
+
+function parseChoices(raw: unknown): string[] {	if (!Array.isArray(raw)) return [];
 	return raw
 		.map((c) => (typeof c === "string" ? c.trim().slice(0, 100) : ""))
 		.filter(Boolean)
@@ -228,7 +232,7 @@ aiRouter.get("/stories", (req, res) => {
 			title: row.title,
 			genre: row.genre,
 			entries: row.entries,
-			updatedAt: row.updated_at,
+			updatedAt: toIsoUtc(row.updated_at),
 		})),
 	});
 });
@@ -252,8 +256,8 @@ aiRouter.get("/stories/:id", (req, res) => {
 			id: story.id,
 			title: story.title,
 			genre: story.genre,
-			createdAt: story.created_at,
-			updatedAt: story.updated_at,
+			createdAt: toIsoUtc(story.created_at),
+			updatedAt: toIsoUtc(story.updated_at),
 		},
 		entries: entries.map((e) => ({
 			id: e.id,
@@ -261,7 +265,7 @@ aiRouter.get("/stories/:id", (req, res) => {
 			content: e.content,
 			choices: JSON.parse(e.choices) as string[],
 			chosen: e.chosen,
-			createdAt: e.created_at,
+			createdAt: toIsoUtc(e.created_at),
 		})),
 	});
 });
