@@ -5,9 +5,9 @@
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",
-		"build": "node scripts/generate-icon-files.js && pnpm update-diff && astro build",
+		"build": "node scripts/generate-icon-files.js && node scripts/generate-image-variants.js && pnpm update-diff && astro build",
 		"deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy.ps1",
-		"build:cdn": "node scripts/generate-icon-files.js && pnpm update-diff && node scripts/cdnify-images.js && astro build",
+		"build:cdn": "node scripts/generate-icon-files.js && node scripts/generate-image-variants.js && pnpm update-diff && node scripts/cdnify-images.js && astro build",
 		"cdnify": "node scripts/cdnify-images.js",
 		"preview": "astro preview",
 		"astro": "astro",

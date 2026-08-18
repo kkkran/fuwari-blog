@@ -57,7 +57,11 @@ const toolLinks: NavBarLink[] = [
 		icon: "material-symbols:grid-view-outline-rounded",
 	},
 ];
-const avatarSrc = profileConfig.avatar || "/seo-cover.webp";
+// 默认品牌头像使用 64px 变体（241KB 原图用于 28px 展示属浪费）
+const avatarSrc =
+	(profileConfig.avatar || "/seo-cover.webp") === "/seo-cover.webp"
+		? "/seo-cover-64.webp"
+		: profileConfig.avatar;
 ---
 
 <header

@@ -1,4 +1,4 @@
-﻿---
+---
 import { getSortedPosts } from "@utils/content-utils";
 import Icon from "@components/Icon.astro";
 import { render } from "astro:content";
@@ -29,7 +29,7 @@ for (const post of posts) {
     </div>
     <div id="profile-avatar-container" class="relative mb-3">
         <div id="profile-avatar-wrapper" class="relative aspect-[16/10] overflow-hidden rounded-md border border-white/10 bg-white/[0.045] p-5 md:aspect-square" style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
-            <img src={config.avatar} alt="Profile Image of the Author" class="mx-auto h-full w-full object-contain" width="640" height="640" loading="eager" decoding="async" />
+            <img src={config.avatar === "/seo-cover.webp" ? "/seo-cover-256.webp" : config.avatar} alt="Profile Image of the Author" class="mx-auto h-full w-full object-contain" width="640" height="640" loading="eager" decoding="async" />
         </div>
     </div>
     <div>
