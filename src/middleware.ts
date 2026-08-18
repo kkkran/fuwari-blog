@@ -32,6 +32,9 @@ export const onRequest: ReturnType<typeof defineMiddleware> = defineMiddleware(
 	if (!contentType.includes("text/html")) {
 		return response;
 	}
+	// HTML 响应统一 no-cache（动态页此前无缓存头；静态页虽有 max-age=0，此处防御性兜底）
+	// /_astro/* 静态资源不走 middleware，仍保持构建产物自带的 1 年 immutable。
+	response.headers.set("Cache-Control", "no-cache");
 	const enforce = process.env.CSP_ENFORCE === "1";
 	const headerName = enforce
 		? "Content-Security-Policy"
