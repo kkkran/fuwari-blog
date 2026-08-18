@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { localIconNames } from "@/utils/local-icons";
 	export let icon: string = "";
 	let className: string = "";
 	export { className as class };
@@ -9,8 +10,11 @@
 	// 解析图标名称，格式：collection:icon-name
 	const [collection, iconName] = icon.includes(':') ? icon.split(':', 2) : ['', icon];
 	
-	// Iconify CDN URL
-	const iconifyUrl = `https://api.iconify.design/${collection}/${iconName}.svg`;
+	// 已本地化的图标走站内静态文件，否则回退 Iconify CDN
+	const local = localIconNames.includes(icon);
+	const iconifyUrl = local
+		? `/local-icons/${collection}-${iconName}.svg`
+		: `https://api.iconify.design/${collection}/${iconName}.svg`;
 	
 	// 合并样式
 	const combinedStyle = `

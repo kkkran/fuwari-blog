@@ -135,12 +135,24 @@ importers:
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
+      '@iconify-json/arcticons':
+        specifier: ^1.2.57
+        version: 1.2.57
+      '@iconify-json/fa6-solid':
+        specifier: ^1.2.4
+        version: 1.2.4
+      '@iconify-json/material-symbols':
+        specifier: ^1.2.89
+        version: 1.2.89
       '@iconify-json/material-symbols-light':
         specifier: ^1.2.49
         version: 1.2.65
       '@iconify-json/mingcute':
         specifier: ^1.2.7
         version: 1.2.7
+      '@iconify-json/mynaui':
+        specifier: ^1.2.19
+        version: 1.2.19
       '@iconify-json/simple-icons':
         specifier: ^1.2.42
         version: 1.2.76
@@ -583,11 +595,23 @@ packages:
   '@fontsource-variable/geist@5.3.0':
     resolution: {integrity: sha512-j0m+vLQuG5XAYoHtGCVu0spvlGreR3EzpECUVzkFmI1mTVnAO38l/NEPDCFgZ177JxzYJCLSmTQibIiYPilGrA==}
 
+  '@iconify-json/arcticons@1.2.57':
+    resolution: {integrity: sha512-GFiPQa0C2XHDZTmS9ZOah50nVAoLeXdXwKDNxvzbvdbBNDCi7HFIPpkGNU+cjms6rWKc5D/7pjl3+u0AHrjVkA==}
+
+  '@iconify-json/fa6-solid@1.2.4':
+    resolution: {integrity: sha512-LmDNNdJVyvF5mPm1yxWvL8KjCc/E8LzoqnF1LNTVpyY2ZJRUlGOWuPIThdbuFBF2IovgttkIyumhyqfmlHdwKg==}
+
   '@iconify-json/material-symbols-light@1.2.65':
     resolution: {integrity: sha512-+Py3yPCNv+hYlDTs3InxIexZKZb/taN5BOvhpCJWg7AdV4tiV5Du9gq9QfJklBj/Lb/d0IzW/rTDrti1qV2Zxg==}
 
+  '@iconify-json/material-symbols@1.2.89':
+    resolution: {integrity: sha512-wYJjKAOptNhc8Bq65PPJVEz/4Ozm+b3ZWEB3H65yGw37dr9AvXibW0GkEdVD7qrCtbD6aC6fY7SLmQCuUGtEAQ==}
+
   '@iconify-json/mingcute@1.2.7':
     resolution: {integrity: sha512-bp4z6F53KAQp99aSL7qPCHL7HWUNGMNKIhfo/dx9pwVHiad/WusUbTOFXEZfpA44syJPzSOxa3O6Pwiq7qZz1g==}
+
+  '@iconify-json/mynaui@1.2.19':
+    resolution: {integrity: sha512-Nsoo0jaZLM7Ws45TDiSxBDGgWdbpwhLfgRil/5tQeDJykdtmS5ILZsJ6fkCS1iNXURghhAiLipb15A1d7IQcEQ==}
 
   '@iconify-json/simple-icons@1.2.76':
     resolution: {integrity: sha512-lLRlA8yaf+1L5VCPRvR9lynoSklsddKHEylchmZJKdj/q2xVQ1ZAEJ8SCQlv9cbgtMefnlyM98U+8Si2aoFZPA==}
@@ -4095,11 +4119,27 @@ snapshots:
 
   '@fontsource-variable/geist@5.3.0': {}
 
+  '@iconify-json/arcticons@1.2.57':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/fa6-solid@1.2.4':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/material-symbols-light@1.2.65':
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/material-symbols@1.2.89':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/mingcute@1.2.7':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/mynaui@1.2.19':
     dependencies:
       '@iconify/types': 2.0.0
 
