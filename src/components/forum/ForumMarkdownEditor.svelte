@@ -8,6 +8,8 @@ import {
 	isPostImageWithinLimit,
 } from "@/forum/utils/image-compression";
 import type Editor from "@toast-ui/editor";
+import "@toast-ui/editor/dist/toastui-editor.css";
+import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
 type EditorMode = "post" | "comment" | "reply";
