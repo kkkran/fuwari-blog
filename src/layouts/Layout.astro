@@ -137,7 +137,7 @@ const bannerOffset =
 
 		<meta name="generator" content={Astro.generator} />
         <link rel="preconnect" href={serviceConfig.trackerBaseUrl} />
-        <link rel="preconnect" href={serviceConfig.assetsBaseUrl} />
+	<!-- assetsBaseUrl(p.miscoke.top) 仅文章页/画廊使用，首页不请求，故不预连接 -->
 	
 
 <script define:vars={{ customDomain: siteConfig.customDomain }}>
