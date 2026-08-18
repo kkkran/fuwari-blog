@@ -471,6 +471,9 @@ const reprintText = entry
 	</div>
 </SiteShellLayout>
 
+<!-- 正文/封面图片灯箱（Fancybox 按需引入，仅文章页加载） -->
+<script src="../../scripts/layout-fancybox-runtime.ts"></script>
+
 <script define:vars={{ assetsBaseUrl: serviceConfig.assetsBaseUrl, reprintText }}>
 	// 随机封面图替换
 	function setupRandomCovers() {
