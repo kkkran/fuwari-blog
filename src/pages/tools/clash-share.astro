@@ -1,0 +1,17 @@
+---
+export const toolMeta = {
+	title: "Clash 配置分享",
+	description: "上传 txt（如 Clash 配置）生成公网链接",
+	icon: "material-symbols:link-rounded",
+	order: 12,
+};
+
+import ClashShareTool from "@/components/blog/ClashShareTool.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="Clash 配置分享" description="上传 txt 文本生成公网可访问链接，浏览器直读或导入 Clash 客户端">
+	<div class="p-4 md:p-6">
+		<ClashShareTool client:only="svelte" />
+	</div>
+</MainGridLayout>

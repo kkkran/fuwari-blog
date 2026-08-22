@@ -470,6 +470,115 @@ export const uploadApi = {
 	},
 };
 
+// ---------- txt 分享（Clash 配置） ----------
+
+export interface ShareFileItem {
+	id: string;
+	filename: string;
+	status: "approved" | "pending";
+	size: number;
+	rawUrl: string;
+	expiresAt: string | null;
+	createdAt: string;
+}
+
+export interface ShareItemBase {
+	id: string;
+	filename: string;
+	size: number;
+	createdAt: string;
+}
+
+/** 后端返回相对路径时拼成完整公网地址（Clash 客户端需要绝对 URL） */
+function toShareUrl(rawUrl: string): string {
+	return rawUrl.startsWith("http") ? rawUrl : `${BLOG_API_BASE}${rawUrl}`;
+}
+
+export const shareApi = {
+	/** 上传 txt，expiresInDays ∈ {0,1,7,30}（0=永久，缺省 7） */
+	async upload(file: File, expiresInDays: number): Promise<{ id: string; rawUrl: string; status: "approved" | "pending" }> {
+		const form = new FormData();
+		form.append("file", file);
+		form.append("expiresInDays", String(expiresInDays));
+		let response: Response;
+		try {
+			response = await fetch(`${BLOG_API_BASE}/api/share`, {
+				method: "POST",
+				body: form,
+				credentials: "include",
+			});
+		} catch {
+			throw new BlogApiError("无法连接博客服务，请稍后再试", 0);
+		}
+		if (!response.ok) {
+			let message = `上传失败（${response.status}）`;
+			try {
+				const data = (await response.json()) as { error?: string };
+				if (data.error) message = data.error;
+			} catch {
+				// 非 JSON 响应
+			}
+			throw new BlogApiError(message, response.status);
+		}
+		const data = (await response.json()) as { id: string; rawUrl: string; status: "approved" | "pending" };
+		return { ...data, rawUrl: toShareUrl(data.rawUrl) };
+	},
+
+	async my(): Promise<{ files: ShareFileItem[] }> {
+		const data = await request<{ files: ShareFileItem[] }>("/api/share/my");
+		return { files: data.files.map((f) => ({ ...f, rawUrl: toShareUrl(f.rawUrl) })) };
+	},
+
+	async remove(id: string): Promise<void> {
+		let response: Response;
+		try {
+			response = await fetch(`${BLOG_API_BASE}/api/share/${id}`, {
+				method: "DELETE",
+				credentials: "include",
+			});
+		} catch {
+			throw new BlogApiError("无法连接博客服务，请稍后再试", 0);
+		}
+		if (!response.ok) {
+			let message = `删除失败（${response.status}）`;
+			try {
+				const data = (await response.json()) as { error?: string };
+				if (data.error) message = data.error;
+			} catch {
+				// 非 JSON 响应
+			}
+			throw new BlogApiError(message, response.status);
+		}
+	},
+};
+
+export const shareAdminApi = {
+	async pending(): Promise<
+		{ files: (ShareItemBase & { email: string; status: string })[] }
+	> {
+		return request<{ files: (ShareItemBase & { email: string; status: string })[] }>(
+			"/api/share/admin/pending",
+		);
+	},
+	async content(id: string): Promise<string> {
+		const response = await fetch(`${BLOG_API_BASE}/api/share/admin/${id}/content`, {
+			credentials: "include",
+		});
+		if (!response.ok) throw new BlogApiError(`读取失败（${response.status}）`, response.status);
+		return response.text();
+	},
+	async approve(id: string): Promise<void> {
+		await request<{ ok: boolean }>(`/api/share/admin/${id}/approve`, {
+			method: "POST",
+		});
+	},
+	async reject(id: string): Promise<void> {
+		await request<{ ok: boolean }>(`/api/share/admin/${id}/reject`, {
+			method: "POST",
+		});
+	},
+};
+
 // ---------- 通知 ----------
 
 export const notificationApi = {

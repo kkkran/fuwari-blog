@@ -7,8 +7,9 @@
 	import Icon from "@components/IconSvelte.svelte";
 	import SponsorAdminPanel from "./SponsorAdminPanel.svelte";
 	import FriendsAdminPanel from "./FriendsAdminPanel.svelte";
+	import ShareAdminPanel from "./ShareAdminPanel.svelte";
 
-	let adminMode: "posts" | "sponsors" | "friends" = "posts";
+	let adminMode: "posts" | "sponsors" | "friends" | "shares" = "posts";
 
 	let activeStatus: PostStatus = "pending";
 	let items: BlogPost[] = [];
@@ -134,6 +135,15 @@
 		>
 			友链审核
 		</button>
+		<button
+			class="cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors {adminMode ===
+			'shares'
+				? 'bg-[var(--primary)] text-black/80'
+				: 'border border-white/15 text-white/60 hover:bg-white/10'}"
+			on:click={() => (adminMode = "shares")}
+		>
+			分享审核
+		</button>
 	</div>
 
 	{#if !isAdmin}
@@ -252,6 +262,8 @@
 		{/if}
 	{:else if adminMode === "sponsors"}
 		<SponsorAdminPanel />
+	{:else if adminMode === "shares"}
+		<ShareAdminPanel />
 	{:else}
 		<FriendsAdminPanel />
 	{/if}
