@@ -10,6 +10,12 @@ export const BLOG_API_BASE: string =
 		? ""
 		: serviceConfig.blogApiBaseUrl;
 
+/** 请求超时信号（每次调用生成新信号，AbortSignal 只能中止一次）：
+ *  公网链路（frp 隧道）偶发卡顿，避免上传请求无限挂起 */
+function createTimeoutSignal(): AbortSignal {
+	return AbortSignal.timeout(25_000);
+}
+
 export type BlogUserRole = "user" | "admin";
 
 export interface BlogUser {
@@ -495,20 +501,43 @@ function toShareUrl(rawUrl: string): string {
 }
 
 export const shareApi = {
-	/** 上传 txt，expiresInDays ∈ {0,1,7,30}（0=永久，缺省 7） */
+	/** 上传 txt，expiresInDays ∈ {0,1,7,30}（0=永久，缺省 7）。
+	 *  自带 25s 超时与 5xx 自动重试一次：公网链路（frp 隧道）偶发卡顿/连接重置时自愈，
+	 *  超时与网络错误给出可区分的提示。 */
 	async upload(file: File, expiresInDays: number): Promise<{ id: string; rawUrl: string; status: "approved" | "pending" }> {
 		const form = new FormData();
 		form.append("file", file);
 		form.append("expiresInDays", String(expiresInDays));
+
+		const doFetch = async (): Promise<Response> => {
+			try {
+				return await fetch(`${BLOG_API_BASE}/api/share`, {
+					method: "POST",
+					body: form,
+					credentials: "include",
+					signal: createTimeoutSignal(),
+				});
+			} catch (error) {
+				if (error instanceof DOMException && error.name === "AbortError") {
+					throw new BlogApiError("上传超时，请稍后重试", 0);
+				}
+				throw new BlogApiError("无法连接博客服务，请检查网络后重试", 0);
+			}
+		};
+
 		let response: Response;
 		try {
-			response = await fetch(`${BLOG_API_BASE}/api/share`, {
-				method: "POST",
-				body: form,
-				credentials: "include",
-			});
-		} catch {
-			throw new BlogApiError("无法连接博客服务，请稍后再试", 0);
+			response = await doFetch();
+		} catch (error) {
+			throw error;
+		}
+		// 5xx（链路/网关类错误）自动重试一次；4xx（业务拒绝）不重试
+		if (response.status >= 500) {
+			try {
+				response = await doFetch();
+			} catch (error) {
+				throw error;
+			}
 		}
 		if (!response.ok) {
 			let message = `上传失败（${response.status}）`;

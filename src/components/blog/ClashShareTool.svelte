@@ -146,7 +146,7 @@
 		viewContent = "";
 		history.replaceState(null, "", `/tools/clash-share/?id=${id}`);
 		try {
-			const res = await fetch(rawUrl);
+			const res = await fetch(rawUrl, { signal: AbortSignal.timeout(25_000) });
 			if (!res.ok) {
 				emitErrorToast(
 					"无法读取",
@@ -157,8 +157,13 @@
 				return;
 			}
 			viewContent = await res.text();
-		} catch {
-			emitErrorToast("无法读取", "网络错误，请稍后再试");
+		} catch (error) {
+			emitErrorToast(
+				"无法读取",
+				error instanceof DOMException && error.name === "AbortError"
+					? "读取超时，请稍后重试"
+					: "网络错误，请稍后再试",
+			);
 			viewing = null;
 			history.replaceState(null, "", "/tools/clash-share/");
 		} finally {
