@@ -119,6 +119,16 @@ CREATE TABLE IF NOT EXISTS ai_usage (
   PRIMARY KEY (user_id, date, kind)
 );
 
+CREATE TABLE IF NOT EXISTS share_files (
+  id TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('approved', 'pending')),
+  size INTEGER NOT NULL,
+  expires_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
 CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
@@ -130,6 +140,8 @@ CREATE INDEX IF NOT EXISTS idx_friends_user ON friends(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_stories_user ON ai_stories(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_entries_story ON ai_story_entries(story_id);
 CREATE INDEX IF NOT EXISTS idx_ai_images_user ON ai_images(user_id);
+CREATE INDEX IF NOT EXISTS idx_share_files_user ON share_files(user_id);
+CREATE INDEX IF NOT EXISTS idx_share_files_status ON share_files(status);
 `);
 
 // 幂等 schema 升级：早期版本创建的 sponsors 表缺少 avatar_url 列

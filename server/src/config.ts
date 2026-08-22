@@ -29,6 +29,8 @@ export const config = {
 		process.env.CORS_ORIGIN ?? "http://127.0.0.1:4321,http://localhost:4321",
 	),
 	databasePath: process.env.DATABASE_PATH ?? "./data/fuwari.db",
+	// txt 分享文件存储目录（受控目录，不经 /uploads 静态目录，未审核文件不可被直读）
+	shareDir: process.env.SHARE_DIR ?? "./data/share",
 	// 图床公网域名：上传接口返回给前端的 URL 统一基于它；
 	// IMAGE_HOSTING_BASE_URL（内网地址）仅用于服务端转发，不会泄露给前端
 	imagePublicBaseUrl: process.env.IMAGE_PUBLIC_BASE_URL ?? "https://img.miscoke.top",

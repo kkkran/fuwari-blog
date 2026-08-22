@@ -13,6 +13,7 @@ import { uploadRouter } from "./upload.js";
 import { friendsRouter } from "./friends.js";
 import { aiRouter } from "./ai.js";
 import { sponsorsRouter } from "./sponsors.js";
+import { shareRouter } from "./share.js";
 import { createRateLimiter } from "./rate-limit.js";
 import { resolve } from "node:path";
 
@@ -41,6 +42,14 @@ const sponsorLimiter = createRateLimiter({
 	windowMs: 5 * 60 * 1000,
 	max: 120,
 	keyPrefix: "sponsor-read",
+});
+// txt 分享：每用户 5 分钟 50 次（防滥用；另有"每人 10 个活跃文件 + 管理员审核"兜底）
+const shareLimiter = createRateLimiter({
+	windowMs: 5 * 60 * 1000,
+	max: 50,
+	keyPrefix: "share",
+	getKey: (req) =>
+		String((req as ExpressRequest & { user?: { id: number } }).user?.id ?? req.ip),
 });
 
 /** 构建应用（不监听端口），供入口与集成测试复用 */
@@ -114,6 +123,7 @@ export function createApp() {
 	app.use("/api/friends", friendsRouter);
 	app.use("/api/ai", aiRouter);
 	app.use("/api/upload", uploadLimiter, uploadRouter);
+	app.use("/api/share", shareLimiter, shareRouter);
 
 	// 404
 	app.use((_req, res) => {
@@ -132,7 +142,9 @@ export function createApp() {
 				res.status(400).json({
 					error:
 						err.code === "LIMIT_FILE_SIZE"
-							? "图片大小不能超过 5MB"
+							? _req.path.startsWith("/api/share")
+								? "txt 文件大小不能超过 1MB"
+								: "图片大小不能超过 5MB"
 							: `上传失败：${err.code}`,
 				});
 				return;
@@ -141,7 +153,7 @@ export function createApp() {
 				res.status(403).json({ error: "请求来源不被允许（CORS）" });
 				return;
 			}
-			if (err.message === "仅支持上传图片文件") {
+			if (err.message === "仅支持上传图片文件" || err.message === "仅支持上传 .txt 文本文件") {
 				res.status(400).json({ error: err.message });
 				return;
 			}
