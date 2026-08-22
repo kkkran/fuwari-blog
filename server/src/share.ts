@@ -30,6 +30,20 @@ const upload = multer({
 	},
 });
 
+/**
+ * 还原被 busboy 按 latin1 解码的 UTF-8 文件名：
+ * 浏览器只发送 filename="..."（UTF-8 字节），busboy/multer 默认按 latin1 解码产生乱码
+ * （如「我的.txt」→「æç.txt」）。仅当还原结果无替换字符（U+FFFD）时采纳，
+ * 避免误伤本就正确的文件名。
+ */
+function decodeMultipartFilename(originalname: string): string {
+	if (/[\u0080-\u00ff]/.test(originalname)) {
+		const recovered = Buffer.from(originalname, "latin1").toString("utf8");
+		if (!recovered.includes("\uFFFD")) return recovered;
+	}
+	return originalname;
+}
+
 interface ShareRow {
 	id: string;
 	user_id: number;
@@ -140,7 +154,7 @@ shareRouter.post("/", requireAuth, shareUploadLimiter, upload.single("file"), (r
 	db.prepare(
 		`INSERT INTO share_files (id, user_id, filename, status, size, expires_at)
      VALUES (?, ?, ?, ?, ?, ?)`,
-	).run(id, req.user!.id, req.file.originalname, status, req.file.buffer.length, expiresAt);
+	).run(id, req.user!.id, decodeMultipartFilename(req.file.originalname), status, req.file.buffer.length, expiresAt);
 
 	res.status(201).json({ id, rawUrl: `/share/${filename}`, status });
 });

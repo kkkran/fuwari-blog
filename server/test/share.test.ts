@@ -129,6 +129,33 @@ describe("S1 POST /api/share 上传", () => {
 		assert.match(json.rawUrl, /^\/share\/[0-9a-f-]{36}\.txt$/);
 	});
 
+	it("中文文件名在列表中保持原样（busboy latin1 误读还原）", async () => {
+		const fd = new FormData();
+		fd.append(
+			"file",
+			new Blob(["mixed-port: 7891"], { type: "text/plain" }),
+			"我的clash配置.txt",
+		);
+		const res = await fetch(`${BASE}/api/share`, {
+			method: "POST",
+			headers: { Cookie: userCookie },
+			body: fd,
+		});
+		assert.equal(res.status, 201);
+
+		const my = await fetch(`${BASE}/api/share/my`, {
+			headers: { Cookie: userCookie },
+		});
+		const json = (await my.json()) as { files: Array<{ filename: string }> };
+		const item = json.files.find((f) => f.filename.includes("clash配置"));
+		assert.ok(item, "列表中应包含刚上传的中文名文件");
+		assert.equal(
+			item.filename,
+			"我的clash配置.txt",
+			`中文文件名不应乱码，实际: ${item.filename}`,
+		);
+	});
+
 	it("活跃文件达到 10 个后，新上传进入 pending", async () => {
 		const heavyCookie = await register("share-heavy@example.com", "上传大户");
 		for (let i = 1; i <= 10; i++) {

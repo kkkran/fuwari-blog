@@ -22,6 +22,12 @@
 	let recentUpload: { id: string; rawUrl: string; status: "approved" | "pending" } | null = null;
 
 	// 浏览视图（?id=xxx，公开可看，无需登录）
+	// 同步读取初始 id：首帧即进入"加载中"骨架，避免先闪出上传界面
+	const initialViewId =
+		typeof window !== "undefined"
+			? new URLSearchParams(window.location.search).get("id")
+			: null;
+	let initializing = Boolean(initialViewId);
 	let viewing: { id: string; rawUrl: string; filename: string; size: number } | null = null;
 	let viewContent = "";
 	let viewLoading = false;
@@ -168,6 +174,7 @@
 			history.replaceState(null, "", "/tools/clash-share/");
 		} finally {
 			viewLoading = false;
+			initializing = false;
 		}
 	}
 
@@ -181,17 +188,29 @@
 	}
 
 	onMount(() => {
+		// 带 id 直达浏览视图：无需登录态与文件列表，先给骨架再加载内容（避免界面闪现）
+		if (initialViewId) {
+			void openView(initialViewId);
+			return;
+		}
 		void blogAuth.refresh().then(() => {
 			if (user) void refreshList();
 			else loadingList = false;
-			const id = new URLSearchParams(window.location.search).get("id");
-			if (id) void openView(id);
 		});
 	});
 </script>
 
 <div class="card-base mx-auto w-full max-w-3xl p-6 md:p-8">
-	{#if viewing}
+	{#if initializing}
+		<!-- 直达浏览视图时的首帧骨架：避免闪现上传界面 -->
+		<div class="mb-4 flex items-center justify-between gap-3">
+			<button class="text-sm text-white/40">← 返回</button>
+			<span class="text-xs text-white/40">加载中</span>
+		</div>
+		<div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
+			<Skeleton rows={6} widths={["40%", "100%", "90%", "95%", "80%", "92%"]} gap="0.75rem" />
+		</div>
+	{:else if viewing}
 		<!-- 浏览视图：纯文本内容展示 -->
 		<div class="mb-4 flex items-center justify-between gap-3">
 			<button
