@@ -43,14 +43,6 @@ const sponsorLimiter = createRateLimiter({
 	max: 120,
 	keyPrefix: "sponsor-read",
 });
-// txt 分享：每用户 5 分钟 50 次（防滥用；另有"每人 10 个活跃文件 + 管理员审核"兜底）
-const shareLimiter = createRateLimiter({
-	windowMs: 5 * 60 * 1000,
-	max: 50,
-	keyPrefix: "share",
-	getKey: (req) =>
-		String((req as ExpressRequest & { user?: { id: number } }).user?.id ?? req.ip),
-});
 
 /** 构建应用（不监听端口），供入口与集成测试复用 */
 export function createApp() {
@@ -123,7 +115,8 @@ export function createApp() {
 	app.use("/api/friends", friendsRouter);
 	app.use("/api/ai", aiRouter);
 	app.use("/api/upload", uploadLimiter, uploadRouter);
-	app.use("/api/share", shareLimiter, shareRouter);
+	app.use("/api/share", shareRouter);
+	app.use("/share", shareRouter);
 
 	// 404
 	app.use((_req, res) => {
