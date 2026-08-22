@@ -145,6 +145,29 @@ shareRouter.post("/", requireAuth, shareUploadLimiter, upload.single("file"), (r
 	res.status(201).json({ id, rawUrl: `/share/${filename}`, status });
 });
 
+// 审核内容预览（管理员）：pending 文件公开不可读，审核时经此读取内容
+shareRouter.get("/admin/:id/content", requireAuth, requireAdmin, (req, res) => {
+	const id = req.params.id ?? "";
+	if (!/^[0-9a-f-]{36}$/.test(id)) {
+		res.status(404).json({ error: "Not Found" });
+		return;
+	}
+	const row = db.prepare("SELECT * FROM share_files WHERE id = ?").get(id) as
+		| ShareRow
+		| undefined;
+	if (!row) {
+		res.status(404).json({ error: "Not Found" });
+		return;
+	}
+	const fullPath = resolve(SHARE_DIR, `${id}.txt`);
+	if (!existsSync(fullPath)) {
+		res.status(404).json({ error: "Not Found" });
+		return;
+	}
+	res.setHeader("Content-Type", "text/plain; charset=utf-8");
+	res.send(readFileSync(fullPath));
+});
+
 // 待审列表（管理员）：超限上传的文件在此等待通过/拒绝
 shareRouter.get("/admin/pending", requireAuth, requireAdmin, (_req, res) => {
 	const rows = db

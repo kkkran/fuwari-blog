@@ -415,6 +415,23 @@ describe("S5 管理员审核 pending", () => {
 		const { SHARE_DIR } = await import("../src/share.js");
 		assert.equal(existsSync(`${SHARE_DIR}/${pendingId}.txt`), false, "磁盘文件应被删除");
 	});
+
+	it("管理员可预览 pending 文件内容（审核用）", async () => {
+		const pendingUser = await register("share-preview@example.com", "预览用户");
+		const pendingId = await seedPending(pendingUser);
+
+		const res = await fetch(`${BASE}/api/share/admin/${pendingId}/content`, {
+			headers: { Cookie: adminCookie },
+		});
+		assert.equal(res.status, 200);
+		assert.equal(await res.text(), "待审核的配置");
+
+		// 非管理员不可预览
+		const denied = await fetch(`${BASE}/api/share/admin/${pendingId}/content`, {
+			headers: { Cookie: userCookie },
+		});
+		assert.equal(denied.status, 403);
+	});
 });
 
 describe("S6 sweepExpired 过期清扫", () => {
