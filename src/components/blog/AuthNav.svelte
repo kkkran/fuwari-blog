@@ -54,17 +54,25 @@
 	}
 
 	async function logout(): Promise<void> {
+		// 本地登录态立即清除；服务端退出尽力而为（隧道不可达时 8 秒快速放弃）
+		blogAuth.clear();
+		let synced = false;
 		try {
 			await authApi.logout();
-			blogAuth.clear();
+			synced = true;
+		} catch {
+			synced = false;
+		}
+		if (synced) {
 			emitSuccessToast("退出登录", "已安全退出");
 			window.location.reload();
-		} catch (error) {
-			emitErrorToast(
-				"退出登录",
-				error instanceof Error ? error.message : "退出失败，请稍后再试",
-			);
+			return;
 		}
+		// 服务暂不可达：本地已退出，但不刷新页面（Cookie 仍有效，刷新会重新拉取会话）
+		emitSuccessToast(
+			"退出登录",
+			"已清除本地登录状态；服务暂不可达，服务端会话未能同步失效，请稍后重试或手动清除本站 Cookie",
+		);
 	}
 
 	onMount(() => {

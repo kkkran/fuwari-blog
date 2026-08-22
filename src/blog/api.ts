@@ -11,9 +11,9 @@ export const BLOG_API_BASE: string =
 		: serviceConfig.blogApiBaseUrl;
 
 /** 请求超时信号（每次调用生成新信号，AbortSignal 只能中止一次）：
- *  公网链路（frp 隧道）偶发卡顿，避免上传请求无限挂起 */
-function createTimeoutSignal(): AbortSignal {
-	return AbortSignal.timeout(25_000);
+ *  公网链路（frp 隧道）偶发卡顿，避免请求无限挂起 */
+function createTimeoutSignal(timeoutMs = 25_000): AbortSignal {
+	return AbortSignal.timeout(timeoutMs);
 }
 
 export type BlogUserRole = "user" | "admin";
@@ -121,7 +121,11 @@ export const authApi = {
 		});
 	},
 	logout(): Promise<{ ok: boolean }> {
-		return request<{ ok: boolean }>("/api/auth/logout", { method: "POST" });
+		// 带超时：公网隧道降速/断开时快速失败，避免退出按钮无响应
+		return request<{ ok: boolean }>("/api/auth/logout", {
+			method: "POST",
+			signal: createTimeoutSignal(8_000),
+		});
 	},
 	getSession(): Promise<{ user: BlogUser | null }> {
 		return request<{ user: BlogUser | null }>("/api/auth/session");
